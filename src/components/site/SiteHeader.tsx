@@ -1,5 +1,6 @@
-import { Search, MapPin, ChevronDown, Menu, Heart, ShoppingBag, User, Bell } from "lucide-react";
+import { Search, MapPin, ChevronDown, Menu, Heart, ShoppingBag, User, Bell, LayoutDashboard, Store } from "lucide-react";
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Logo } from "@/components/brand/Logo";
 
 const MAIN_NAV = [
@@ -44,18 +45,18 @@ export function SiteHeader() {
             <IconBtn icon={<Heart className="h-5 w-5" />} label="Saved" />
             <IconBtn icon={<Bell className="h-5 w-5" />} label="Alerts" badge="3" />
             <IconBtn icon={<ShoppingBag className="h-5 w-5" />} label="Cart" badge="2" />
-            <a
-              href="#sell"
-              className="hidden rounded-xl bg-accent-orange px-4 py-2 text-sm font-semibold text-accent-orange-foreground shadow-orange transition hover:opacity-90 md:inline-flex"
+            <Link
+              to="/seller"
+              className="hidden items-center gap-1.5 rounded-xl bg-accent-orange px-4 py-2 text-sm font-semibold text-accent-orange-foreground shadow-orange transition hover:opacity-90 md:inline-flex"
             >
-              + Sell
-            </a>
-            <a
-              href="#login"
+              <Store className="h-4 w-4" /> Sell
+            </Link>
+            <Link
+              to="/buyer"
               className="hidden items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-medium hover:bg-accent md:inline-flex"
             >
-              <User className="h-4 w-4" /> Sign in
-            </a>
+              <LayoutDashboard className="h-4 w-4" /> My account
+            </Link>
             <button
               className="rounded-lg border border-border p-2 md:hidden"
               onClick={() => setOpen((v) => !v)}

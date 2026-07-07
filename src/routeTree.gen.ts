@@ -9,38 +9,210 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SellerRouteImport } from './routes/seller'
+import { Route as BuyerRouteImport } from './routes/buyer'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SellerIndexRouteImport } from './routes/seller.index'
+import { Route as BuyerIndexRouteImport } from './routes/buyer.index'
+import { Route as SellerWalletRouteImport } from './routes/seller.wallet'
+import { Route as SellerUploadRouteImport } from './routes/seller.upload'
+import { Route as SellerProductsRouteImport } from './routes/seller.products'
+import { Route as SellerOrdersRouteImport } from './routes/seller.orders'
+import { Route as SellerMessagesRouteImport } from './routes/seller.messages'
+import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
+import { Route as BuyerWishlistRouteImport } from './routes/buyer.wishlist'
+import { Route as BuyerWalletRouteImport } from './routes/buyer.wallet'
+import { Route as BuyerOrdersRouteImport } from './routes/buyer.orders'
 
+const SellerRoute = SellerRouteImport.update({
+  id: '/seller',
+  path: '/seller',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuyerRoute = BuyerRouteImport.update({
+  id: '/buyer',
+  path: '/buyer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellerIndexRoute = SellerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SellerRoute,
+} as any)
+const BuyerIndexRoute = BuyerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BuyerRoute,
+} as any)
+const SellerWalletRoute = SellerWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerUploadRoute = SellerUploadRouteImport.update({
+  id: '/upload',
+  path: '/upload',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerProductsRoute = SellerProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerOrdersRoute = SellerOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerMessagesRoute = SellerMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerAnalyticsRoute = SellerAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => SellerRoute,
+} as any)
+const BuyerWishlistRoute = BuyerWishlistRouteImport.update({
+  id: '/wishlist',
+  path: '/wishlist',
+  getParentRoute: () => BuyerRoute,
+} as any)
+const BuyerWalletRoute = BuyerWalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => BuyerRoute,
+} as any)
+const BuyerOrdersRoute = BuyerOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => BuyerRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/buyer': typeof BuyerRouteWithChildren
+  '/seller': typeof SellerRouteWithChildren
+  '/buyer/orders': typeof BuyerOrdersRoute
+  '/buyer/wallet': typeof BuyerWalletRoute
+  '/buyer/wishlist': typeof BuyerWishlistRoute
+  '/seller/analytics': typeof SellerAnalyticsRoute
+  '/seller/messages': typeof SellerMessagesRoute
+  '/seller/orders': typeof SellerOrdersRoute
+  '/seller/products': typeof SellerProductsRoute
+  '/seller/upload': typeof SellerUploadRoute
+  '/seller/wallet': typeof SellerWalletRoute
+  '/buyer/': typeof BuyerIndexRoute
+  '/seller/': typeof SellerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/buyer/orders': typeof BuyerOrdersRoute
+  '/buyer/wallet': typeof BuyerWalletRoute
+  '/buyer/wishlist': typeof BuyerWishlistRoute
+  '/seller/analytics': typeof SellerAnalyticsRoute
+  '/seller/messages': typeof SellerMessagesRoute
+  '/seller/orders': typeof SellerOrdersRoute
+  '/seller/products': typeof SellerProductsRoute
+  '/seller/upload': typeof SellerUploadRoute
+  '/seller/wallet': typeof SellerWalletRoute
+  '/buyer': typeof BuyerIndexRoute
+  '/seller': typeof SellerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/buyer': typeof BuyerRouteWithChildren
+  '/seller': typeof SellerRouteWithChildren
+  '/buyer/orders': typeof BuyerOrdersRoute
+  '/buyer/wallet': typeof BuyerWalletRoute
+  '/buyer/wishlist': typeof BuyerWishlistRoute
+  '/seller/analytics': typeof SellerAnalyticsRoute
+  '/seller/messages': typeof SellerMessagesRoute
+  '/seller/orders': typeof SellerOrdersRoute
+  '/seller/products': typeof SellerProductsRoute
+  '/seller/upload': typeof SellerUploadRoute
+  '/seller/wallet': typeof SellerWalletRoute
+  '/buyer/': typeof BuyerIndexRoute
+  '/seller/': typeof SellerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/buyer'
+    | '/seller'
+    | '/buyer/orders'
+    | '/buyer/wallet'
+    | '/buyer/wishlist'
+    | '/seller/analytics'
+    | '/seller/messages'
+    | '/seller/orders'
+    | '/seller/products'
+    | '/seller/upload'
+    | '/seller/wallet'
+    | '/buyer/'
+    | '/seller/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/buyer/orders'
+    | '/buyer/wallet'
+    | '/buyer/wishlist'
+    | '/seller/analytics'
+    | '/seller/messages'
+    | '/seller/orders'
+    | '/seller/products'
+    | '/seller/upload'
+    | '/seller/wallet'
+    | '/buyer'
+    | '/seller'
+  id:
+    | '__root__'
+    | '/'
+    | '/buyer'
+    | '/seller'
+    | '/buyer/orders'
+    | '/buyer/wallet'
+    | '/buyer/wishlist'
+    | '/seller/analytics'
+    | '/seller/messages'
+    | '/seller/orders'
+    | '/seller/products'
+    | '/seller/upload'
+    | '/seller/wallet'
+    | '/buyer/'
+    | '/seller/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BuyerRoute: typeof BuyerRouteWithChildren
+  SellerRoute: typeof SellerRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/seller': {
+      id: '/seller'
+      path: '/seller'
+      fullPath: '/seller'
+      preLoaderRoute: typeof SellerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/buyer': {
+      id: '/buyer'
+      path: '/buyer'
+      fullPath: '/buyer'
+      preLoaderRoute: typeof BuyerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +220,129 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller/': {
+      id: '/seller/'
+      path: '/'
+      fullPath: '/seller/'
+      preLoaderRoute: typeof SellerIndexRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/buyer/': {
+      id: '/buyer/'
+      path: '/'
+      fullPath: '/buyer/'
+      preLoaderRoute: typeof BuyerIndexRouteImport
+      parentRoute: typeof BuyerRoute
+    }
+    '/seller/wallet': {
+      id: '/seller/wallet'
+      path: '/wallet'
+      fullPath: '/seller/wallet'
+      preLoaderRoute: typeof SellerWalletRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/upload': {
+      id: '/seller/upload'
+      path: '/upload'
+      fullPath: '/seller/upload'
+      preLoaderRoute: typeof SellerUploadRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/products': {
+      id: '/seller/products'
+      path: '/products'
+      fullPath: '/seller/products'
+      preLoaderRoute: typeof SellerProductsRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/orders': {
+      id: '/seller/orders'
+      path: '/orders'
+      fullPath: '/seller/orders'
+      preLoaderRoute: typeof SellerOrdersRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/messages': {
+      id: '/seller/messages'
+      path: '/messages'
+      fullPath: '/seller/messages'
+      preLoaderRoute: typeof SellerMessagesRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/analytics': {
+      id: '/seller/analytics'
+      path: '/analytics'
+      fullPath: '/seller/analytics'
+      preLoaderRoute: typeof SellerAnalyticsRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/buyer/wishlist': {
+      id: '/buyer/wishlist'
+      path: '/wishlist'
+      fullPath: '/buyer/wishlist'
+      preLoaderRoute: typeof BuyerWishlistRouteImport
+      parentRoute: typeof BuyerRoute
+    }
+    '/buyer/wallet': {
+      id: '/buyer/wallet'
+      path: '/wallet'
+      fullPath: '/buyer/wallet'
+      preLoaderRoute: typeof BuyerWalletRouteImport
+      parentRoute: typeof BuyerRoute
+    }
+    '/buyer/orders': {
+      id: '/buyer/orders'
+      path: '/orders'
+      fullPath: '/buyer/orders'
+      preLoaderRoute: typeof BuyerOrdersRouteImport
+      parentRoute: typeof BuyerRoute
+    }
   }
 }
 
+interface BuyerRouteChildren {
+  BuyerOrdersRoute: typeof BuyerOrdersRoute
+  BuyerWalletRoute: typeof BuyerWalletRoute
+  BuyerWishlistRoute: typeof BuyerWishlistRoute
+  BuyerIndexRoute: typeof BuyerIndexRoute
+}
+
+const BuyerRouteChildren: BuyerRouteChildren = {
+  BuyerOrdersRoute: BuyerOrdersRoute,
+  BuyerWalletRoute: BuyerWalletRoute,
+  BuyerWishlistRoute: BuyerWishlistRoute,
+  BuyerIndexRoute: BuyerIndexRoute,
+}
+
+const BuyerRouteWithChildren = BuyerRoute._addFileChildren(BuyerRouteChildren)
+
+interface SellerRouteChildren {
+  SellerAnalyticsRoute: typeof SellerAnalyticsRoute
+  SellerMessagesRoute: typeof SellerMessagesRoute
+  SellerOrdersRoute: typeof SellerOrdersRoute
+  SellerProductsRoute: typeof SellerProductsRoute
+  SellerUploadRoute: typeof SellerUploadRoute
+  SellerWalletRoute: typeof SellerWalletRoute
+  SellerIndexRoute: typeof SellerIndexRoute
+}
+
+const SellerRouteChildren: SellerRouteChildren = {
+  SellerAnalyticsRoute: SellerAnalyticsRoute,
+  SellerMessagesRoute: SellerMessagesRoute,
+  SellerOrdersRoute: SellerOrdersRoute,
+  SellerProductsRoute: SellerProductsRoute,
+  SellerUploadRoute: SellerUploadRoute,
+  SellerWalletRoute: SellerWalletRoute,
+  SellerIndexRoute: SellerIndexRoute,
+}
+
+const SellerRouteWithChildren =
+  SellerRoute._addFileChildren(SellerRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BuyerRoute: BuyerRouteWithChildren,
+  SellerRoute: SellerRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
