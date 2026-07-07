@@ -3,7 +3,7 @@ import { Wallet as WalletIcon, ArrowDownLeft, ArrowUpRight, CreditCard, Trending
 import { PageHeader, StatCard } from "@/components/dashboard/DashboardShell";
 
 export const Route = createFileRoute("/seller/wallet")({
-  component: SellerWallet;
+  component: SellerWallet,
 });
 
 const TX = [
