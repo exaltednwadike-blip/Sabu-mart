@@ -1,67 +1,108 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Heart, ShoppingCart, X, MapPin } from "lucide-react";
+﻿import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Heart, MapPin, Trash2, ShoppingCart } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/DashboardShell";
-import headphones from "@/assets/product-headphones.jpg";
-import laptop from "@/assets/product-laptop.jpg";
-import bag from "@/assets/product-bag.jpg";
-import watch from "@/assets/product-watch.jpg";
-import phone from "@/assets/cat-phones.jpg";
-import fashion from "@/assets/cat-fashion.jpg";
+import { getCurrentUser } from "@/lib/auth";
+import { getWishlist, toggleWishlist } from "@/lib/wishlist";
+import { addToCart } from "@/lib/cart";
 
 export const Route = createFileRoute("/buyer/wishlist")({
   component: BuyerWishlist,
 });
 
-const ITEMS = [
-  { name: "Wireless Noise-Cancelling Headphones", price: 89000, oldPrice: 145000, image: headphones, seller: "SoundHub NG", location: "Lagos" },
-  { name: "MacBook Pro 14\" M3 · 16GB · 512GB", price: 1650000, image: laptop, seller: "TechPro Store", location: "Abuja" },
-  { name: "Handcrafted Leather Tote", price: 42500, oldPrice: 55000, image: bag, seller: "Kano Leatherworks", location: "Lagos" },
-  { name: "Sport Chronograph Watch", price: 28500, image: watch, seller: "TimeCraft", location: "Port Harcourt" },
-  { name: "Samsung Galaxy A55 · 256GB", price: 385000, image: phone, seller: "MobileHub", location: "Lagos" },
-  { name: "Autumn Linen Blazer Set", price: 58000, image: fashion, seller: "Adire House", location: "Ibadan" },
-];
-
 function BuyerWishlist() {
+  const navigate = useNavigate();
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  function load() {
+    setLoading(true);
+    getCurrentUser()
+      .then(function (user) {
+        if (!user) return [];
+        return getWishlist(user.id);
+      })
+      .then(function (data) {
+        setItems(data || []);
+      })
+      .finally(function () {
+        setLoading(false);
+      });
+  }
+
+  useEffect(function () {
+    load();
+  }, []);
+
+  function handleRemove(productId: string) {
+    getCurrentUser().then(function (user) {
+      if (!user) return;
+      toggleWishlist(user.id, productId).then(load);
+    });
+  }
+
+  function handleAddToCart(productId: string) {
+    getCurrentUser().then(function (user) {
+      if (!user) {
+        navigate({ to: "/login" });
+        return;
+      }
+      addToCart(user.id, productId, 1);
+    });
+  }
+
+  function renderItem(item: any) {
+    const p = item.products;
+    const image = p.images && p.images.length > 0 ? p.images[0] : null;
+    const sellerName = p.profiles && p.profiles.store_name ? p.profiles.store_name : "SABU Seller";
+
+    return (
+      <div key={item.id} className="group rounded-xl border border-border p-2 transition hover:shadow-soft">
+        <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
+          {image ? (
+            <img src={image} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">No image</div>
+          )}
+          <button
+            onClick={function () { handleRemove(p.id); }}
+            className="absolute right-2 top-2 rounded-full bg-background/90 p-1.5 text-destructive shadow-soft"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="mt-2 line-clamp-1 text-sm font-medium">{p.title}</div>
+        <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+          <MapPin className="h-3 w-3" /> {p.city}
+        </div>
+        <div className="text-sm font-bold text-primary">₦{Number(p.price).toLocaleString()}</div>
+        <div className="text-[11px] text-muted-foreground">{sellerName}</div>
+        <button
+          onClick={function () { handleAddToCart(p.id); }}
+          className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary/10 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-foreground"
+        >
+          <ShoppingCart className="h-3.5 w-3.5" /> Add to cart
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <PageHeader
-        title="Wishlist"
-        subtitle={`${ITEMS.length} items saved. Prices update in real time.`}
-        action={
-          <button className="inline-flex items-center gap-2 rounded-xl gradient-brand px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft">
-            <ShoppingCart className="h-4 w-4" /> Move all to cart
-          </button>
-        }
-      />
+      <PageHeader title="My wishlist" subtitle="Products you've saved for later." />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {ITEMS.map((i) => (
-          <article key={i.name} className="group overflow-hidden rounded-2xl border border-border bg-card shadow-soft transition hover:-translate-y-0.5 hover:shadow-elegant">
-            <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-              <img src={i.image} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
-              <button className="absolute right-2 top-2 rounded-full bg-background/90 p-2 text-destructive backdrop-blur transition hover:bg-destructive hover:text-destructive-foreground" aria-label="Remove">
-                <X className="h-4 w-4" />
-              </button>
-              <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-bold text-destructive backdrop-blur">
-                <Heart className="h-3 w-3 fill-destructive" /> Saved
-              </span>
-            </div>
-            <div className="p-4">
-              <h3 className="line-clamp-1 font-medium">{i.name}</h3>
-              <div className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
-                <MapPin className="h-3 w-3" /> {i.seller} · {i.location}
-              </div>
-              <div className="mt-3 flex items-baseline gap-2">
-                <span className="font-display text-lg font-bold">₦{i.price.toLocaleString()}</span>
-                {i.oldPrice && <span className="text-xs text-muted-foreground line-through">₦{i.oldPrice.toLocaleString()}</span>}
-              </div>
-              <button className="mt-3 w-full rounded-lg gradient-brand py-2 text-xs font-semibold text-primary-foreground shadow-soft">
-                Add to cart
-              </button>
-            </div>
-          </article>
-        ))}
-      </div>
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      ) : items.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border p-10 text-center">
+          <Heart className="mx-auto h-8 w-8 text-muted-foreground" />
+          <p className="mt-3 text-sm text-muted-foreground">Your wishlist is empty.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+          {items.map(renderItem)}
+        </div>
+      )}
     </div>
   );
 }

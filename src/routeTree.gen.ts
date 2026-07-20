@@ -9,29 +9,57 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SellerRouteImport } from './routes/seller'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as BuyerRouteImport } from './routes/buyer'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as BuyerIndexRouteImport } from './routes/buyer.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as SellerWalletRouteImport } from './routes/seller.wallet'
 import { Route as SellerUploadRouteImport } from './routes/seller.upload'
 import { Route as SellerProductsRouteImport } from './routes/seller.products'
 import { Route as SellerOrdersRouteImport } from './routes/seller.orders'
 import { Route as SellerMessagesRouteImport } from './routes/seller.messages'
 import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
+import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
 import { Route as BuyerWishlistRouteImport } from './routes/buyer.wishlist'
-import { Route as BuyerWalletRouteImport } from './routes/buyer.wallet'
 import { Route as BuyerOrdersRouteImport } from './routes/buyer.orders'
+import { Route as BuyerCheckoutRouteImport } from './routes/buyer.checkout'
+import { Route as BuyerCartRouteImport } from './routes/buyer.cart'
+import { Route as BuyerBecomeSellerRouteImport } from './routes/buyer.become-seller'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AdminWithdrawalsRouteImport } from './routes/admin.withdrawals'
+import { Route as AdminSellersRouteImport } from './routes/admin.sellers'
+import { Route as AdminProductsRouteImport } from './routes/admin.products'
+import { Route as AdminDisputesRouteImport } from './routes/admin.disputes'
+import { Route as ProductRouteImport } from './routes/product.'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerRoute = SellerRouteImport.update({
   id: '/seller',
   path: '/seller',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BuyerRoute = BuyerRouteImport.update({
   id: '/buyer',
   path: '/buyer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -48,6 +76,11 @@ const BuyerIndexRoute = BuyerIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => BuyerRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const SellerWalletRoute = SellerWalletRouteImport.update({
   id: '/wallet',
@@ -79,14 +112,14 @@ const SellerAnalyticsRoute = SellerAnalyticsRouteImport.update({
   path: '/analytics',
   getParentRoute: () => SellerRoute,
 } as any)
+const ProductProductIdRoute = ProductProductIdRouteImport.update({
+  id: '/product/$productId',
+  path: '/product/$productId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BuyerWishlistRoute = BuyerWishlistRouteImport.update({
   id: '/wishlist',
   path: '/wishlist',
-  getParentRoute: () => BuyerRoute,
-} as any)
-const BuyerWalletRoute = BuyerWalletRouteImport.update({
-  id: '/wallet',
-  path: '/wallet',
   getParentRoute: () => BuyerRoute,
 } as any)
 const BuyerOrdersRoute = BuyerOrdersRouteImport.update({
@@ -94,51 +127,134 @@ const BuyerOrdersRoute = BuyerOrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => BuyerRoute,
 } as any)
+const BuyerCheckoutRoute = BuyerCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => BuyerRoute,
+} as any)
+const BuyerCartRoute = BuyerCartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => BuyerRoute,
+} as any)
+const BuyerBecomeSellerRoute = BuyerBecomeSellerRouteImport.update({
+  id: '/become-seller',
+  path: '/become-seller',
+  getParentRoute: () => BuyerRoute,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminWithdrawalsRoute = AdminWithdrawalsRouteImport.update({
+  id: '/withdrawals',
+  path: '/withdrawals',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSellersRoute = AdminSellersRouteImport.update({
+  id: '/sellers',
+  path: '/sellers',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProductsRoute = AdminProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDisputesRoute = AdminDisputesRouteImport.update({
+  id: '/disputes',
+  path: '/disputes',
+  getParentRoute: () => AdminRoute,
+} as any)
+const ProductRoute = ProductRouteImport.update({
+  id: '/product/',
+  path: '/product/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/buyer': typeof BuyerRouteWithChildren
+  '/login': typeof LoginRoute
   '/seller': typeof SellerRouteWithChildren
+  '/signup': typeof SignupRoute
+  '/product/': typeof ProductRoute
+  '/admin/disputes': typeof AdminDisputesRoute
+  '/admin/products': typeof AdminProductsRoute
+  '/admin/sellers': typeof AdminSellersRoute
+  '/admin/withdrawals': typeof AdminWithdrawalsRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/buyer/become-seller': typeof BuyerBecomeSellerRoute
+  '/buyer/cart': typeof BuyerCartRoute
+  '/buyer/checkout': typeof BuyerCheckoutRoute
   '/buyer/orders': typeof BuyerOrdersRoute
-  '/buyer/wallet': typeof BuyerWalletRoute
   '/buyer/wishlist': typeof BuyerWishlistRoute
+  '/product/$productId': typeof ProductProductIdRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/messages': typeof SellerMessagesRoute
   '/seller/orders': typeof SellerOrdersRoute
   '/seller/products': typeof SellerProductsRoute
   '/seller/upload': typeof SellerUploadRoute
   '/seller/wallet': typeof SellerWalletRoute
+  '/admin/': typeof AdminIndexRoute
   '/buyer/': typeof BuyerIndexRoute
   '/seller/': typeof SellerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/product': typeof ProductRoute
+  '/admin/disputes': typeof AdminDisputesRoute
+  '/admin/products': typeof AdminProductsRoute
+  '/admin/sellers': typeof AdminSellersRoute
+  '/admin/withdrawals': typeof AdminWithdrawalsRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/buyer/become-seller': typeof BuyerBecomeSellerRoute
+  '/buyer/cart': typeof BuyerCartRoute
+  '/buyer/checkout': typeof BuyerCheckoutRoute
   '/buyer/orders': typeof BuyerOrdersRoute
-  '/buyer/wallet': typeof BuyerWalletRoute
   '/buyer/wishlist': typeof BuyerWishlistRoute
+  '/product/$productId': typeof ProductProductIdRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/messages': typeof SellerMessagesRoute
   '/seller/orders': typeof SellerOrdersRoute
   '/seller/products': typeof SellerProductsRoute
   '/seller/upload': typeof SellerUploadRoute
   '/seller/wallet': typeof SellerWalletRoute
+  '/admin': typeof AdminIndexRoute
   '/buyer': typeof BuyerIndexRoute
   '/seller': typeof SellerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/buyer': typeof BuyerRouteWithChildren
+  '/login': typeof LoginRoute
   '/seller': typeof SellerRouteWithChildren
+  '/signup': typeof SignupRoute
+  '/product/': typeof ProductRoute
+  '/admin/disputes': typeof AdminDisputesRoute
+  '/admin/products': typeof AdminProductsRoute
+  '/admin/sellers': typeof AdminSellersRoute
+  '/admin/withdrawals': typeof AdminWithdrawalsRoute
+  '/auth/callback': typeof AuthCallbackRoute
+  '/buyer/become-seller': typeof BuyerBecomeSellerRoute
+  '/buyer/cart': typeof BuyerCartRoute
+  '/buyer/checkout': typeof BuyerCheckoutRoute
   '/buyer/orders': typeof BuyerOrdersRoute
-  '/buyer/wallet': typeof BuyerWalletRoute
   '/buyer/wishlist': typeof BuyerWishlistRoute
+  '/product/$productId': typeof ProductProductIdRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/messages': typeof SellerMessagesRoute
   '/seller/orders': typeof SellerOrdersRoute
   '/seller/products': typeof SellerProductsRoute
   '/seller/upload': typeof SellerUploadRoute
   '/seller/wallet': typeof SellerWalletRoute
+  '/admin/': typeof AdminIndexRoute
   '/buyer/': typeof BuyerIndexRoute
   '/seller/': typeof SellerIndexRoute
 }
@@ -146,59 +262,110 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/buyer'
+    | '/login'
     | '/seller'
+    | '/signup'
+    | '/product/'
+    | '/admin/disputes'
+    | '/admin/products'
+    | '/admin/sellers'
+    | '/admin/withdrawals'
+    | '/auth/callback'
+    | '/buyer/become-seller'
+    | '/buyer/cart'
+    | '/buyer/checkout'
     | '/buyer/orders'
-    | '/buyer/wallet'
     | '/buyer/wishlist'
+    | '/product/$productId'
     | '/seller/analytics'
     | '/seller/messages'
     | '/seller/orders'
     | '/seller/products'
     | '/seller/upload'
     | '/seller/wallet'
+    | '/admin/'
     | '/buyer/'
     | '/seller/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/login'
+    | '/signup'
+    | '/product'
+    | '/admin/disputes'
+    | '/admin/products'
+    | '/admin/sellers'
+    | '/admin/withdrawals'
+    | '/auth/callback'
+    | '/buyer/become-seller'
+    | '/buyer/cart'
+    | '/buyer/checkout'
     | '/buyer/orders'
-    | '/buyer/wallet'
     | '/buyer/wishlist'
+    | '/product/$productId'
     | '/seller/analytics'
     | '/seller/messages'
     | '/seller/orders'
     | '/seller/products'
     | '/seller/upload'
     | '/seller/wallet'
+    | '/admin'
     | '/buyer'
     | '/seller'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/buyer'
+    | '/login'
     | '/seller'
+    | '/signup'
+    | '/product/'
+    | '/admin/disputes'
+    | '/admin/products'
+    | '/admin/sellers'
+    | '/admin/withdrawals'
+    | '/auth/callback'
+    | '/buyer/become-seller'
+    | '/buyer/cart'
+    | '/buyer/checkout'
     | '/buyer/orders'
-    | '/buyer/wallet'
     | '/buyer/wishlist'
+    | '/product/$productId'
     | '/seller/analytics'
     | '/seller/messages'
     | '/seller/orders'
     | '/seller/products'
     | '/seller/upload'
     | '/seller/wallet'
+    | '/admin/'
     | '/buyer/'
     | '/seller/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   BuyerRoute: typeof BuyerRouteWithChildren
+  LoginRoute: typeof LoginRoute
   SellerRoute: typeof SellerRouteWithChildren
+  SignupRoute: typeof SignupRoute
+  ProductRoute: typeof ProductRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
+  ProductProductIdRoute: typeof ProductProductIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seller': {
       id: '/seller'
       path: '/seller'
@@ -206,11 +373,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/buyer': {
       id: '/buyer'
       path: '/buyer'
       fullPath: '/buyer'
       preLoaderRoute: typeof BuyerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -233,6 +414,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/buyer/'
       preLoaderRoute: typeof BuyerIndexRouteImport
       parentRoute: typeof BuyerRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/seller/wallet': {
       id: '/seller/wallet'
@@ -276,18 +464,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerAnalyticsRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/product/$productId': {
+      id: '/product/$productId'
+      path: '/product/$productId'
+      fullPath: '/product/$productId'
+      preLoaderRoute: typeof ProductProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/buyer/wishlist': {
       id: '/buyer/wishlist'
       path: '/wishlist'
       fullPath: '/buyer/wishlist'
       preLoaderRoute: typeof BuyerWishlistRouteImport
-      parentRoute: typeof BuyerRoute
-    }
-    '/buyer/wallet': {
-      id: '/buyer/wallet'
-      path: '/wallet'
-      fullPath: '/buyer/wallet'
-      preLoaderRoute: typeof BuyerWalletRouteImport
       parentRoute: typeof BuyerRoute
     }
     '/buyer/orders': {
@@ -297,19 +485,104 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuyerOrdersRouteImport
       parentRoute: typeof BuyerRoute
     }
+    '/buyer/checkout': {
+      id: '/buyer/checkout'
+      path: '/checkout'
+      fullPath: '/buyer/checkout'
+      preLoaderRoute: typeof BuyerCheckoutRouteImport
+      parentRoute: typeof BuyerRoute
+    }
+    '/buyer/cart': {
+      id: '/buyer/cart'
+      path: '/cart'
+      fullPath: '/buyer/cart'
+      preLoaderRoute: typeof BuyerCartRouteImport
+      parentRoute: typeof BuyerRoute
+    }
+    '/buyer/become-seller': {
+      id: '/buyer/become-seller'
+      path: '/become-seller'
+      fullPath: '/buyer/become-seller'
+      preLoaderRoute: typeof BuyerBecomeSellerRouteImport
+      parentRoute: typeof BuyerRoute
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/withdrawals': {
+      id: '/admin/withdrawals'
+      path: '/withdrawals'
+      fullPath: '/admin/withdrawals'
+      preLoaderRoute: typeof AdminWithdrawalsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/sellers': {
+      id: '/admin/sellers'
+      path: '/sellers'
+      fullPath: '/admin/sellers'
+      preLoaderRoute: typeof AdminSellersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/products': {
+      id: '/admin/products'
+      path: '/products'
+      fullPath: '/admin/products'
+      preLoaderRoute: typeof AdminProductsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/disputes': {
+      id: '/admin/disputes'
+      path: '/disputes'
+      fullPath: '/admin/disputes'
+      preLoaderRoute: typeof AdminDisputesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/product/': {
+      id: '/product/'
+      path: '/product'
+      fullPath: '/product/'
+      preLoaderRoute: typeof ProductRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminDisputesRoute: typeof AdminDisputesRoute
+  AdminProductsRoute: typeof AdminProductsRoute
+  AdminSellersRoute: typeof AdminSellersRoute
+  AdminWithdrawalsRoute: typeof AdminWithdrawalsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminDisputesRoute: AdminDisputesRoute,
+  AdminProductsRoute: AdminProductsRoute,
+  AdminSellersRoute: AdminSellersRoute,
+  AdminWithdrawalsRoute: AdminWithdrawalsRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 interface BuyerRouteChildren {
+  BuyerBecomeSellerRoute: typeof BuyerBecomeSellerRoute
+  BuyerCartRoute: typeof BuyerCartRoute
+  BuyerCheckoutRoute: typeof BuyerCheckoutRoute
   BuyerOrdersRoute: typeof BuyerOrdersRoute
-  BuyerWalletRoute: typeof BuyerWalletRoute
   BuyerWishlistRoute: typeof BuyerWishlistRoute
   BuyerIndexRoute: typeof BuyerIndexRoute
 }
 
 const BuyerRouteChildren: BuyerRouteChildren = {
+  BuyerBecomeSellerRoute: BuyerBecomeSellerRoute,
+  BuyerCartRoute: BuyerCartRoute,
+  BuyerCheckoutRoute: BuyerCheckoutRoute,
   BuyerOrdersRoute: BuyerOrdersRoute,
-  BuyerWalletRoute: BuyerWalletRoute,
   BuyerWishlistRoute: BuyerWishlistRoute,
   BuyerIndexRoute: BuyerIndexRoute,
 }
@@ -341,9 +614,25 @@ const SellerRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   BuyerRoute: BuyerRouteWithChildren,
+  LoginRoute: LoginRoute,
   SellerRoute: SellerRouteWithChildren,
+  SignupRoute: SignupRoute,
+  ProductRoute: ProductRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
+  ProductProductIdRoute: ProductProductIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

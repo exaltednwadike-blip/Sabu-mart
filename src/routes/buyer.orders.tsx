@@ -1,90 +1,172 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Truck, CheckCircle2, Clock, MessageSquare, Star, X } from "lucide-react";
+﻿import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Truck, CheckCircle2, Clock, MessageSquare, X, Package, ShieldCheck, AlertTriangle, RotateCcw } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/DashboardShell";
-import headphones from "@/assets/product-headphones.jpg";
-import laptop from "@/assets/product-laptop.jpg";
-import bag from "@/assets/product-bag.jpg";
-import watch from "@/assets/product-watch.jpg";
-import phone from "@/assets/cat-phones.jpg";
+import { getCurrentUser } from "@/lib/auth";
+import { getMyOrders } from "@/lib/cart";
+import { confirmReceipt, raiseDispute } from "@/lib/wallet";
 
 export const Route = createFileRoute("/buyer/orders")({
   component: BuyerOrders,
 });
 
-const ORDERS = [
-  { id: "#SBU-24817", product: "MacBook Pro 14\" M3", seller: "TechPro Store", image: laptop, amount: 1650000, status: "In transit", date: "Today" },
-  { id: "#SBU-24798", product: "Sport Chronograph Watch", seller: "TimeCraft", image: watch, amount: 28500, status: "Processing", date: "Yesterday" },
-  { id: "#SBU-24721", product: "Wireless Headphones", seller: "SoundHub NG", image: headphones, amount: 89000, status: "Delivered", date: "Last week" },
-  { id: "#SBU-24688", product: "Leather Tote — Terracotta", seller: "Kano Leatherworks", image: bag, amount: 42500, status: "Delivered", date: "2 weeks ago" },
-  { id: "#SBU-24601", product: "Samsung Galaxy A55", seller: "MobileHub", image: phone, amount: 385000, status: "Cancelled", date: "Last month" },
-];
-
-const statusMeta: Record<string, { color: string; icon: React.ComponentType<{ className?: string }> }> = {
-  "In transit": { color: "bg-primary/10 text-primary", icon: Truck },
-  Processing: { color: "bg-accent-orange/15 text-accent-orange", icon: Clock },
-  Delivered: { color: "bg-success/10 text-success", icon: CheckCircle2 },
-  Cancelled: { color: "bg-destructive/10 text-destructive", icon: X },
+const statusMeta: { [key: string]: { color: string; icon: any; label: string } } = {
+  pending_payment: { color: "bg-accent-orange/15 text-accent-orange", icon: Clock, label: "Pending payment" },
+  processing: { color: "bg-primary/10 text-primary", icon: Package, label: "Processing" },
+  shipped: { color: "bg-primary/10 text-primary", icon: Truck, label: "Shipped" },
+  delivered: { color: "bg-success/10 text-success", icon: CheckCircle2, label: "Delivered" },
+  cancelled: { color: "bg-destructive/10 text-destructive", icon: X, label: "Cancelled" },
 };
 
-const TABS = ["All", "In transit", "Processing", "Delivered", "Cancelled"];
-
 function BuyerOrders() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  function load() {
+    setLoading(true);
+    getCurrentUser()
+      .then(function (user) {
+        if (!user) return [];
+        setUserId(user.id);
+        return getMyOrders(user.id);
+      })
+      .then(function (data) {
+        setOrders(data || []);
+      })
+      .finally(function () {
+        setLoading(false);
+      });
+  }
+
+  useEffect(function () {
+    load();
+  }, []);
+
+  function handleConfirmReceipt(itemId: string) {
+    if (!userId) return;
+    setBusyId(itemId);
+    confirmReceipt(itemId, userId)
+      .then(load)
+      .catch(function (err) {
+        alert(err instanceof Error ? err.message : "Something went wrong.");
+      })
+      .finally(function () {
+        setBusyId(null);
+      });
+  }
+
+  function handleDispute(itemId: string) {
+    if (!userId) return;
+    const reason = prompt("Briefly describe the issue with this item:");
+    if (!reason || !reason.trim()) return;
+    setBusyId(itemId);
+    raiseDispute(itemId, userId, reason.trim())
+      .then(load)
+      .catch(function (err) {
+        alert(err instanceof Error ? err.message : "Something went wrong.");
+      })
+      .finally(function () {
+        setBusyId(null);
+      });
+  }
+
+  function renderOrder(o: any) {
+    const meta = statusMeta[o.status] || statusMeta.pending_payment;
+    const Icon = meta.icon;
+    const items = o.order_items || [];
+
+    function renderItem(item: any) {
+      const canConfirm = item.escrow_status === "held" && (item.seller_status === "shipped" || item.seller_status === "confirmed");
+
+      return (
+        <div key={item.id} className="border-b border-border pb-2 last:border-0 last:pb-0">
+          <div className="flex items-center justify-between text-sm">
+            <span className="truncate">{item.title} x{item.quantity}</span>
+            <span className="font-medium">₦{(Number(item.price) * item.quantity).toLocaleString()}</span>
+          </div>
+          {item.escrow_status === "released" ? (
+            <p className="mt-1 flex items-center gap-1 text-[11px] font-medium text-success">
+              <CheckCircle2 className="h-3 w-3" /> Receipt confirmed - funds released to seller
+            </p>
+          ) : item.escrow_status === "refunded" ? (
+            <p className="mt-1 flex items-center gap-1 text-[11px] font-medium text-primary">
+              <RotateCcw className="h-3 w-3" /> Refunded - money returned to your original payment method
+            </p>
+          ) : item.escrow_status === "disputed" ? (
+            <p className="mt-1 flex items-center gap-1 text-[11px] font-medium text-accent-orange">
+              <AlertTriangle className="h-3 w-3" /> Dispute raised - under admin review, please check back within 2 days
+            </p>
+          ) : canConfirm ? (
+            <div className="mt-1.5 flex gap-2">
+              <button
+                onClick={function () { handleConfirmReceipt(item.id); }}
+                disabled={busyId === item.id}
+                className="inline-flex items-center gap-1 rounded-lg bg-primary px-2.5 py-1 text-[11px] font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
+              >
+                <ShieldCheck className="h-3 w-3" /> Confirm receipt
+              </button>
+              <button
+                onClick={function () { handleDispute(item.id); }}
+                disabled={busyId === item.id}
+                className="inline-flex items-center gap-1 rounded-lg border border-destructive px-2.5 py-1 text-[11px] font-semibold text-destructive hover:bg-destructive/5 disabled:opacity-60"
+              >
+                <AlertTriangle className="h-3 w-3" /> Report issue
+              </button>
+            </div>
+          ) : (
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Waiting for seller to ship this item.
+            </p>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <article key={o.id} className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+          <span className="font-mono text-primary">#{o.id.slice(0, 8).toUpperCase()}</span>
+          <span className="text-muted-foreground">{new Date(o.created_at).toLocaleDateString()}</span>
+          <span className={"inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold " + meta.color}>
+            <Icon className="h-3 w-3" /> {meta.label}
+          </span>
+        </div>
+
+        <div className="mt-3 space-y-2 border-t border-border pt-3">
+          {items.map(renderItem)}
+        </div>
+
+        <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+          <span className="text-sm text-muted-foreground">Total</span>
+          <span className="font-display text-lg font-bold">₦{Number(o.total).toLocaleString()}</span>
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-accent">
+            <MessageSquare className="h-3.5 w-3.5" /> Chat seller
+          </button>
+        </div>
+      </article>
+    );
+  }
+
   return (
     <div>
       <PageHeader title="My orders" subtitle="Track and manage every purchase." />
 
-      <div className="mb-4 flex flex-wrap gap-2 rounded-2xl border border-border bg-card p-2 shadow-soft">
-        {TABS.map((t, i) => (
-          <button
-            key={t}
-            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-              i === 0 ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent"
-            }`}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
-
-      <div className="space-y-3">
-        {ORDERS.map((o) => {
-          const meta = statusMeta[o.status];
-          const Icon = meta.icon;
-          return (
-            <article key={o.id} className="rounded-2xl border border-border bg-card p-4 shadow-soft">
-              <div className="flex flex-wrap items-start gap-4">
-                <img src={o.image} alt="" className="h-20 w-20 rounded-xl object-cover" />
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <span className="font-mono text-primary">{o.id}</span>
-                    <span className="text-muted-foreground">· {o.date}</span>
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${meta.color}`}>
-                      <Icon className="h-3 w-3" /> {o.status}
-                    </span>
-                  </div>
-                  <h3 className="mt-1 font-semibold">{o.product}</h3>
-                  <div className="text-xs text-muted-foreground">Sold by {o.seller}</div>
-                  <div className="mt-2 font-display text-lg font-bold">₦{o.amount.toLocaleString()}</div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-accent">
-                    <MessageSquare className="h-3.5 w-3.5" /> Chat seller
-                  </button>
-                  {o.status === "Delivered" ? (
-                    <button className="inline-flex items-center gap-1 rounded-lg bg-accent-orange px-3 py-1.5 text-xs font-semibold text-accent-orange-foreground">
-                      <Star className="h-3.5 w-3.5" /> Review
-                    </button>
-                  ) : (
-                    <button className="inline-flex items-center gap-1 rounded-lg gradient-brand px-3 py-1.5 text-xs font-semibold text-primary-foreground">
-                      <Truck className="h-3.5 w-3.5" /> Track order
-                    </button>
-                  )}
-                </div>
-              </div>
-            </article>
-          );
-        })}
-      </div>
+      {loading ? (
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      ) : orders.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+          No orders yet.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {orders.map(renderOrder)}
+        </div>
+      )}
     </div>
   );
 }

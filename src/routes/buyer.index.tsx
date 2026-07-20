@@ -1,103 +1,144 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
-  Package, Heart, Wallet, MessageSquare, Truck, CheckCircle2, Clock, Star, ArrowUpRight,
+  Package, Heart, ShoppingBag, CheckCircle2, Clock, Star, ArrowUpRight, Store, Truck,
 } from "lucide-react";
 import { PageHeader, StatCard } from "@/components/dashboard/DashboardShell";
-import headphones from "@/assets/product-headphones.jpg";
-import laptop from "@/assets/product-laptop.jpg";
-import bag from "@/assets/product-bag.jpg";
-import watch from "@/assets/product-watch.jpg";
+import { getCurrentUser, getProfile } from "@/lib/auth";
+import { getMyOrders, getBuyerStats } from "@/lib/cart";
+import { getWishlist, getWishlistCount } from "@/lib/wishlist";
 
 export const Route = createFileRoute("/buyer/")({
   component: BuyerHome,
 });
 
-const ORDERS = [
-  { id: "#SBU-24817", product: "MacBook Pro 14\" M3", seller: "TechPro Store", image: laptop, status: "In transit", eta: "Tomorrow" },
-  { id: "#SBU-24798", product: "Sport Chronograph Watch", seller: "TimeCraft", image: watch, status: "Processing", eta: "In 3 days" },
-];
-
-const WISHLIST = [
-  { name: "Wireless Headphones", price: 89000, image: headphones },
-  { name: "Leather Tote — Terracotta", price: 42500, image: bag },
-  { name: "Sport Watch — Orange", price: 28500, image: watch },
-  { name: "MacBook Pro 14\" M3", price: 1650000, image: laptop },
-];
-
-const statusIcon: Record<string, React.ComponentType<{ className?: string }>> = {
-  "In transit": Truck,
-  Processing: Clock,
-  Delivered: CheckCircle2,
+const statusIcon: { [key: string]: any } = {
+  processing: Package,
+  shipped: Truck,
+  delivered: CheckCircle2,
 };
 
 function BuyerHome() {
+  const [sellerStatus, setSellerStatus] = useState<string>("none");
+  const [fullName, setFullName] = useState("");
+  const [stats, setStats] = useState({ activeOrders: 0, completedOrders: 0, totalSpent: 0 });
+  const [wishCount, setWishCount] = useState(0);
+  const [activeOrders, setActiveOrders] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(function () {
+    getCurrentUser().then(function (user) {
+      if (!user) return;
+      Promise.all([
+        getProfile(user.id).catch(function () { return null; }),
+        getBuyerStats(user.id),
+        getWishlistCount(user.id),
+        getMyOrders(user.id),
+        getWishlist(user.id),
+      ])
+        .then(function (results) {
+          const profile = results[0];
+          if (profile) {
+            setSellerStatus(profile.seller_status ?? "none");
+            setFullName((profile.full_name || "").split(" ")[0] || "there");
+          }
+          setStats(results[1]);
+          setWishCount(results[2]);
+          const orders = results[3] || [];
+          setActiveOrders(orders.filter(function (o: any) { return o.status !== "delivered" && o.status !== "cancelled"; }).slice(0, 3));
+          setWishlist((results[4] || []).slice(0, 4));
+        })
+        .finally(function () {
+          setLoading(false);
+        });
+    });
+  }, []);
+
+  function renderActiveOrder(o: any) {
+    const items = o.order_items || [];
+    const firstItem = items[0];
+    const Icon = statusIcon[o.status] || Clock;
+    return (
+      <div key={o.id} className="flex items-center gap-4 rounded-xl border border-border p-3">
+        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-muted">
+          <Package className="h-6 w-6 text-muted-foreground" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="font-mono text-primary">#{o.id.slice(0, 8).toUpperCase()}</span>
+            <span className="text-muted-foreground">- {items.length} item{items.length !== 1 ? "s" : ""}</span>
+          </div>
+          <div className="mt-0.5 truncate font-medium">{firstItem ? firstItem.title : "Order"}</div>
+          <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Icon className="h-3.5 w-3.5 text-primary" /> {o.status}
+          </div>
+        </div>
+        <Link to="/buyer/orders" className="rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-foreground">
+          View
+        </Link>
+      </div>
+    );
+  }
+
+  function renderWishlistItem(item: any) {
+    const p = item.products;
+    const image = p.images && p.images.length > 0 ? p.images[0] : null;
+    return (
+      <Link key={item.id} to="/product/$productId" params={{ productId: p.id }} className="group rounded-xl border border-border p-2 transition hover:shadow-soft">
+        <div className="aspect-square overflow-hidden rounded-lg bg-muted">
+          {image ? (
+            <img src={image} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">No image</div>
+          )}
+        </div>
+        <div className="mt-2 line-clamp-1 text-sm font-medium">{p.title}</div>
+        <div className="text-sm font-bold text-primary">₦{Number(p.price).toLocaleString()}</div>
+      </Link>
+    );
+  }
+
   return (
     <div>
       <PageHeader
-        title="Welcome back, Chinelo 👋"
-        subtitle="Track orders, manage your wishlist and chat with sellers."
+        title={"Welcome back, " + fullName + " \uD83D\uDC4B"}
+        subtitle="Track orders, manage your wishlist and shop with confidence."
         action={
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 rounded-xl gradient-brand px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft"
-          >
-            Continue shopping
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <SellerCta status={sellerStatus} />
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 rounded-xl gradient-brand px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft"
+            >
+              Continue shopping
+            </Link>
+          </div>
         }
       />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Active orders" value="2" icon={Package} tint="primary" />
-        <StatCard label="Wishlist" value="12" icon={Heart} tint="orange" />
-        <StatCard label="Wallet balance" value="₦18,500" icon={Wallet} tint="success" />
-        <StatCard label="Unread messages" value="1" icon={MessageSquare} tint="primary" />
+        <StatCard label="Active orders" value={loading ? "-" : String(stats.activeOrders)} icon={Package} tint="primary" />
+        <StatCard label="Completed orders" value={loading ? "-" : String(stats.completedOrders)} icon={CheckCircle2} tint="success" />
+        <StatCard label="Wishlist" value={loading ? "-" : String(wishCount)} icon={Heart} tint="orange" />
+        <StatCard label="Total spent" value={loading ? "-" : "₦" + stats.totalSpent.toLocaleString()} icon={ShoppingBag} tint="primary" />
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-soft lg:col-span-2">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Active orders</h3>
-            <Link to="/buyer/orders" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
-              View all <ArrowUpRight className="h-3 w-3" />
-            </Link>
-          </div>
-          <div className="mt-4 space-y-3">
-            {ORDERS.map((o) => {
-              const Icon = statusIcon[o.status] ?? Clock;
-              return (
-                <div key={o.id} className="flex items-center gap-4 rounded-xl border border-border p-3">
-                  <img src={o.image} alt="" className="h-14 w-14 rounded-lg object-cover" />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="font-mono text-primary">{o.id}</span>
-                      <span className="text-muted-foreground">· {o.seller}</span>
-                    </div>
-                    <div className="mt-0.5 truncate font-medium">{o.product}</div>
-                    <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Icon className="h-3.5 w-3.5 text-primary" /> {o.status} · ETA {o.eta}
-                    </div>
-                  </div>
-                  <button className="rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-foreground">
-                    Track
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+      <div className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-soft">
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold">Active orders</h3>
+          <Link to="/buyer/orders" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+            View all <ArrowUpRight className="h-3 w-3" />
+          </Link>
         </div>
-
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
-          <h3 className="font-semibold">Rewards</h3>
-          <div className="mt-4 rounded-xl gradient-warm p-4 text-accent-orange-foreground">
-            <div className="text-xs uppercase tracking-widest opacity-90">SABU Perks</div>
-            <div className="mt-1 font-display text-2xl font-bold">2,480 pts</div>
-            <div className="text-xs opacity-90">Silver tier · 320 pts to Gold</div>
-          </div>
-          <div className="mt-4 space-y-2 text-sm">
-            <PerkRow icon={Star} label="Free delivery in Lagos" />
-            <PerkRow icon={CheckCircle2} label="Priority customer support" />
-            <PerkRow icon={Heart} label="Early access to flash deals" />
-          </div>
+        <div className="mt-4 space-y-3">
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Loading...</p>
+          ) : activeOrders.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No active orders right now.</p>
+          ) : (
+            activeOrders.map(renderActiveOrder)
+          )}
         </div>
       </div>
 
@@ -105,32 +146,50 @@ function BuyerHome() {
         <div className="flex items-center justify-between">
           <h3 className="font-semibold">Your wishlist</h3>
           <Link to="/buyer/wishlist" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
-            See all 12 <ArrowUpRight className="h-3 w-3" />
+            See all ({wishCount}) <ArrowUpRight className="h-3 w-3" />
           </Link>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-          {WISHLIST.map((w) => (
-            <div key={w.name} className="group rounded-xl border border-border p-2 transition hover:shadow-soft">
-              <div className="aspect-square overflow-hidden rounded-lg bg-muted">
-                <img src={w.image} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
-              </div>
-              <div className="mt-2 line-clamp-1 text-sm font-medium">{w.name}</div>
-              <div className="text-sm font-bold text-primary">₦{w.price.toLocaleString()}</div>
-              <button className="mt-2 w-full rounded-lg bg-primary/10 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-foreground">
-                Add to cart
-              </button>
-            </div>
-          ))}
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Loading...</p>
+          ) : wishlist.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Nothing saved yet.</p>
+          ) : (
+            wishlist.map(renderWishlistItem)
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function PerkRow({ icon: Icon, label }: { icon: React.ComponentType<{ className?: string }>; label: string }) {
+function SellerCta({ status }: { status: string }) {
+  if (status === "pending") {
+    return (
+      <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-semibold text-muted-foreground">
+        <Clock className="h-4 w-4" /> Application under review
+      </span>
+    );
+  }
+  if (status === "rejected") {
+    return (
+      <Link
+        to="/buyer/become-seller"
+        className="inline-flex items-center gap-2 rounded-xl border border-destructive px-4 py-2 text-sm font-semibold text-destructive shadow-soft hover:bg-destructive/5"
+      >
+        <Store className="h-4 w-4" /> Application rejected - reapply
+      </Link>
+    );
+  }
+  if (status === "approved") {
+    return null;
+  }
   return (
-    <div className="flex items-center gap-2 text-muted-foreground">
-      <Icon className="h-4 w-4 text-primary" /> {label}
-    </div>
+    <Link
+      to="/buyer/become-seller"
+      className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-semibold shadow-soft hover:bg-accent"
+    >
+      <Store className="h-4 w-4" /> Become a seller
+    </Link>
   );
 }

@@ -1,89 +1,297 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Wallet as WalletIcon, ArrowDownLeft, ArrowUpRight, CreditCard, TrendingUp, Download } from "lucide-react";
-import { PageHeader, StatCard } from "@/components/dashboard/DashboardShell";
+﻿import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Wallet, TrendingUp, Clock, ArrowUpRight, ArrowDownRight, X, CheckCircle2 } from "lucide-react";
+import { PageHeader } from "@/components/dashboard/DashboardShell";
+import { getCurrentUser } from "@/lib/auth";
+import { getWalletSummary, getWalletTransactions, requestWithdrawal, getWithdrawalRequests } from "@/lib/wallet";
+import { listBanks, resolveAccountNumber } from "@/lib/paystack-server";
 
 export const Route = createFileRoute("/seller/wallet")({
   component: SellerWallet,
 });
 
-const TX = [
-  { id: 1, kind: "Payout", note: "Order #SBU-24817 · MacBook Pro", amount: +1567500, date: "Today, 10:26" },
-  { id: 2, kind: "Payout", note: "Order #SBU-24812 · Headphones ×2", amount: +169100, date: "Today, 08:14" },
-  { id: 3, kind: "Withdrawal", note: "GTBank ****4218", amount: -500000, date: "Yesterday, 17:02" },
-  { id: 4, kind: "Fee", note: "Listing fee · iPhone 15 Pro Max", amount: -500, date: "Yesterday, 12:11" },
-  { id: 5, kind: "Payout", note: "Order #SBU-24798 · Sport Watch", amount: +27075, date: "Yesterday, 09:22" },
-  { id: 6, kind: "Refund", note: "Order #SBU-24788 · Cancelled by buyer", amount: -1250000, date: "3 days ago" },
-];
+const typeLabel: { [key: string]: string } = {
+  escrow_release: "Payment received",
+  withdrawal: "Withdrawal",
+  refund: "Refund",
+  escrow_hold: "Payment held",
+};
+
+const withdrawalStatusColor: { [key: string]: string } = {
+  pending: "bg-accent-orange/15 text-accent-orange",
+  paid: "bg-success/10 text-success",
+  rejected: "bg-destructive/10 text-destructive",
+};
 
 function SellerWallet() {
+  const [summary, setSummary] = useState({ available: 0, pending: 0, totalEarned: 0 });
+  const [transactions, setTransactions] = useState([]);
+  const [withdrawals, setWithdrawals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [banks, setBanks] = useState([]);
+  const [amount, setAmount] = useState("");
+  const [bankCode, setBankCode] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [accountName, setAccountName] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  function load() {
+    setLoading(true);
+    getCurrentUser().then(function (user) {
+      if (!user) return;
+      Promise.all([
+        getWalletSummary(user.id),
+        getWalletTransactions(user.id),
+        getWithdrawalRequests(user.id),
+      ])
+        .then(function (results) {
+          setSummary(results[0]);
+          setTransactions(results[1]);
+          setWithdrawals(results[2]);
+        })
+        .finally(function () {
+          setLoading(false);
+        });
+    });
+  }
+
+  useEffect(function () {
+    load();
+  }, []);
+
+  function openModal() {
+    setModalOpen(true);
+    setAccountName("");
+    if (banks.length === 0) {
+      listBanks({}).then(setBanks).catch(function () {});
+    }
+  }
+
+  function handleVerify() {
+    if (!bankCode || accountNumber.length < 10) {
+      setError("Select a bank and enter a valid account number.");
+      return;
+    }
+    setError("");
+    setVerifying(true);
+    resolveAccountNumber({ data: { accountNumber, bankCode } })
+      .then(function (result) {
+        setAccountName(result.accountName);
+      })
+      .catch(function (err) {
+        setError(err instanceof Error ? err.message : "Could not verify account.");
+      })
+      .finally(function () {
+        setVerifying(false);
+      });
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    const amt = Number(amount);
+    const bank = banks.find(function (b: any) { return b.code === bankCode; });
+
+    if (!amt || amt <= 0) {
+      setError("Enter a valid amount.");
+      return;
+    }
+    if (amt > summary.available) {
+      setError("Amount exceeds your available balance.");
+      return;
+    }
+    if (!accountName) {
+      setError("Please verify your account details first.");
+      return;
+    }
+
+    setSubmitting(true);
+    requestWithdrawal(amt, bank ? bank.name : "", bankCode, accountNumber, accountName)
+      .then(function () {
+        setModalOpen(false);
+        setAmount("");
+        setBankCode("");
+        setAccountNumber("");
+        setAccountName("");
+        load();
+      })
+      .catch(function (err) {
+        setError(err instanceof Error ? err.message : "Something went wrong.");
+      })
+      .finally(function () {
+        setSubmitting(false);
+      });
+  }
+
+  function renderTransaction(t: any) {
+    const isCredit = t.type === "escrow_release" || t.type === "refund";
+    return (
+      <div key={t.id} className="flex items-center justify-between border-b border-border py-3 last:border-0">
+        <div className="flex items-center gap-3">
+          <div className={"flex h-9 w-9 items-center justify-center rounded-full " + (isCredit ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive")}>
+            {isCredit ? <ArrowDownRight className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
+          </div>
+          <div>
+            <p className="text-sm font-medium">{typeLabel[t.type] || t.type}</p>
+            <p className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleDateString()}</p>
+          </div>
+        </div>
+        <span className={"font-semibold " + (isCredit ? "text-success" : "text-destructive")}>
+          {isCredit ? "+" : "-"}₦{Number(t.amount).toLocaleString()}
+        </span>
+      </div>
+    );
+  }
+
+  function renderWithdrawal(w: any) {
+    return (
+      <div key={w.id} className="flex items-center justify-between border-b border-border py-3 last:border-0">
+        <div>
+          <p className="text-sm font-medium">₦{Number(w.amount).toLocaleString()} - {w.bank_name}</p>
+          <p className="text-xs text-muted-foreground">{w.account_name} - {w.account_number}</p>
+          <p className="text-xs text-muted-foreground">{new Date(w.created_at).toLocaleDateString()}</p>
+        </div>
+        <span className={"rounded-full px-2 py-0.5 text-[11px] font-semibold " + (withdrawalStatusColor[w.status] || "")}>
+          {w.status}
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <PageHeader
-        title="Wallet"
-        subtitle="Your earnings, payouts and withdrawals."
-      />
+      <PageHeader title="Wallet" subtitle="Track your earnings and payouts." />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="relative overflow-hidden rounded-2xl gradient-brand p-6 text-primary-foreground shadow-elegant lg:col-span-2">
-          <div className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-accent-orange/30 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-10 -left-6 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-widest opacity-80">
-              <WalletIcon className="h-4 w-4" /> Available balance
-            </div>
-            <div className="mt-3 font-display text-5xl font-bold">₦412,880.50</div>
-            <div className="mt-2 text-sm opacity-90">≈ $278.14 · Next payout: instant</div>
-            <div className="mt-6 flex flex-wrap gap-2">
-              <button className="inline-flex items-center gap-2 rounded-xl bg-accent-orange px-4 py-2 text-sm font-semibold text-accent-orange-foreground shadow-orange">
-                <ArrowDownLeft className="h-4 w-4" /> Withdraw
-              </button>
-              <button className="inline-flex items-center gap-2 rounded-xl bg-white/15 px-4 py-2 text-sm font-semibold backdrop-blur hover:bg-white/25">
-                <CreditCard className="h-4 w-4" /> Add payment method
-              </button>
-              <button className="inline-flex items-center gap-2 rounded-xl bg-white/15 px-4 py-2 text-sm font-semibold backdrop-blur hover:bg-white/25">
-                <Download className="h-4 w-4" /> Statement
-              </button>
-            </div>
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Wallet className="h-4 w-4 text-primary" /> Available balance
           </div>
+          <div className="mt-2 font-display text-2xl font-bold">₦{summary.available.toLocaleString()}</div>
+          <button
+            onClick={openModal}
+            className="mt-3 w-full rounded-lg bg-primary/10 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-foreground"
+          >
+            Withdraw
+          </button>
         </div>
-
-        <div className="grid gap-4">
-          <StatCard label="Earnings (30d)" value="₦7.78M" trend="+24%" icon={TrendingUp} tint="primary" />
-          <StatCard label="Pending settlement" value="₦148,200" icon={ArrowDownLeft} tint="orange" />
-          <StatCard label="Withdrawn (30d)" value="₦5.20M" icon={ArrowUpRight} tint="success" />
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Clock className="h-4 w-4 text-accent-orange" /> Pending (in escrow)
+          </div>
+          <div className="mt-2 font-display text-2xl font-bold">₦{summary.pending.toLocaleString()}</div>
+          <p className="mt-3 text-[11px] text-muted-foreground">Released once buyers confirm receipt</p>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <TrendingUp className="h-4 w-4 text-success" /> Total earned
+          </div>
+          <div className="mt-2 font-display text-2xl font-bold">₦{summary.totalEarned.toLocaleString()}</div>
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-border bg-card shadow-soft">
-        <div className="flex items-center justify-between border-b border-border p-5">
-          <div>
-            <h3 className="font-semibold">Transaction history</h3>
-            <p className="text-xs text-muted-foreground">All wallet activity</p>
+      {withdrawals.length > 0 ? (
+        <div className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-soft">
+          <h3 className="font-semibold">Withdrawal requests</h3>
+          <div className="mt-2">
+            {withdrawals.map(renderWithdrawal)}
           </div>
-          <button className="text-xs font-semibold text-primary hover:underline">View all</button>
         </div>
-        <div className="divide-y divide-border">
-          {TX.map((t) => (
-            <div key={t.id} className="flex items-center gap-4 p-4">
-              <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                t.amount > 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
-              }`}>
-                {t.amount > 0 ? <ArrowDownLeft className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
+      ) : null}
+
+      <div className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-soft">
+        <h3 className="font-semibold">Transaction history</h3>
+        {loading ? (
+          <p className="mt-4 text-sm text-muted-foreground">Loading...</p>
+        ) : transactions.length === 0 ? (
+          <p className="mt-4 text-sm text-muted-foreground">No transactions yet.</p>
+        ) : (
+          <div className="mt-2">
+            {transactions.map(renderTransaction)}
+          </div>
+        )}
+      </div>
+
+      {modalOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-elegant">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display text-lg font-bold">Withdraw funds</h2>
+              <button onClick={function () { setModalOpen(false); }} className="text-muted-foreground hover:text-foreground">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">Available: ₦{summary.available.toLocaleString()}</p>
+
+            <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+              <div>
+                <label className="mb-1 block text-xs font-medium">Amount</label>
+                <input
+                  type="number"
+                  value={amount}
+                  onChange={function (e) { setAmount(e.target.value); }}
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                  placeholder="0"
+                />
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-sm font-medium">{t.kind}</div>
-                <div className="truncate text-xs text-muted-foreground">{t.note}</div>
+              <div>
+                <label className="mb-1 block text-xs font-medium">Bank</label>
+                <select
+                  value={bankCode}
+                  onChange={function (e) { setBankCode(e.target.value); setAccountName(""); }}
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                >
+                  <option value="">Select your bank</option>
+                  {banks.map(function (b: any) {
+                    return <option key={b.code} value={b.code}>{b.name}</option>;
+                  })}
+                </select>
               </div>
-              <div className="text-right">
-                <div className={`font-semibold ${t.amount > 0 ? "text-success" : "text-destructive"}`}>
-                  {t.amount > 0 ? "+" : "-"}₦{Math.abs(t.amount).toLocaleString()}
+              <div>
+                <label className="mb-1 block text-xs font-medium">Account number</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={accountNumber}
+                    onChange={function (e) { setAccountNumber(e.target.value); setAccountName(""); }}
+                    className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                    placeholder="0123456789"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleVerify}
+                    disabled={verifying}
+                    className="rounded-xl border border-border px-3 py-2 text-xs font-semibold hover:bg-accent disabled:opacity-60"
+                  >
+                    {verifying ? "Checking..." : "Verify"}
+                  </button>
                 </div>
-                <div className="text-[11px] text-muted-foreground">{t.date}</div>
               </div>
-            </div>
-          ))}
+
+              {accountName ? (
+                <div className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
+                  <CheckCircle2 className="h-4 w-4" /> {accountName}
+                </div>
+              ) : null}
+
+              {error ? (
+                <div className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>
+              ) : null}
+
+              <button
+                type="submit"
+                disabled={submitting || !accountName}
+                className="w-full rounded-xl gradient-brand py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:opacity-90 disabled:opacity-60"
+              >
+                {submitting ? "Submitting..." : "Request withdrawal"}
+              </button>
+            </form>
+          </div>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }

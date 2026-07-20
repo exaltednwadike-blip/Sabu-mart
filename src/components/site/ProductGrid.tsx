@@ -1,117 +1,182 @@
-import { Heart, MapPin, Star, MessageCircle, Zap, BadgeCheck } from "lucide-react";
+﻿import { useEffect, useState } from "react";
+import { Heart, MapPin, MessageCircle, BadgeCheck, ShoppingCart, Check } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { SectionHeader } from "./CategoryGrid";
-import headphones from "@/assets/product-headphones.jpg";
-import laptop from "@/assets/product-laptop.jpg";
-import bag from "@/assets/product-bag.jpg";
-import watch from "@/assets/product-watch.jpg";
-import phone from "@/assets/cat-phones.jpg";
-import fashion from "@/assets/cat-fashion.jpg";
+import { getPublishedProducts } from "@/lib/products";
+import { addToCart } from "@/lib/cart";
+import { toggleWishlist, isInWishlist } from "@/lib/wishlist";
+import { getCurrentUser } from "@/lib/auth";
 
-type Product = {
-  id: string;
-  title: string;
-  price: number;
-  oldPrice?: number;
-  image: string;
-  location: string;
-  seller: string;
-  verified?: boolean;
-  rating: number;
-  reviews: number;
-  tag?: "Flash" | "Sponsored" | "New" | "Trending";
-};
+function formatPrice(n: number) {
+  return "₦" + n.toLocaleString();
+}
 
-const PRODUCTS: Product[] = [
-  { id: "1", title: "Wireless Noise-Cancelling Headphones", price: 89000, oldPrice: 145000, image: headphones, location: "Lagos, Ikeja", seller: "SoundHub NG", verified: true, rating: 4.9, reviews: 312, tag: "Flash" },
-  { id: "2", title: "MacBook Pro 14\" M3 · 16GB · 512GB", price: 1650000, image: laptop, location: "Abuja, Wuse", seller: "TechPro Store", verified: true, rating: 5.0, reviews: 87, tag: "Trending" },
-  { id: "3", title: "Handcrafted Leather Tote — Terracotta", price: 42500, oldPrice: 55000, image: bag, location: "Lagos, Lekki", seller: "Kano Leatherworks", verified: true, rating: 4.8, reviews: 156, tag: "New" },
-  { id: "4", title: "Sport Chronograph Watch · Orange", price: 28500, image: watch, location: "Port Harcourt", seller: "TimeCraft", rating: 4.7, reviews: 44, tag: "Sponsored" },
-  { id: "5", title: "Samsung Galaxy A55 · 256GB · Dual SIM", price: 385000, oldPrice: 420000, image: phone, location: "Lagos, Ikeja", seller: "MobileHub", verified: true, rating: 4.8, reviews: 621 },
-  { id: "6", title: "Autumn Linen Blazer Set · Unisex", price: 58000, image: fashion, location: "Ibadan", seller: "Adire House", verified: true, rating: 4.9, reviews: 92, tag: "New" },
-];
-
-const formatPrice = (n: number) => "₦" + n.toLocaleString();
-
-export function ProductGrid({
-  eyebrow,
-  title,
-  subtitle,
-  variant = "default",
-}: {
+export function ProductGrid(props: {
   eyebrow?: string;
   title: string;
   subtitle?: string;
   variant?: "default" | "flash";
 }) {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(function () {
+    getPublishedProducts(12)
+      .then(function (data) {
+        setProducts(data);
+      })
+      .catch(function () {
+        setProducts([]);
+      })
+      .finally(function () {
+        setLoading(false);
+      });
+  }, []);
+
+  function renderCard(p: any) {
+    return <ProductCard key={p.id} p={p} />;
+  }
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-14">
       <SectionHeader
-        eyebrow={eyebrow}
-        title={title}
-        subtitle={subtitle}
+        eyebrow={props.eyebrow}
+        title={props.title}
+        subtitle={props.subtitle}
         action={
-          variant === "flash" ? (
-            <div className="flex items-center gap-2 rounded-full bg-accent-orange/10 px-3 py-1.5 text-sm font-semibold text-accent-orange">
-              <Zap className="h-4 w-4" /> Ends in 04:12:33
-            </div>
-          ) : (
-            <a href="#" className="text-sm font-semibold text-primary hover:underline">
-              See all →
-            </a>
-          )
+          <a href="#" className="text-sm font-semibold text-primary hover:underline">
+            See all -&gt;
+          </a>
         }
       />
-      <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-        {PRODUCTS.map((p) => <ProductCard key={p.id + title} p={p} />)}
-      </div>
+      {loading ? (
+        <div className="mt-8 text-center text-sm text-muted-foreground">Loading products...</div>
+      ) : products.length === 0 ? (
+        <div className="mt-8 rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+          No products published yet. Check back soon.
+        </div>
+      ) : (
+        <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+          {products.map(renderCard)}
+        </div>
+      )}
     </section>
   );
 }
 
-function ProductCard({ p }: { p: Product }) {
-  const discount = p.oldPrice ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0;
+function ProductCard(props: { p: any }) {
+  const p = props.p;
+  const navigate = useNavigate();
+  const [added, setAdded] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
+  const [wishBusy, setWishBusy] = useState(false);
+  const image = p.images && p.images.length > 0 ? p.images[0] : null;
+  const location = p.neighbourhood ? p.neighbourhood + ", " + p.city : p.city;
+  const sellerName = p.profiles && p.profiles.store_name ? p.profiles.store_name : "SABU Seller";
+
+  useEffect(function () {
+    getCurrentUser().then(function (user) {
+      if (!user) return;
+      isInWishlist(user.id, p.id).then(function (result) {
+        setWishlisted(result);
+      });
+    });
+  }, []);
+
+  function handleAddToCart(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setBusy(true);
+    getCurrentUser()
+      .then(function (user) {
+        if (!user) {
+          navigate({ to: "/login" });
+          return null;
+        }
+        return addToCart(user.id, p.id, 1);
+      })
+      .then(function (result) {
+        if (result !== null) {
+          setAdded(true);
+          setTimeout(function () { setAdded(false); }, 2000);
+        }
+      })
+      .finally(function () {
+        setBusy(false);
+      });
+  }
+
+  function handleToggleWishlist(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setWishBusy(true);
+    getCurrentUser()
+      .then(function (user) {
+        if (!user) {
+          navigate({ to: "/login" });
+          return null;
+        }
+        return toggleWishlist(user.id, p.id);
+      })
+      .then(function (result) {
+        if (result !== null) {
+          setWishlisted(result);
+        }
+      })
+      .finally(function () {
+        setWishBusy(false);
+      });
+  }
+
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-elegant">
+    <Link
+      to="/product/$productId"
+      params={{ productId: p.id }}
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-elegant"
+    >
       <div className="relative aspect-square overflow-hidden bg-muted">
-        <img src={p.image} alt={p.title} loading="lazy" width={800} height={800} className="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
-        {p.tag && (
-          <span className={`absolute left-2 top-2 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white ${
-            p.tag === "Flash" ? "bg-destructive" :
-            p.tag === "Sponsored" ? "bg-foreground/80" :
-            p.tag === "Trending" ? "bg-primary" : "bg-accent-orange"
-          }`}>{p.tag}</span>
+        {image ? (
+          <img src={image} alt={p.title} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">No image</div>
         )}
-        {discount > 0 && (
-          <span className="absolute right-2 top-2 rounded-md bg-accent-orange px-2 py-0.5 text-[10px] font-bold text-accent-orange-foreground">
-            -{discount}%
-          </span>
-        )}
-        <button className="absolute bottom-2 right-2 rounded-full bg-background/90 p-2 text-muted-foreground opacity-0 shadow-soft backdrop-blur transition group-hover:opacity-100 hover:text-destructive">
-          <Heart className="h-4 w-4" />
+        <button
+          onClick={handleToggleWishlist}
+          disabled={wishBusy}
+          className={"absolute bottom-2 right-2 rounded-full bg-background/90 p-2 shadow-soft backdrop-blur transition hover:text-destructive " + (wishlisted ? "text-destructive opacity-100" : "text-muted-foreground opacity-0 group-hover:opacity-100")}
+        >
+          <Heart className="h-4 w-4" fill={wishlisted ? "currentColor" : "none"} />
         </button>
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-3">
         <h3 className="line-clamp-2 text-sm font-medium leading-tight text-foreground">{p.title}</h3>
         <div className="mt-auto flex items-baseline gap-2">
-          <span className="text-base font-bold text-foreground">{formatPrice(p.price)}</span>
-          {p.oldPrice && <span className="text-xs text-muted-foreground line-through">{formatPrice(p.oldPrice)}</span>}
+          <span className="text-base font-bold text-foreground">{formatPrice(Number(p.price))}</span>
         </div>
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          <MapPin className="h-3 w-3" /> {p.location}
+          <MapPin className="h-3 w-3" /> {location}
         </div>
         <div className="flex items-center justify-between gap-2 border-t border-border pt-2">
           <div className="flex min-w-0 items-center gap-1">
-            <span className="truncate text-[11px] font-medium text-foreground">{p.seller}</span>
-            {p.verified && <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-primary" />}
-          </div>
-          <div className="flex items-center gap-0.5 text-[11px] text-muted-foreground">
-            <Star className="h-3 w-3 fill-accent-orange text-accent-orange" /> {p.rating}
+            <span className="truncate text-[11px] font-medium text-foreground">{sellerName}</span>
+            <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-primary" />
           </div>
         </div>
-        <button className="mt-1 flex items-center justify-center gap-1.5 rounded-lg bg-primary/10 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground">
-          <MessageCircle className="h-3.5 w-3.5" /> Chat seller
-        </button>
+        <div className="mt-1 grid grid-cols-2 gap-1.5">
+          <button
+            onClick={handleAddToCart}
+            disabled={busy}
+            className="flex items-center justify-center gap-1 rounded-lg bg-primary py-1.5 text-xs font-semibold text-primary-foreground transition hover:opacity-90 disabled:opacity-60"
+          >
+            {added ? <Check className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}
+            {added ? "Added" : "Add to cart"}
+          </button>
+          <span className="flex items-center justify-center gap-1 rounded-lg bg-primary/10 py-1.5 text-xs font-semibold text-primary">
+            <MessageCircle className="h-3.5 w-3.5" /> View
+          </span>
+        </div>
       </div>
-    </article>
+    </Link>
   );
 }

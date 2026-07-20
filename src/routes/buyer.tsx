@@ -1,30 +1,33 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+﻿import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { getServerUser } from "@/lib/auth-server";
+import { getCurrentUser, getProfile } from "@/lib/auth";
 import {
-  LayoutDashboard, ShoppingBag, Heart, MessageSquare, Wallet, Clock, Bell, Settings, Ticket, Star,
+  LayoutDashboard, ShoppingBag, Heart, MessageSquare, Clock, Bell, Settings, Ticket, Star, ShoppingCart,
 } from "lucide-react";
-import { DashboardShell, type NavGroup } from "@/components/dashboard/DashboardShell";
+import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
-const groups: NavGroup[] = [
+const groups = [
   {
     label: "Overview",
     items: [
       { title: "Dashboard", url: "/buyer", icon: LayoutDashboard },
-      { title: "Orders", url: "/buyer/orders", icon: ShoppingBag, badge: "2" },
+      { title: "Cart", url: "/buyer/cart", icon: ShoppingCart },
+      { title: "Orders", url: "/buyer/orders", icon: ShoppingBag },
       { title: "Recently viewed", url: "/buyer/recent", icon: Clock },
     ],
   },
   {
     label: "My activity",
     items: [
-      { title: "Wishlist", url: "/buyer/wishlist", icon: Heart, badge: "12" },
+      { title: "Wishlist", url: "/buyer/wishlist", icon: Heart },
       { title: "Reviews", url: "/buyer/reviews", icon: Star },
-      { title: "Messages", url: "/buyer/messages", icon: MessageSquare, badge: "1" },
+      { title: "Messages", url: "/buyer/messages", icon: MessageSquare },
     ],
   },
   {
     label: "Account",
     items: [
-      { title: "Wallet", url: "/buyer/wallet", icon: Wallet },
       { title: "Support tickets", url: "/buyer/support", icon: Ticket },
       { title: "Notifications", url: "/buyer/notifications", icon: Bell },
       { title: "Settings", url: "/buyer/settings", icon: Settings },
@@ -33,24 +36,46 @@ const groups: NavGroup[] = [
 ];
 
 export const Route = createFileRoute("/buyer")({
-  head: () => ({
-    meta: [
-      { title: "Buyer Dashboard · SABU Marketplace" },
-      { name: "description", content: "Manage your orders, wishlist and messages on SABU." },
-      { name: "robots", content: "noindex" },
-    ],
-  }),
+  beforeLoad: function () {
+    return getServerUser().then(function (user) {
+      if (!user) {
+        throw redirect({ to: "/login" });
+      }
+    });
+  },
+  head: function () {
+    return {
+      meta: [
+        { title: "Buyer Dashboard - SABU Marketplace" },
+        { name: "description", content: "Manage your orders, wishlist and messages on SABU." },
+        { name: "robots", content: "noindex" },
+      ],
+    };
+  },
   component: BuyerLayout,
 });
 
 function BuyerLayout() {
+  const [userName, setUserName] = useState("Loading...");
+  const [userMeta, setUserMeta] = useState("");
+
+  useEffect(function () {
+    getCurrentUser().then(function (user) {
+      if (!user) return;
+      getProfile(user.id)
+        .then(function (profile) {
+          setUserName(profile.full_name || user.email || "Buyer");
+          setUserMeta(user.email || "");
+        })
+        .catch(function () {
+          setUserName(user.email || "Buyer");
+          setUserMeta(user.email || "");
+        });
+    });
+  }, []);
+
   return (
-    <DashboardShell
-      role="Buyer"
-      userName="Chinelo A."
-      userMeta="chinelo@email.com"
-      groups={groups}
-    >
+    <DashboardShell role="Buyer" userName={userName} userMeta={userMeta} groups={groups}>
       <Outlet />
     </DashboardShell>
   );
