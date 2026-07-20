@@ -26,6 +26,7 @@ import { Route as SellerMessagesRouteImport } from './routes/seller.messages'
 import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
 import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
 import { Route as BuyerWishlistRouteImport } from './routes/buyer.wishlist'
+import { Route as BuyerReviewsRouteImport } from './routes/buyer.reviews'
 import { Route as BuyerOrdersRouteImport } from './routes/buyer.orders'
 import { Route as BuyerCheckoutRouteImport } from './routes/buyer.checkout'
 import { Route as BuyerCartRouteImport } from './routes/buyer.cart'
@@ -35,7 +36,6 @@ import { Route as AdminWithdrawalsRouteImport } from './routes/admin.withdrawals
 import { Route as AdminSellersRouteImport } from './routes/admin.sellers'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminDisputesRouteImport } from './routes/admin.disputes'
-import { Route as ProductRouteImport } from './routes/product.'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -122,6 +122,11 @@ const BuyerWishlistRoute = BuyerWishlistRouteImport.update({
   path: '/wishlist',
   getParentRoute: () => BuyerRoute,
 } as any)
+const BuyerReviewsRoute = BuyerReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => BuyerRoute,
+} as any)
 const BuyerOrdersRoute = BuyerOrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
@@ -167,11 +172,6 @@ const AdminDisputesRoute = AdminDisputesRouteImport.update({
   path: '/disputes',
   getParentRoute: () => AdminRoute,
 } as any)
-const ProductRoute = ProductRouteImport.update({
-  id: '/product/',
-  path: '/product/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -180,7 +180,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/seller': typeof SellerRouteWithChildren
   '/signup': typeof SignupRoute
-  '/product/': typeof ProductRoute
   '/admin/disputes': typeof AdminDisputesRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sellers': typeof AdminSellersRoute
@@ -190,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/buyer/cart': typeof BuyerCartRoute
   '/buyer/checkout': typeof BuyerCheckoutRoute
   '/buyer/orders': typeof BuyerOrdersRoute
+  '/buyer/reviews': typeof BuyerReviewsRoute
   '/buyer/wishlist': typeof BuyerWishlistRoute
   '/product/$productId': typeof ProductProductIdRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
@@ -206,7 +206,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/product': typeof ProductRoute
   '/admin/disputes': typeof AdminDisputesRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sellers': typeof AdminSellersRoute
@@ -216,6 +215,7 @@ export interface FileRoutesByTo {
   '/buyer/cart': typeof BuyerCartRoute
   '/buyer/checkout': typeof BuyerCheckoutRoute
   '/buyer/orders': typeof BuyerOrdersRoute
+  '/buyer/reviews': typeof BuyerReviewsRoute
   '/buyer/wishlist': typeof BuyerWishlistRoute
   '/product/$productId': typeof ProductProductIdRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
@@ -236,7 +236,6 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/seller': typeof SellerRouteWithChildren
   '/signup': typeof SignupRoute
-  '/product/': typeof ProductRoute
   '/admin/disputes': typeof AdminDisputesRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/sellers': typeof AdminSellersRoute
@@ -246,6 +245,7 @@ export interface FileRoutesById {
   '/buyer/cart': typeof BuyerCartRoute
   '/buyer/checkout': typeof BuyerCheckoutRoute
   '/buyer/orders': typeof BuyerOrdersRoute
+  '/buyer/reviews': typeof BuyerReviewsRoute
   '/buyer/wishlist': typeof BuyerWishlistRoute
   '/product/$productId': typeof ProductProductIdRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
@@ -267,7 +267,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/seller'
     | '/signup'
-    | '/product/'
     | '/admin/disputes'
     | '/admin/products'
     | '/admin/sellers'
@@ -277,6 +276,7 @@ export interface FileRouteTypes {
     | '/buyer/cart'
     | '/buyer/checkout'
     | '/buyer/orders'
+    | '/buyer/reviews'
     | '/buyer/wishlist'
     | '/product/$productId'
     | '/seller/analytics'
@@ -293,7 +293,6 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
-    | '/product'
     | '/admin/disputes'
     | '/admin/products'
     | '/admin/sellers'
@@ -303,6 +302,7 @@ export interface FileRouteTypes {
     | '/buyer/cart'
     | '/buyer/checkout'
     | '/buyer/orders'
+    | '/buyer/reviews'
     | '/buyer/wishlist'
     | '/product/$productId'
     | '/seller/analytics'
@@ -322,7 +322,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/seller'
     | '/signup'
-    | '/product/'
     | '/admin/disputes'
     | '/admin/products'
     | '/admin/sellers'
@@ -332,6 +331,7 @@ export interface FileRouteTypes {
     | '/buyer/cart'
     | '/buyer/checkout'
     | '/buyer/orders'
+    | '/buyer/reviews'
     | '/buyer/wishlist'
     | '/product/$productId'
     | '/seller/analytics'
@@ -352,7 +352,6 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   SellerRoute: typeof SellerRouteWithChildren
   SignupRoute: typeof SignupRoute
-  ProductRoute: typeof ProductRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   ProductProductIdRoute: typeof ProductProductIdRoute
 }
@@ -478,6 +477,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuyerWishlistRouteImport
       parentRoute: typeof BuyerRoute
     }
+    '/buyer/reviews': {
+      id: '/buyer/reviews'
+      path: '/reviews'
+      fullPath: '/buyer/reviews'
+      preLoaderRoute: typeof BuyerReviewsRouteImport
+      parentRoute: typeof BuyerRoute
+    }
     '/buyer/orders': {
       id: '/buyer/orders'
       path: '/orders'
@@ -541,13 +547,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDisputesRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/product/': {
-      id: '/product/'
-      path: '/product'
-      fullPath: '/product/'
-      preLoaderRoute: typeof ProductRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -574,6 +573,7 @@ interface BuyerRouteChildren {
   BuyerCartRoute: typeof BuyerCartRoute
   BuyerCheckoutRoute: typeof BuyerCheckoutRoute
   BuyerOrdersRoute: typeof BuyerOrdersRoute
+  BuyerReviewsRoute: typeof BuyerReviewsRoute
   BuyerWishlistRoute: typeof BuyerWishlistRoute
   BuyerIndexRoute: typeof BuyerIndexRoute
 }
@@ -583,6 +583,7 @@ const BuyerRouteChildren: BuyerRouteChildren = {
   BuyerCartRoute: BuyerCartRoute,
   BuyerCheckoutRoute: BuyerCheckoutRoute,
   BuyerOrdersRoute: BuyerOrdersRoute,
+  BuyerReviewsRoute: BuyerReviewsRoute,
   BuyerWishlistRoute: BuyerWishlistRoute,
   BuyerIndexRoute: BuyerIndexRoute,
 }
@@ -619,7 +620,6 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   SellerRoute: SellerRouteWithChildren,
   SignupRoute: SignupRoute,
-  ProductRoute: ProductRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   ProductProductIdRoute: ProductProductIdRoute,
 }

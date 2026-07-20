@@ -1,10 +1,11 @@
 ﻿import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { MapPin, MessageCircle, Heart, ShoppingCart, BadgeCheck, Truck, Check } from "lucide-react";
+import { MapPin, MessageCircle, Heart, ShoppingCart, BadgeCheck, Truck, Check, Star } from "lucide-react";
 import { getProductById, getRelatedProducts } from "@/lib/products";
 import { addToCart } from "@/lib/cart";
 import { toggleWishlist, isInWishlist } from "@/lib/wishlist";
 import { getCurrentUser } from "@/lib/auth";
+import { getProductReviews, getProductRatingSummary } from "@/lib/reviews";
 
 export const Route = createFileRoute("/product/$productId")({
   component: ProductDetail,
@@ -15,6 +16,8 @@ function ProductDetail() {
   const navigate = useNavigate();
   const [product, setProduct] = useState<any>(null);
   const [related, setRelated] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [ratingSummary, setRatingSummary] = useState({ average: 0, count: 0 });
   const [activeImage, setActiveImage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -29,6 +32,8 @@ function ProductDetail() {
         if (data.category_id) {
           getRelatedProducts(data.category_id, data.id).then(setRelated);
         }
+        getProductReviews(data.id).then(setReviews);
+        getProductRatingSummary(data.id).then(setRatingSummary);
         getCurrentUser().then(function (user) {
           if (!user) return;
           isInWishlist(user.id, data.id).then(setWishlisted);
@@ -79,6 +84,19 @@ function ProductDetail() {
     const cleaned = number.replace(/[^0-9]/g, "");
     const text = encodeURIComponent("Hi, I'm interested in your listing: " + product.title + " on SABU Marketplace.");
     window.open("https://wa.me/" + cleaned + "?text=" + text, "_blank");
+  }
+
+  function renderStars(rating: number, size: string) {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <Star
+          key={i}
+          className={size + " " + (i <= Math.round(rating) ? "fill-accent-orange text-accent-orange" : "text-muted-foreground/30")}
+        />
+      );
+    }
+    return stars;
   }
 
   if (loading) {
@@ -134,8 +152,31 @@ function ProductDetail() {
     );
   }
 
+  function renderReview(r: any) {
+    const initial = r.buyer_name ? r.buyer_name.charAt(0).toUpperCase() : "B";
+    return (
+      <div key={r.id} className="border-b border-border py-4 last:border-0">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
+            {initial}
+          </div>
+          <div>
+            <p className="text-sm font-medium">{r.buyer_name || "Verified buyer"}</p>
+            <div className="flex items-center gap-0.5">{renderStars(r.rating, "h-3.5 w-3.5")}</div>
+          </div>
+          <span className="ml-auto text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</span>
+        </div>
+        {r.comment ? <p className="mt-2 text-sm text-muted-foreground">{r.comment}</p> : null}
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
+      <Link to="/" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        &larr; Back to marketplace
+      </Link>
+
       <div className="grid gap-8 lg:grid-cols-2">
         <div>
           <div className="aspect-square overflow-hidden rounded-2xl border border-border bg-muted">
@@ -162,6 +203,16 @@ function ProductDetail() {
               <Heart className="h-5 w-5" fill={wishlisted ? "currentColor" : "none"} />
             </button>
           </div>
+
+          {ratingSummary.count > 0 ? (
+            <div className="mt-1.5 flex items-center gap-2">
+              <div className="flex items-center gap-0.5">{renderStars(ratingSummary.average, "h-4 w-4")}</div>
+              <span className="text-sm font-medium">{ratingSummary.average.toFixed(1)}</span>
+              <span className="text-sm text-muted-foreground">({ratingSummary.count} review{ratingSummary.count !== 1 ? "s" : ""})</span>
+            </div>
+          ) : (
+            <p className="mt-1.5 text-sm text-muted-foreground">No reviews yet</p>
+          )}
 
           <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
             <MapPin className="h-4 w-4" /> {location}
@@ -214,6 +265,17 @@ function ProductDetail() {
             </button>
           </div>
         </div>
+      </div>
+
+      <div className="mt-16">
+        <h2 className="font-display text-xl font-bold">Reviews {ratingSummary.count > 0 ? "(" + ratingSummary.count + ")" : ""}</h2>
+        {reviews.length === 0 ? (
+          <p className="mt-4 text-sm text-muted-foreground">No reviews yet. Be the first to buy and review this product.</p>
+        ) : (
+          <div className="mt-4 max-w-2xl">
+            {reviews.map(renderReview)}
+          </div>
+        )}
       </div>
 
       {related.length > 0 ? (
