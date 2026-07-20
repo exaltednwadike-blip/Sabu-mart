@@ -1,4 +1,4 @@
-import { createClient } from "./supabase/client";
+﻿import { createClient } from "./supabase/client";
 
 export type UserRole = "buyer" | "seller";
 export type IdType = "nin" | "drivers_license" | "voters_card" | "passport";
@@ -13,6 +13,7 @@ export async function signUp(email: string, password: string, fullName: string) 
       data: {
         full_name: fullName,
       },
+      emailRedirectTo: window.location.origin + "/login",
     },
   });
   if (error) throw error;
@@ -32,7 +33,7 @@ export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
+      redirectTo: window.location.origin + "/auth/callback",
     },
   });
   if (error) throw error;
@@ -60,6 +61,18 @@ export async function getProfile(userId: string) {
   return data;
 }
 
+export async function requestPasswordReset(email: string) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + "/reset-password",
+  });
+  if (error) throw error;
+}
+
+export async function updatePassword(newPassword: string) {
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) throw error;
+}
+
 interface SellerApplicationInput {
   businessName: string;
   businessAddress: string;
@@ -71,7 +84,7 @@ interface SellerApplicationInput {
 
 export async function submitSellerApplication(userId: string, input: SellerApplicationInput) {
   const fileExt = input.idDocument.name.split(".").pop();
-  const filePath = `${userId}/${Date.now()}.${fileExt}`;
+  const filePath = userId + "/" + Date.now() + "." + fileExt;
 
   const { error: uploadError } = await supabase.storage
     .from("seller-documents")

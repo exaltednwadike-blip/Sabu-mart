@@ -1,6 +1,6 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+﻿import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, MailCheck } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { signUp, signInWithGoogle } from "@/lib/auth";
 
@@ -18,11 +18,12 @@ function Signup() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [checkEmail, setCheckEmail] = useState(false);
 
   const passwordValid = password.length >= 8;
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
 
@@ -36,26 +37,51 @@ function Signup() {
     }
 
     setLoading(true);
-    try {
-      await signUp(email, password, fullName);
-      navigate({ to: "/buyer" });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
-    } finally {
-      setLoading(false);
-    }
+    signUp(email, password, fullName)
+      .then(function (data) {
+        if (data.session) {
+          navigate({ to: "/buyer" });
+        } else {
+          setCheckEmail(true);
+        }
+      })
+      .catch(function (err) {
+        setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
+      })
+      .finally(function () {
+        setLoading(false);
+      });
   }
 
-  async function handleGoogleSignIn() {
+  function handleGoogleSignIn() {
     setError("");
     setGoogleLoading(true);
-    try {
-      await signInWithGoogle();
-      // Redirects away automatically; no further action needed here.
-    } catch (err) {
+    signInWithGoogle().catch(function (err) {
       setError(err instanceof Error ? err.message : "Google sign-in failed. Try again.");
       setGoogleLoading(false);
-    }
+    });
+  }
+
+  if (checkEmail) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
+        <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-elegant">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <MailCheck className="h-7 w-7" />
+          </div>
+          <h1 className="mt-4 font-display text-xl font-bold">Check your email</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            We sent a confirmation link to <span className="font-medium text-foreground">{email}</span>. Click it to activate your account, then sign in.
+          </p>
+          <Link
+            to="/login"
+            className="mt-6 inline-block w-full rounded-xl gradient-brand py-2.5 text-sm font-semibold text-primary-foreground shadow-soft"
+          >
+            Go to sign in
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -100,7 +126,7 @@ function Signup() {
                 type="text"
                 required
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={function (e) { setFullName(e.target.value); }}
                 placeholder="Chinelo Adeyemi"
                 className="w-full bg-transparent px-3 py-2.5 text-sm outline-none"
               />
@@ -115,7 +141,7 @@ function Signup() {
                 type="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={function (e) { setEmail(e.target.value); }}
                 placeholder="you@example.com"
                 className="w-full bg-transparent px-3 py-2.5 text-sm outline-none"
               />
@@ -130,22 +156,22 @@ function Signup() {
                 type={showPassword ? "text" : "password"}
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={function (e) { setPassword(e.target.value); }}
                 placeholder="At least 8 characters"
                 className="w-full bg-transparent px-3 py-2.5 text-sm outline-none"
               />
               <button
                 type="button"
-                onClick={() => setShowPassword((v) => !v)}
+                onClick={function () { setShowPassword(!showPassword); }}
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 className="text-muted-foreground hover:text-foreground"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            {password.length > 0 && !passwordValid && (
+            {password.length > 0 && !passwordValid ? (
               <p className="mt-1 text-xs text-destructive">Password must be at least 8 characters.</p>
-            )}
+            ) : null}
           </div>
 
           <div>
@@ -156,21 +182,21 @@ function Signup() {
                 type={showPassword ? "text" : "password"}
                 required
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={function (e) { setConfirmPassword(e.target.value); }}
                 placeholder="Re-enter your password"
                 className="w-full bg-transparent px-3 py-2.5 text-sm outline-none"
               />
             </div>
-            {confirmPassword.length > 0 && !passwordsMatch && (
+            {confirmPassword.length > 0 && !passwordsMatch ? (
               <p className="mt-1 text-xs text-destructive">Passwords do not match.</p>
-            )}
+            ) : null}
           </div>
 
-          {error && (
+          {error ? (
             <div className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
               {error}
             </div>
-          )}
+          ) : null}
 
           <button
             type="submit"

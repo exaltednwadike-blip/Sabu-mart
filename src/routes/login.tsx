@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+﻿import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
@@ -19,7 +19,7 @@ function Login() {
 
   const passwordValid = password.length >= 8;
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
 
@@ -29,29 +29,29 @@ function Login() {
     }
 
     setLoading(true);
-    try {
-      const { user } = await signIn(email, password);
-      if (user) {
-        const profile = await getProfile(user.id);
-        navigate({ to: profile.role === "seller" ? "/seller" : "/buyer" });
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
-    } finally {
-      setLoading(false);
-    }
+    signIn(email, password)
+      .then(function (result) {
+        if (result.user) {
+          return getProfile(result.user.id).then(function (profile) {
+            navigate({ to: profile.is_seller ? "/seller" : "/buyer" });
+          });
+        }
+      })
+      .catch(function (err) {
+        setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
+      })
+      .finally(function () {
+        setLoading(false);
+      });
   }
 
-  async function handleGoogleSignIn() {
+  function handleGoogleSignIn() {
     setError("");
     setGoogleLoading(true);
-    try {
-      await signInWithGoogle();
-      // Redirects away automatically; no further action needed here.
-    } catch (err) {
+    signInWithGoogle().catch(function (err) {
       setError(err instanceof Error ? err.message : "Google sign-in failed. Try again.");
       setGoogleLoading(false);
-    }
+    });
   }
 
   return (
@@ -96,7 +96,7 @@ function Login() {
                 type="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={function (e) { setEmail(e.target.value); }}
                 placeholder="you@example.com"
                 className="w-full bg-transparent px-3 py-2.5 text-sm outline-none"
               />
@@ -104,36 +104,41 @@ function Login() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium">Password</label>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="text-sm font-medium">Password</label>
+              <Link to="/forgot-password" className="text-xs font-semibold text-primary hover:underline">
+                Forgot password?
+              </Link>
+            </div>
             <div className="flex items-center rounded-xl border border-border bg-background px-3 focus-within:border-primary">
               <Lock className="h-4 w-4 text-muted-foreground" />
               <input
                 type={showPassword ? "text" : "password"}
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={function (e) { setPassword(e.target.value); }}
                 placeholder="At least 8 characters"
                 className="w-full bg-transparent px-3 py-2.5 text-sm outline-none"
               />
               <button
                 type="button"
-                onClick={() => setShowPassword((v) => !v)}
+                onClick={function () { setShowPassword(!showPassword); }}
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 className="text-muted-foreground hover:text-foreground"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            {password.length > 0 && !passwordValid && (
+            {password.length > 0 && !passwordValid ? (
               <p className="mt-1 text-xs text-destructive">Password must be at least 8 characters.</p>
-            )}
+            ) : null}
           </div>
 
-          {error && (
+          {error ? (
             <div className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
               {error}
             </div>
-          )}
+          ) : null}
 
           <button
             type="submit"
