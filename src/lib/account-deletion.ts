@@ -1,7 +1,7 @@
 ﻿import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { getServerUser } from "./auth-server";
-import { createServerClient } from "./supabase/server";
+import { createClient as createServerClient } from "./supabase/server";
 
 // Service-role client. Server-only — never import this file from client code.
 function getAdminClient() {
