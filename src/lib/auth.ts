@@ -5,13 +5,14 @@ export type IdType = "nin" | "drivers_license" | "voters_card" | "passport";
 
 const supabase = createClient();
 
-export async function signUp(email: string, password: string, fullName: string) {
+export async function signUp(email: string, password: string, fullName: string, role: UserRole) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: {
         full_name: fullName,
+        role: role,
       },
       emailRedirectTo: window.location.origin + "/login",
     },

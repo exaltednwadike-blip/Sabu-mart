@@ -1,4 +1,37 @@
-import { ArrowRight, CheckCircle2, Wallet, TrendingUp, Users } from "lucide-react";
+﻿import { ArrowRight, CheckCircle2, Wallet, TrendingUp, Users, ShieldCheck, Truck, Wallet as WalletIcon, FileCheck } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+const HANDBOOK_POINTS = [
+  {
+    icon: <FileCheck className="h-4 w-4" />,
+    title: "Getting approved",
+    body: "Sign up, submit a valid ID (NIN, driver's license, voter's card, or passport), and get reviewed for approval.",
+  },
+  {
+    icon: <ShieldCheck className="h-4 w-4" />,
+    title: "Listing fee",
+    body: "₦500 per product listing, one-time. No hidden charges.",
+  },
+  {
+    icon: <WalletIcon className="h-4 w-4" />,
+    title: "Getting paid",
+    body: "Buyer payments are held in escrow and released to your wallet once the order is confirmed delivered.",
+  },
+  {
+    icon: <Truck className="h-4 w-4" />,
+    title: "Fulfilling orders",
+    body: "Update order status as you ship, so buyers can track progress and confirm receipt.",
+  },
+];
 
 export function SellCTA() {
   return (
@@ -27,12 +60,45 @@ export function SellCTA() {
               ))}
             </ul>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#register" className="inline-flex items-center gap-2 rounded-xl bg-accent-orange px-5 py-3 text-sm font-semibold text-accent-orange-foreground shadow-orange transition hover:opacity-90">
+              <Link to="/buyer/become-seller" className="inline-flex items-center gap-2 rounded-xl bg-accent-orange px-5 py-3 text-sm font-semibold text-accent-orange-foreground shadow-orange transition hover:opacity-90">
                 Become a seller <ArrowRight className="h-4 w-4" />
-              </a>
-              <a href="#learn" className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-sm font-semibold text-primary-foreground backdrop-blur transition hover:bg-white/20">
-                See seller handbook
-              </a>
+              </Link>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-sm font-semibold text-primary-foreground backdrop-blur transition hover:bg-white/20">
+                    See seller handbook
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Selling on SABU</DialogTitle>
+                    <DialogDescription>
+                      A quick rundown before you get started.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-2">
+                    {HANDBOOK_POINTS.map((p) => (
+                      <div key={p.title} className="flex gap-3">
+                        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                          {p.icon}
+                        </div>
+                        <div>
+                          <div className="text-sm font-semibold">{p.title}</div>
+                          <p className="text-sm text-muted-foreground">{p.body}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <DialogFooter>
+                    <Link
+                      to="/buyer/become-seller"
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent-orange px-5 py-2.5 text-sm font-semibold text-accent-orange-foreground shadow-orange transition hover:opacity-90"
+                    >
+                      Get started <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
 

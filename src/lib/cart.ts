@@ -67,7 +67,8 @@ interface CheckoutInput {
   deliveryAddress: string;
   deliveryCity: string;
   deliveryPhone: string;
-  paystackReference: string;
+  txRef: string;
+  providerTransactionId: string;
 }
 
 export async function checkout(buyerId: string, input: CheckoutInput) {
@@ -88,7 +89,8 @@ export async function checkout(buyerId: string, input: CheckoutInput) {
       delivery_phone: input.deliveryPhone,
       subtotal,
       total: subtotal,
-      paystack_reference: input.paystackReference,
+      paystack_reference: input.txRef,
+      provider_transaction_id: input.providerTransactionId,
       paid_at: new Date().toISOString(),
     })
     .select()

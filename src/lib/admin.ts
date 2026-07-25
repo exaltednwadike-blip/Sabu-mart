@@ -178,7 +178,7 @@ export async function rejectWithdrawal(withdrawalId: string, sellerId: string, a
 export async function listOpenDisputes() {
   const { data, error } = await supabase
     .from("disputes")
-    .select("*, order_items(id, title, price, quantity, seller_id, order_id, orders(paystack_reference, buyer_id))")
+    .select("*, order_items(id, title, price, quantity, seller_id, order_id, orders(paystack_reference, provider_transaction_id, buyer_id))")
     .eq("status", "open")
     .order("created_at", { ascending: true });
   if (error) throw error;

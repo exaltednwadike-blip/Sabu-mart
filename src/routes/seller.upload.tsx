@@ -4,7 +4,7 @@ import { Upload, X } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/DashboardShell";
 import { getCurrentUser } from "@/lib/auth";
 import { getCategories, createProduct, type ListingCategory } from "@/lib/products";
-import { verifyPaystackPayment } from "@/lib/paystack-server";
+import { verifyFlutterwavePayment } from "@/lib/flutterwave-server";
 
 export const Route = createFileRoute("/seller/upload")({
   component: SellerUpload,
@@ -15,18 +15,18 @@ const CITIES = ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano"];
 
 declare global {
   interface Window {
-    PaystackPop: any;
+    FlutterwaveCheckout: any;
   }
 }
 
-function loadPaystackScript() {
+function loadFlutterwaveScript() {
   return new Promise(function (resolve) {
-    if (window.PaystackPop) {
+    if (window.FlutterwaveCheckout) {
       resolve(true);
       return;
     }
     const script = document.createElement("script");
-    script.src = "https://js.paystack.co/v1/inline.js";
+    script.src = "https://checkout.flutterwave.com/v3.js";
     script.onload = function () { resolve(true); };
     document.body.appendChild(script);
   });
@@ -63,7 +63,7 @@ function SellerUpload() {
     getCurrentUser().then(function (user) {
       if (user) setEmail(user.email || "");
     });
-    loadPaystackScript();
+    loadFlutterwaveScript();
   }, []);
 
   const selectedCategory = categories.find(function (c) { return c.id === categoryId; });
@@ -99,28 +99,36 @@ function SellerUpload() {
       setError("Please fill in title, price, and phone number.");
       return;
     }
-    if (!window.PaystackPop) {
+    if (!window.FlutterwaveCheckout) {
       setError("Payment system is still loading. Please try again in a moment.");
       return;
     }
 
     setLoading(true);
-    const reference = "sabu_listing_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+    const txRef = "sabu_listing_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
 
-    const handler = window.PaystackPop.setup({
-      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
-      email: email,
-      amount: Math.round(selectedCategory.listing_fee * 100),
+    window.FlutterwaveCheckout({
+      public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
+      tx_ref: txRef,
+      amount: selectedCategory.listing_fee,
       currency: "NGN",
-      ref: reference,
-      callback: function () {
+      payment_options: "card,mobilemoney,ussd",
+      customer: {
+        email: email,
+        phone_number: phone,
+      },
+      customizations: {
+        title: "SABU Marketplace",
+        description: "Listing fee payment",
+      },
+      callback: function (response: any) {
         getCurrentUser()
           .then(function (user) {
             if (!user) {
               navigate({ to: "/login" });
               return null;
             }
-            return verifyPaystackPayment({ data: reference }).then(function () {
+            return verifyFlutterwavePayment({ data: String(response.transaction_id) }).then(function (verified) {
               return createProduct(user.id, {
                 title: title.trim(),
                 description: description.trim(),
@@ -138,7 +146,8 @@ function SellerUpload() {
                 tags,
                 images,
                 listingFee: selectedCategory.listing_fee,
-                paystackReference: reference,
+                txRef: verified.txRef,
+                providerTransactionId: verified.transactionId,
               });
             });
           })
@@ -152,12 +161,10 @@ function SellerUpload() {
             setLoading(false);
           });
       },
-      onClose: function () {
+      onclose: function () {
         setLoading(false);
       },
     });
-
-    handler.openIframe();
   }
 
   return (

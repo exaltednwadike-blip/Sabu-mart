@@ -1,7 +1,45 @@
-import { Search, MapPin, Shield, TrendingUp, Sparkles, Star } from "lucide-react";
+﻿import { Search, MapPin, Shield, TrendingUp, Sparkles, Star } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import hero from "@/assets/hero-shopper.jpg";
+import { getMarketplaceStats } from "@/lib/products";
+
+function formatCount(n: number) {
+  if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "K+";
+  return String(n);
+}
 
 export function Hero() {
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+  const [stats, setStats] = useState({ productCount: 0, sellerCount: 0, avgRating: 0, reviewCount: 0 });
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(function () {
+    getMarketplaceStats()
+      .then(setStats)
+      .catch(function () {})
+      .finally(function () {
+        setStatsLoading(false);
+      });
+  }, []);
+
+  function runSearch(term: string) {
+    const trimmed = term.trim();
+    if (!trimmed) return;
+    navigate({ to: "/search", search: { q: trimmed } });
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    runSearch(query);
+  }
+
+  function handlePopularClick(term: string) {
+    setQuery(term);
+    runSearch(term);
+  }
+
   return (
     <section className="relative overflow-hidden gradient-hero">
       <div className="pointer-events-none absolute inset-0 opacity-60" style={{ backgroundImage: "var(--gradient-mesh)" }} />
@@ -27,10 +65,12 @@ export function Hero() {
           </p>
 
           <div className="mt-8 rounded-2xl border border-border bg-card p-2 shadow-elegant">
-            <div className="flex flex-col gap-2 md:flex-row">
+            <form className="flex flex-col gap-2 md:flex-row" onSubmit={handleSubmit}>
               <div className="flex flex-1 items-center gap-2 rounded-xl bg-background px-4 py-3">
                 <Search className="h-5 w-5 text-primary" />
                 <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
                   className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                   placeholder="What are you looking for?"
                 />
@@ -45,14 +85,19 @@ export function Hero() {
                   <option>Ibadan</option>
                 </select>
               </div>
-              <button className="rounded-xl gradient-brand px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95">
+              <button type="submit" className="rounded-xl gradient-brand px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95">
                 Search
               </button>
-            </div>
+            </form>
             <div className="flex flex-wrap gap-2 px-2 pb-1 pt-3">
               <span className="text-xs text-muted-foreground">Popular:</span>
               {["iPhone 15", "3-bedroom apartment", "Toyota Camry", "Ankara fabric", "Fresh tomatoes"].map((t) => (
-                <button key={t} className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground transition hover:bg-primary hover:text-primary-foreground">
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => handlePopularClick(t)}
+                  className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground transition hover:bg-primary hover:text-primary-foreground"
+                >
                   {t}
                 </button>
               ))}
@@ -60,9 +105,21 @@ export function Hero() {
           </div>
 
           <div className="mt-8 grid grid-cols-3 gap-4">
-            <Stat icon={<Shield className="h-4 w-4" />} value="120K+" label="Verified sellers" />
-            <Stat icon={<TrendingUp className="h-4 w-4" />} value="2.4M+" label="Live listings" />
-            <Stat icon={<Star className="h-4 w-4" />} value="4.9/5" label="Buyer rating" />
+            <Stat
+              icon={<Shield className="h-4 w-4" />}
+              value={statsLoading ? "…" : formatCount(stats.sellerCount)}
+              label="Verified sellers"
+            />
+            <Stat
+              icon={<TrendingUp className="h-4 w-4" />}
+              value={statsLoading ? "…" : formatCount(stats.productCount)}
+              label="Live listings"
+            />
+            <Stat
+              icon={<Star className="h-4 w-4" />}
+              value={statsLoading ? "…" : stats.reviewCount > 0 ? `${stats.avgRating.toFixed(1)}/5` : "No ratings yet"}
+              label="Buyer rating"
+            />
           </div>
         </div>
 

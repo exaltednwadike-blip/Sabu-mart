@@ -4,7 +4,7 @@ import { MapPin, Phone, Home } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/DashboardShell";
 import { getCurrentUser } from "@/lib/auth";
 import { getCart, checkout } from "@/lib/cart";
-import { verifyPaystackPayment } from "@/lib/paystack-server";
+import { verifyFlutterwavePayment } from "@/lib/flutterwave-server";
 
 export const Route = createFileRoute("/buyer/checkout")({
   component: BuyerCheckout,
@@ -14,18 +14,18 @@ const CITIES = ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano"];
 
 declare global {
   interface Window {
-    PaystackPop: any;
+    FlutterwaveCheckout: any;
   }
 }
 
-function loadPaystackScript() {
+function loadFlutterwaveScript() {
   return new Promise(function (resolve) {
-    if (window.PaystackPop) {
+    if (window.FlutterwaveCheckout) {
       resolve(true);
       return;
     }
     const script = document.createElement("script");
-    script.src = "https://js.paystack.co/v1/inline.js";
+    script.src = "https://checkout.flutterwave.com/v3.js";
     script.onload = function () { resolve(true); };
     document.body.appendChild(script);
   });
@@ -62,7 +62,7 @@ function BuyerCheckout() {
       .finally(function () {
         setLoading(false);
       });
-    loadPaystackScript();
+    loadFlutterwaveScript();
   }, []);
 
   const subtotal = items.reduce(function (sum: number, item: any) {
@@ -77,29 +77,38 @@ function BuyerCheckout() {
       setError("Please fill in your delivery address and phone number.");
       return;
     }
-    if (!window.PaystackPop) {
+    if (!window.FlutterwaveCheckout) {
       setError("Payment system is still loading. Please try again in a moment.");
       return;
     }
 
     setSubmitting(true);
-    const reference = "sabu_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+    const txRef = "sabu_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
 
-    const handler = window.PaystackPop.setup({
-      key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
-      email: email,
-      amount: Math.round(subtotal * 100),
+    window.FlutterwaveCheckout({
+      public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
+      tx_ref: txRef,
+      amount: subtotal,
       currency: "NGN",
-      ref: reference,
-      callback: function () {
+      payment_options: "card,mobilemoney,ussd",
+      customer: {
+        email: email,
+        phone_number: phone,
+      },
+      customizations: {
+        title: "SABU Marketplace",
+        description: "Payment for your order",
+      },
+      callback: function (response: any) {
         getCurrentUser()
           .then(function (user) {
-            return verifyPaystackPayment({ data: reference }).then(function () {
+            return verifyFlutterwavePayment({ data: String(response.transaction_id) }).then(function (verified) {
               return checkout(user.id, {
                 deliveryAddress: address.trim(),
                 deliveryCity: city,
                 deliveryPhone: phone.trim(),
-                paystackReference: reference,
+                txRef: verified.txRef,
+                providerTransactionId: verified.transactionId,
               });
             });
           })
@@ -111,12 +120,10 @@ function BuyerCheckout() {
             setSubmitting(false);
           });
       },
-      onClose: function () {
+      onclose: function () {
         setSubmitting(false);
       },
     });
-
-    handler.openIframe();
   }
 
   if (loading) {
@@ -221,7 +228,7 @@ function BuyerCheckout() {
             {submitting ? "Processing payment..." : "Pay & place order"}
           </button>
           <p className="mt-3 text-[11px] text-muted-foreground">
-            Secure payment powered by Paystack.
+            Secure payment powered by Flutterwave.
           </p>
         </aside>
       </form>

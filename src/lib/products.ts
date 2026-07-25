@@ -35,7 +35,8 @@ export interface ProductInput {
   tags: string[];
   images: File[];
   listingFee: number;
-  paystackReference: string;
+  txRef: string;
+  providerTransactionId: string;
 }
 
 export async function uploadProductImages(sellerId: string, images: File[]) {
@@ -78,7 +79,8 @@ export async function createProduct(sellerId: string, input: ProductInput) {
       status: "pending_review",
       payment_status: "paid",
       listing_fee: input.listingFee,
-      paystack_reference: input.paystackReference,
+      paystack_reference: input.txRef,
+      provider_transaction_id: input.providerTransactionId,
     })
     .select()
     .single();
@@ -96,10 +98,39 @@ export async function getMyProducts(sellerId: string) {
   return data;
 }
 
-export async function deleteProduct(productId: string) {
+function extractStoragePath(publicUrl: string) {
+  const marker = "/product-images/";
+  const idx = publicUrl.indexOf(marker);
+  if (idx === -1) return null;
+  return publicUrl.slice(idx + marker.length);
+}
+
+export async function deleteProduct(productId: string, images: string[]) {
   const { error } = await supabase
     .from("products")
     .delete()
+    .eq("id", productId);
+  if (error) {
+    if (error.code === "23503") {
+      throw new Error("This product has existing orders and can't be deleted. Mark it as sold instead.");
+    }
+    throw error;
+  }
+
+  if (images && images.length > 0) {
+    const paths = images
+      .map(extractStoragePath)
+      .filter(function (p): p is string { return p !== null; });
+    if (paths.length > 0) {
+      await supabase.storage.from("product-images").remove(paths);
+    }
+  }
+}
+
+export async function updateAvailability(productId: string, availability: "available" | "sold") {
+  const { error } = await supabase
+    .from("products")
+    .update({ availability })
     .eq("id", productId);
   if (error) throw error;
 }
@@ -109,6 +140,7 @@ export async function getPublishedProducts(limit: number = 12) {
     .from("products")
     .select("id, title, price, images, city, neighbourhood, listing_categories(name), profiles(store_name)")
     .eq("status", "published")
+    .eq("availability", "available")
     .order("created_at", { ascending: false })
     .limit(limit);
   if (error) throw error;
@@ -131,9 +163,54 @@ export async function getRelatedProducts(categoryId: string, excludeProductId: s
     .from("products")
     .select("id, title, price, images, city, listing_categories(name), profiles(store_name)")
     .eq("status", "published")
+    .eq("availability", "available")
     .eq("category_id", categoryId)
     .neq("id", excludeProductId)
     .limit(limit);
   if (error) throw error;
   return data;
+}
+
+export async function getProductsByCategory(categoryId: string) {
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, title, price, images, city, neighbourhood, listing_categories(name), profiles(store_name)")
+    .eq("status", "published")
+    .eq("availability", "available")
+    .eq("category_id", categoryId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function searchProducts(query: string) {
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, title, price, images, city, neighbourhood, listing_categories(name), profiles(store_name)")
+    .eq("status", "published")
+    .eq("availability", "available")
+    .ilike("title", "%" + query + "%")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function getMarketplaceStats() {
+  const [products, sellers, reviews] = await Promise.all([
+    supabase.from("products").select("id", { count: "exact", head: true }).eq("status", "published"),
+    supabase.from("profiles").select("id", { count: "exact", head: true }).eq("seller_status", "approved"),
+    supabase.from("reviews").select("rating"),
+  ]);
+
+  const reviewData = reviews.data || [];
+  const avgRating = reviewData.length > 0
+    ? reviewData.reduce(function (sum: number, r: any) { return sum + r.rating; }, 0) / reviewData.length
+    : 0;
+
+  return {
+    productCount: products.count ?? 0,
+    sellerCount: sellers.count ?? 0,
+    avgRating,
+    reviewCount: reviewData.length,
+  };
 }

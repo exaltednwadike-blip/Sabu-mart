@@ -4,7 +4,7 @@ import { Wallet, TrendingUp, Clock, ArrowUpRight, ArrowDownRight, X, CheckCircle
 import { PageHeader } from "@/components/dashboard/DashboardShell";
 import { getCurrentUser } from "@/lib/auth";
 import { getWalletSummary, getWalletTransactions, requestWithdrawal, getWithdrawalRequests } from "@/lib/wallet";
-import { listBanks, resolveAccountNumber } from "@/lib/paystack-server";
+import { listBanks, resolveAccountNumber } from "@/lib/flutterwave-server";
 
 export const Route = createFileRoute("/seller/wallet")({
   component: SellerWallet,
@@ -66,7 +66,7 @@ function SellerWallet() {
     setModalOpen(true);
     setAccountName("");
     if (banks.length === 0) {
-      listBanks({}).then(setBanks).catch(function () {});
+      listBanks({}).then(setBanks).catch(function (err) { setError(err instanceof Error ? err.message : "Could not load banks."); });
     }
   }
 

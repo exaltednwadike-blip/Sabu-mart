@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Banknote, CheckCircle2, XCircle } from "lucide-react";
 import { listPendingWithdrawals, markWithdrawalPaid, rejectWithdrawal } from "@/lib/admin";
-import { processPayout } from "@/lib/paystack-server";
+import { processPayout } from "@/lib/flutterwave-server";
 
 export const Route = createFileRoute("/admin/withdrawals")({
   component: AdminWithdrawals,
@@ -42,7 +42,7 @@ function AdminWithdrawals() {
       },
     })
       .then(function (result) {
-        return markWithdrawalPaid(w.id, result.transferCode, result.recipientCode);
+        return markWithdrawalPaid(w.id, result.transferId, result.reference);
       })
       .then(function () {
         setWithdrawals(function (prev) { return prev.filter(function (x: any) { return x.id !== w.id; }); });
@@ -86,7 +86,7 @@ function AdminWithdrawals() {
               disabled={busyId === w.id}
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              <CheckCircle2 className="h-3.5 w-3.5" /> {busyId === w.id ? "Processing..." : "Pay via Paystack"}
+              <CheckCircle2 className="h-3.5 w-3.5" /> {busyId === w.id ? "Processing..." : "Pay via Flutterwave"}
             </button>
             <button
               onClick={function () { handleReject(w); }}

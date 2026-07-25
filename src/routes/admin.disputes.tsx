@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle2, RotateCcw } from "lucide-react";
 import { listOpenDisputes, resolveDisputeRelease, resolveDisputeRefund } from "@/lib/admin";
-import { refundPayment } from "@/lib/paystack-server";
+import { refundPayment } from "@/lib/flutterwave-server";
 
 export const Route = createFileRoute("/admin/disputes")({
   component: AdminDisputes,
@@ -51,10 +51,10 @@ function AdminDisputes() {
     setBusyId(d.id);
     const item = d.order_items;
     const amount = Number(item.price) * item.quantity;
-    const reference = item.orders ? item.orders.paystack_reference : null;
+    const transactionId = item.orders ? item.orders.provider_transaction_id : null;
 
-    const refundStep = reference
-      ? refundPayment({ data: { reference, amount } })
+    const refundStep = transactionId
+      ? refundPayment({ data: { transactionId, amount } })
       : Promise.resolve(null);
 
     refundStep

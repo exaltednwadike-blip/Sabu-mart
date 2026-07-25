@@ -64,7 +64,7 @@ export function ProductGrid(props: {
   );
 }
 
-function ProductCard(props: { p: any }) {
+export function ProductCard(props: { p: any }) {
   const p = props.p;
   const navigate = useNavigate();
   const [added, setAdded] = useState(false);
