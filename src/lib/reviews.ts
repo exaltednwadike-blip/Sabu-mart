@@ -71,3 +71,84 @@ export async function getMyReviews(buyerId: string) {
   if (error) throw error;
   return data;
 }
+
+export async function getSellerReviews(sellerId: string) {
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("*, products(title, images)")
+    .eq("seller_id", sellerId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+type RatingBreakdown = {
+  stars: number;
+  count: number;
+};
+
+export type SellerPerformance = {
+  averageRating: number;
+  reviewCount: number;
+  fulfillmentRate: number;
+  cancellationRate: number;
+  fulfilledCount: number;
+  cancelledCount: number;
+  inProgressCount: number;
+  ratingBreakdown: RatingBreakdown[];
+};
+
+export async function getSellerPerformance(sellerId: string): Promise<SellerPerformance> {
+  const [{ data: reviewData, error: reviewError }, { data: orderItemData, error: orderError }] = await Promise.all([
+    supabase.from("reviews").select("rating").eq("seller_id", sellerId),
+    supabase.from("order_items").select("seller_status").eq("seller_id", sellerId),
+  ]);
+
+  if (reviewError) throw reviewError;
+  if (orderError) throw orderError;
+
+  const reviews = reviewData || [];
+  const orderItems = orderItemData || [];
+
+  const reviewCount = reviews.length;
+  const averageRating = reviewCount === 0
+    ? 0
+    : reviews.reduce(function (sum: number, review: any) {
+        return sum + Number(review.rating);
+      }, 0) / reviewCount;
+
+  const counts = { fulfilledCount: 0, cancelledCount: 0, inProgressCount: 0 };
+  orderItems.forEach(function (item: any) {
+    if (item.seller_status === "delivered") {
+      counts.fulfilledCount += 1;
+    } else if (item.seller_status === "cancelled") {
+      counts.cancelledCount += 1;
+    } else {
+      counts.inProgressCount += 1;
+    }
+  });
+
+  const totalOrders = orderItems.length;
+  const fulfillmentRate = totalOrders === 0 ? 0 : counts.fulfilledCount / totalOrders;
+  const cancellationRate = totalOrders === 0 ? 0 : counts.cancelledCount / totalOrders;
+
+  const ratingBreakdown: RatingBreakdown[] = [5, 4, 3, 2, 1].map(function (stars) {
+    return {
+      stars,
+      count: reviews.filter(function (review: any) {
+        return Number(review.rating) === stars;
+      }).length,
+    };
+  });
+
+  return {
+    averageRating,
+    reviewCount,
+    fulfillmentRate,
+    cancellationRate,
+    fulfilledCount: counts.fulfilledCount,
+    cancelledCount: counts.cancelledCount,
+    inProgressCount: counts.inProgressCount,
+    ratingBreakdown,
+  };
+}

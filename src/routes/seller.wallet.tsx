@@ -23,13 +23,35 @@ const withdrawalStatusColor: { [key: string]: string } = {
   rejected: "bg-destructive/10 text-destructive",
 };
 
+type WalletTransaction = {
+  id: string;
+  type: string;
+  amount: number;
+  created_at: string;
+};
+
+type WithdrawalRequest = {
+  id: string;
+  amount: number;
+  bank_name: string;
+  account_name: string;
+  account_number: string;
+  status: string;
+  created_at: string;
+};
+
+type BankOption = {
+  code: string;
+  name: string;
+};
+
 function SellerWallet() {
   const [summary, setSummary] = useState({ available: 0, pending: 0, totalEarned: 0 });
-  const [transactions, setTransactions] = useState([]);
-  const [withdrawals, setWithdrawals] = useState([]);
+  const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
+  const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [banks, setBanks] = useState([]);
+  const [banks, setBanks] = useState<BankOption[]>([]);
   const [amount, setAmount] = useState("");
   const [bankCode, setBankCode] = useState("");
   const [accountNumber, setAccountNumber] = useState("");

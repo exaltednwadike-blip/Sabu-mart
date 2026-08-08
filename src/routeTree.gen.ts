@@ -21,17 +21,25 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as BuyerIndexRouteImport } from './routes/buyer.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as StoreSellerIdRouteImport } from './routes/store.$sellerId'
+import { Route as SettingsDeleteAccountRouteImport } from './routes/settings.delete-account'
 import { Route as SellerWalletRouteImport } from './routes/seller.wallet'
 import { Route as SellerUploadRouteImport } from './routes/seller.upload'
+import { Route as SellerSettingsRouteImport } from './routes/seller.settings'
+import { Route as SellerReviewsRouteImport } from './routes/seller.reviews'
 import { Route as SellerProductsRouteImport } from './routes/seller.products'
+import { Route as SellerPerformanceRouteImport } from './routes/seller.performance'
 import { Route as SellerOrdersRouteImport } from './routes/seller.orders'
-import { Route as SellerMessagesRouteImport } from './routes/seller.messages'
+import { Route as SellerNotificationsRouteImport } from './routes/seller.notifications'
+import { Route as SellerFollowersRouteImport } from './routes/seller.followers'
 import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
 import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
 import { Route as CategoryCategoryIdRouteImport } from './routes/category.$categoryId'
 import { Route as BuyerWishlistRouteImport } from './routes/buyer.wishlist'
+import { Route as BuyerSettingsRouteImport } from './routes/buyer.settings'
 import { Route as BuyerReviewsRouteImport } from './routes/buyer.reviews'
 import { Route as BuyerOrdersRouteImport } from './routes/buyer.orders'
+import { Route as BuyerNotificationsRouteImport } from './routes/buyer.notifications'
 import { Route as BuyerCheckoutRouteImport } from './routes/buyer.checkout'
 import { Route as BuyerCartRouteImport } from './routes/buyer.cart'
 import { Route as BuyerBecomeSellerRouteImport } from './routes/buyer.become-seller'
@@ -101,6 +109,16 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const StoreSellerIdRoute = StoreSellerIdRouteImport.update({
+  id: '/store/$sellerId',
+  path: '/store/$sellerId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsDeleteAccountRoute = SettingsDeleteAccountRouteImport.update({
+  id: '/settings/delete-account',
+  path: '/settings/delete-account',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerWalletRoute = SellerWalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
@@ -111,9 +129,24 @@ const SellerUploadRoute = SellerUploadRouteImport.update({
   path: '/upload',
   getParentRoute: () => SellerRoute,
 } as any)
+const SellerSettingsRoute = SellerSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerReviewsRoute = SellerReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => SellerRoute,
+} as any)
 const SellerProductsRoute = SellerProductsRouteImport.update({
   id: '/products',
   path: '/products',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerPerformanceRoute = SellerPerformanceRouteImport.update({
+  id: '/performance',
+  path: '/performance',
   getParentRoute: () => SellerRoute,
 } as any)
 const SellerOrdersRoute = SellerOrdersRouteImport.update({
@@ -121,9 +154,14 @@ const SellerOrdersRoute = SellerOrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => SellerRoute,
 } as any)
-const SellerMessagesRoute = SellerMessagesRouteImport.update({
-  id: '/messages',
-  path: '/messages',
+const SellerNotificationsRoute = SellerNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => SellerRoute,
+} as any)
+const SellerFollowersRoute = SellerFollowersRouteImport.update({
+  id: '/followers',
+  path: '/followers',
   getParentRoute: () => SellerRoute,
 } as any)
 const SellerAnalyticsRoute = SellerAnalyticsRouteImport.update({
@@ -146,6 +184,11 @@ const BuyerWishlistRoute = BuyerWishlistRouteImport.update({
   path: '/wishlist',
   getParentRoute: () => BuyerRoute,
 } as any)
+const BuyerSettingsRoute = BuyerSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => BuyerRoute,
+} as any)
 const BuyerReviewsRoute = BuyerReviewsRouteImport.update({
   id: '/reviews',
   path: '/reviews',
@@ -154,6 +197,11 @@ const BuyerReviewsRoute = BuyerReviewsRouteImport.update({
 const BuyerOrdersRoute = BuyerOrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
+  getParentRoute: () => BuyerRoute,
+} as any)
+const BuyerNotificationsRoute = BuyerNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => BuyerRoute,
 } as any)
 const BuyerCheckoutRoute = BuyerCheckoutRouteImport.update({
@@ -215,17 +263,25 @@ export interface FileRoutesByFullPath {
   '/buyer/become-seller': typeof BuyerBecomeSellerRoute
   '/buyer/cart': typeof BuyerCartRoute
   '/buyer/checkout': typeof BuyerCheckoutRoute
+  '/buyer/notifications': typeof BuyerNotificationsRoute
   '/buyer/orders': typeof BuyerOrdersRoute
   '/buyer/reviews': typeof BuyerReviewsRoute
+  '/buyer/settings': typeof BuyerSettingsRoute
   '/buyer/wishlist': typeof BuyerWishlistRoute
   '/category/$categoryId': typeof CategoryCategoryIdRoute
   '/product/$productId': typeof ProductProductIdRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
-  '/seller/messages': typeof SellerMessagesRoute
+  '/seller/followers': typeof SellerFollowersRoute
+  '/seller/notifications': typeof SellerNotificationsRoute
   '/seller/orders': typeof SellerOrdersRoute
+  '/seller/performance': typeof SellerPerformanceRoute
   '/seller/products': typeof SellerProductsRoute
+  '/seller/reviews': typeof SellerReviewsRoute
+  '/seller/settings': typeof SellerSettingsRoute
   '/seller/upload': typeof SellerUploadRoute
   '/seller/wallet': typeof SellerWalletRoute
+  '/settings/delete-account': typeof SettingsDeleteAccountRoute
+  '/store/$sellerId': typeof StoreSellerIdRoute
   '/admin/': typeof AdminIndexRoute
   '/buyer/': typeof BuyerIndexRoute
   '/seller/': typeof SellerIndexRoute
@@ -245,17 +301,25 @@ export interface FileRoutesByTo {
   '/buyer/become-seller': typeof BuyerBecomeSellerRoute
   '/buyer/cart': typeof BuyerCartRoute
   '/buyer/checkout': typeof BuyerCheckoutRoute
+  '/buyer/notifications': typeof BuyerNotificationsRoute
   '/buyer/orders': typeof BuyerOrdersRoute
   '/buyer/reviews': typeof BuyerReviewsRoute
+  '/buyer/settings': typeof BuyerSettingsRoute
   '/buyer/wishlist': typeof BuyerWishlistRoute
   '/category/$categoryId': typeof CategoryCategoryIdRoute
   '/product/$productId': typeof ProductProductIdRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
-  '/seller/messages': typeof SellerMessagesRoute
+  '/seller/followers': typeof SellerFollowersRoute
+  '/seller/notifications': typeof SellerNotificationsRoute
   '/seller/orders': typeof SellerOrdersRoute
+  '/seller/performance': typeof SellerPerformanceRoute
   '/seller/products': typeof SellerProductsRoute
+  '/seller/reviews': typeof SellerReviewsRoute
+  '/seller/settings': typeof SellerSettingsRoute
   '/seller/upload': typeof SellerUploadRoute
   '/seller/wallet': typeof SellerWalletRoute
+  '/settings/delete-account': typeof SettingsDeleteAccountRoute
+  '/store/$sellerId': typeof StoreSellerIdRoute
   '/admin': typeof AdminIndexRoute
   '/buyer': typeof BuyerIndexRoute
   '/seller': typeof SellerIndexRoute
@@ -279,17 +343,25 @@ export interface FileRoutesById {
   '/buyer/become-seller': typeof BuyerBecomeSellerRoute
   '/buyer/cart': typeof BuyerCartRoute
   '/buyer/checkout': typeof BuyerCheckoutRoute
+  '/buyer/notifications': typeof BuyerNotificationsRoute
   '/buyer/orders': typeof BuyerOrdersRoute
   '/buyer/reviews': typeof BuyerReviewsRoute
+  '/buyer/settings': typeof BuyerSettingsRoute
   '/buyer/wishlist': typeof BuyerWishlistRoute
   '/category/$categoryId': typeof CategoryCategoryIdRoute
   '/product/$productId': typeof ProductProductIdRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
-  '/seller/messages': typeof SellerMessagesRoute
+  '/seller/followers': typeof SellerFollowersRoute
+  '/seller/notifications': typeof SellerNotificationsRoute
   '/seller/orders': typeof SellerOrdersRoute
+  '/seller/performance': typeof SellerPerformanceRoute
   '/seller/products': typeof SellerProductsRoute
+  '/seller/reviews': typeof SellerReviewsRoute
+  '/seller/settings': typeof SellerSettingsRoute
   '/seller/upload': typeof SellerUploadRoute
   '/seller/wallet': typeof SellerWalletRoute
+  '/settings/delete-account': typeof SettingsDeleteAccountRoute
+  '/store/$sellerId': typeof StoreSellerIdRoute
   '/admin/': typeof AdminIndexRoute
   '/buyer/': typeof BuyerIndexRoute
   '/seller/': typeof SellerIndexRoute
@@ -314,17 +386,25 @@ export interface FileRouteTypes {
     | '/buyer/become-seller'
     | '/buyer/cart'
     | '/buyer/checkout'
+    | '/buyer/notifications'
     | '/buyer/orders'
     | '/buyer/reviews'
+    | '/buyer/settings'
     | '/buyer/wishlist'
     | '/category/$categoryId'
     | '/product/$productId'
     | '/seller/analytics'
-    | '/seller/messages'
+    | '/seller/followers'
+    | '/seller/notifications'
     | '/seller/orders'
+    | '/seller/performance'
     | '/seller/products'
+    | '/seller/reviews'
+    | '/seller/settings'
     | '/seller/upload'
     | '/seller/wallet'
+    | '/settings/delete-account'
+    | '/store/$sellerId'
     | '/admin/'
     | '/buyer/'
     | '/seller/'
@@ -344,17 +424,25 @@ export interface FileRouteTypes {
     | '/buyer/become-seller'
     | '/buyer/cart'
     | '/buyer/checkout'
+    | '/buyer/notifications'
     | '/buyer/orders'
     | '/buyer/reviews'
+    | '/buyer/settings'
     | '/buyer/wishlist'
     | '/category/$categoryId'
     | '/product/$productId'
     | '/seller/analytics'
-    | '/seller/messages'
+    | '/seller/followers'
+    | '/seller/notifications'
     | '/seller/orders'
+    | '/seller/performance'
     | '/seller/products'
+    | '/seller/reviews'
+    | '/seller/settings'
     | '/seller/upload'
     | '/seller/wallet'
+    | '/settings/delete-account'
+    | '/store/$sellerId'
     | '/admin'
     | '/buyer'
     | '/seller'
@@ -377,17 +465,25 @@ export interface FileRouteTypes {
     | '/buyer/become-seller'
     | '/buyer/cart'
     | '/buyer/checkout'
+    | '/buyer/notifications'
     | '/buyer/orders'
     | '/buyer/reviews'
+    | '/buyer/settings'
     | '/buyer/wishlist'
     | '/category/$categoryId'
     | '/product/$productId'
     | '/seller/analytics'
-    | '/seller/messages'
+    | '/seller/followers'
+    | '/seller/notifications'
     | '/seller/orders'
+    | '/seller/performance'
     | '/seller/products'
+    | '/seller/reviews'
+    | '/seller/settings'
     | '/seller/upload'
     | '/seller/wallet'
+    | '/settings/delete-account'
+    | '/store/$sellerId'
     | '/admin/'
     | '/buyer/'
     | '/seller/'
@@ -406,6 +502,8 @@ export interface RootRouteChildren {
   AuthCallbackRoute: typeof AuthCallbackRoute
   CategoryCategoryIdRoute: typeof CategoryCategoryIdRoute
   ProductProductIdRoute: typeof ProductProductIdRoute
+  SettingsDeleteAccountRoute: typeof SettingsDeleteAccountRoute
+  StoreSellerIdRoute: typeof StoreSellerIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -494,6 +592,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/store/$sellerId': {
+      id: '/store/$sellerId'
+      path: '/store/$sellerId'
+      fullPath: '/store/$sellerId'
+      preLoaderRoute: typeof StoreSellerIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/delete-account': {
+      id: '/settings/delete-account'
+      path: '/settings/delete-account'
+      fullPath: '/settings/delete-account'
+      preLoaderRoute: typeof SettingsDeleteAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seller/wallet': {
       id: '/seller/wallet'
       path: '/wallet'
@@ -508,11 +620,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerUploadRouteImport
       parentRoute: typeof SellerRoute
     }
+    '/seller/settings': {
+      id: '/seller/settings'
+      path: '/settings'
+      fullPath: '/seller/settings'
+      preLoaderRoute: typeof SellerSettingsRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/reviews': {
+      id: '/seller/reviews'
+      path: '/reviews'
+      fullPath: '/seller/reviews'
+      preLoaderRoute: typeof SellerReviewsRouteImport
+      parentRoute: typeof SellerRoute
+    }
     '/seller/products': {
       id: '/seller/products'
       path: '/products'
       fullPath: '/seller/products'
       preLoaderRoute: typeof SellerProductsRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/performance': {
+      id: '/seller/performance'
+      path: '/performance'
+      fullPath: '/seller/performance'
+      preLoaderRoute: typeof SellerPerformanceRouteImport
       parentRoute: typeof SellerRoute
     }
     '/seller/orders': {
@@ -522,11 +655,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerOrdersRouteImport
       parentRoute: typeof SellerRoute
     }
-    '/seller/messages': {
-      id: '/seller/messages'
-      path: '/messages'
-      fullPath: '/seller/messages'
-      preLoaderRoute: typeof SellerMessagesRouteImport
+    '/seller/notifications': {
+      id: '/seller/notifications'
+      path: '/notifications'
+      fullPath: '/seller/notifications'
+      preLoaderRoute: typeof SellerNotificationsRouteImport
+      parentRoute: typeof SellerRoute
+    }
+    '/seller/followers': {
+      id: '/seller/followers'
+      path: '/followers'
+      fullPath: '/seller/followers'
+      preLoaderRoute: typeof SellerFollowersRouteImport
       parentRoute: typeof SellerRoute
     }
     '/seller/analytics': {
@@ -557,6 +697,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuyerWishlistRouteImport
       parentRoute: typeof BuyerRoute
     }
+    '/buyer/settings': {
+      id: '/buyer/settings'
+      path: '/settings'
+      fullPath: '/buyer/settings'
+      preLoaderRoute: typeof BuyerSettingsRouteImport
+      parentRoute: typeof BuyerRoute
+    }
     '/buyer/reviews': {
       id: '/buyer/reviews'
       path: '/reviews'
@@ -569,6 +716,13 @@ declare module '@tanstack/react-router' {
       path: '/orders'
       fullPath: '/buyer/orders'
       preLoaderRoute: typeof BuyerOrdersRouteImport
+      parentRoute: typeof BuyerRoute
+    }
+    '/buyer/notifications': {
+      id: '/buyer/notifications'
+      path: '/notifications'
+      fullPath: '/buyer/notifications'
+      preLoaderRoute: typeof BuyerNotificationsRouteImport
       parentRoute: typeof BuyerRoute
     }
     '/buyer/checkout': {
@@ -652,8 +806,10 @@ interface BuyerRouteChildren {
   BuyerBecomeSellerRoute: typeof BuyerBecomeSellerRoute
   BuyerCartRoute: typeof BuyerCartRoute
   BuyerCheckoutRoute: typeof BuyerCheckoutRoute
+  BuyerNotificationsRoute: typeof BuyerNotificationsRoute
   BuyerOrdersRoute: typeof BuyerOrdersRoute
   BuyerReviewsRoute: typeof BuyerReviewsRoute
+  BuyerSettingsRoute: typeof BuyerSettingsRoute
   BuyerWishlistRoute: typeof BuyerWishlistRoute
   BuyerIndexRoute: typeof BuyerIndexRoute
 }
@@ -662,8 +818,10 @@ const BuyerRouteChildren: BuyerRouteChildren = {
   BuyerBecomeSellerRoute: BuyerBecomeSellerRoute,
   BuyerCartRoute: BuyerCartRoute,
   BuyerCheckoutRoute: BuyerCheckoutRoute,
+  BuyerNotificationsRoute: BuyerNotificationsRoute,
   BuyerOrdersRoute: BuyerOrdersRoute,
   BuyerReviewsRoute: BuyerReviewsRoute,
+  BuyerSettingsRoute: BuyerSettingsRoute,
   BuyerWishlistRoute: BuyerWishlistRoute,
   BuyerIndexRoute: BuyerIndexRoute,
 }
@@ -672,9 +830,13 @@ const BuyerRouteWithChildren = BuyerRoute._addFileChildren(BuyerRouteChildren)
 
 interface SellerRouteChildren {
   SellerAnalyticsRoute: typeof SellerAnalyticsRoute
-  SellerMessagesRoute: typeof SellerMessagesRoute
+  SellerFollowersRoute: typeof SellerFollowersRoute
+  SellerNotificationsRoute: typeof SellerNotificationsRoute
   SellerOrdersRoute: typeof SellerOrdersRoute
+  SellerPerformanceRoute: typeof SellerPerformanceRoute
   SellerProductsRoute: typeof SellerProductsRoute
+  SellerReviewsRoute: typeof SellerReviewsRoute
+  SellerSettingsRoute: typeof SellerSettingsRoute
   SellerUploadRoute: typeof SellerUploadRoute
   SellerWalletRoute: typeof SellerWalletRoute
   SellerIndexRoute: typeof SellerIndexRoute
@@ -682,9 +844,13 @@ interface SellerRouteChildren {
 
 const SellerRouteChildren: SellerRouteChildren = {
   SellerAnalyticsRoute: SellerAnalyticsRoute,
-  SellerMessagesRoute: SellerMessagesRoute,
+  SellerFollowersRoute: SellerFollowersRoute,
+  SellerNotificationsRoute: SellerNotificationsRoute,
   SellerOrdersRoute: SellerOrdersRoute,
+  SellerPerformanceRoute: SellerPerformanceRoute,
   SellerProductsRoute: SellerProductsRoute,
+  SellerReviewsRoute: SellerReviewsRoute,
+  SellerSettingsRoute: SellerSettingsRoute,
   SellerUploadRoute: SellerUploadRoute,
   SellerWalletRoute: SellerWalletRoute,
   SellerIndexRoute: SellerIndexRoute,
@@ -706,6 +872,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCallbackRoute: AuthCallbackRoute,
   CategoryCategoryIdRoute: CategoryCategoryIdRoute,
   ProductProductIdRoute: ProductProductIdRoute,
+  SettingsDeleteAccountRoute: SettingsDeleteAccountRoute,
+  StoreSellerIdRoute: StoreSellerIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

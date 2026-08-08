@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { getServerUser } from "@/lib/auth-server";
 import { getCurrentUser, getProfile } from "@/lib/auth";
 import {
-  LayoutDashboard, ShoppingBag, Heart, MessageSquare, Clock, Bell, Settings, Ticket, Star, ShoppingCart,
+  LayoutDashboard, ShoppingBag, Heart, Clock, Bell, Settings, Ticket, Star, ShoppingCart,
 } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
@@ -22,7 +22,6 @@ const groups = [
     items: [
       { title: "Wishlist", url: "/buyer/wishlist", icon: Heart },
       { title: "Reviews", url: "/buyer/reviews", icon: Star },
-      { title: "Messages", url: "/buyer/messages", icon: MessageSquare },
     ],
   },
   {

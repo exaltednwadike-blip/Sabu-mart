@@ -1,28 +1,133 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Construction, ArrowLeft } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { BarChart3, TrendingUp, Package } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/DashboardShell";
+import { getCurrentUser } from "@/lib/auth";
+import { getRevenueOverTime, getTopProducts, getCategoryBreakdown } from "@/lib/analytics";
 
-// Placeholder for remaining dashboard sub-pages linked from sidebars
 export const Route = createFileRoute("/seller/analytics")({
-  component: () => <Coming title="Analytics" back="/seller" />,
+  component: SellerAnalytics,
 });
 
-export function Coming({ title, back }: { title: string; back: string }) {
+function SellerAnalytics() {
+  const [revenueData, setRevenueData] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(function () {
+    getCurrentUser().then(function (user) {
+      if (!user) return;
+      Promise.all([
+        getRevenueOverTime(user.id, 30),
+        getTopProducts(user.id, 5),
+        getCategoryBreakdown(user.id),
+      ])
+        .then(function (results) {
+          setRevenueData(results[0]);
+          setTopProducts(results[1]);
+          setCategories(results[2]);
+        })
+        .finally(function () {
+          setLoading(false);
+        });
+    });
+  }, []);
+
+  const totalRevenue = revenueData.reduce(function (sum: number, d: any) { return sum + d.revenue; }, 0);
+
+  function renderTopProduct(p: any, i: number) {
+    return (
+      <div key={p.title} className="flex items-center justify-between border-b border-border py-3 last:border-0">
+        <div className="flex items-center gap-3">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+            {i + 1}
+          </span>
+          <div>
+            <p className="text-sm font-medium">{p.title}</p>
+            <p className="text-xs text-muted-foreground">{p.units} sold</p>
+          </div>
+        </div>
+        <span className="font-semibold text-primary">₦{p.revenue.toLocaleString()}</span>
+      </div>
+    );
+  }
+
+  function renderCategory(c: any) {
+    return (
+      <div key={c.name} className="flex items-center justify-between border-b border-border py-3 last:border-0">
+        <span className="text-sm">{c.name}</span>
+        <span className="text-sm font-semibold">{c.count} listing{c.count !== 1 ? "s" : ""}</span>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <PageHeader title={title} />
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card p-16 text-center shadow-soft">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-          <Construction className="h-6 w-6" />
+      <PageHeader title="Analytics" subtitle="Real performance data from your store." />
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <TrendingUp className="h-4 w-4 text-success" /> Revenue (last 30 days)
+          </div>
+          <div className="mt-2 font-display text-2xl font-bold">₦{totalRevenue.toLocaleString()}</div>
         </div>
-        <h2 className="mt-4 font-display text-xl font-semibold">Coming soon</h2>
-        <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-          This section is being built. In the meantime, explore the rest of your dashboard.
-        </p>
-        <Link to={back} className="mt-5 inline-flex items-center gap-2 rounded-xl gradient-brand px-4 py-2 text-sm font-semibold text-primary-foreground shadow-soft">
-          <ArrowLeft className="h-4 w-4" /> Back to dashboard
-        </Link>
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Package className="h-4 w-4 text-primary" /> Products listed
+          </div>
+          <div className="mt-2 font-display text-2xl font-bold">
+            {categories.reduce(function (sum: number, c: any) { return sum + c.count; }, 0)}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-soft">
+        <h3 className="mb-4 flex items-center gap-2 font-semibold">
+          <BarChart3 className="h-4 w-4 text-primary" /> Revenue over time
+        </h3>
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        ) : revenueData.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No revenue yet in the last 30 days.</p>
+        ) : (
+          <div style={{ width: "100%", height: 250 }}>
+            <ResponsiveContainer>
+              <LineChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="day" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 11 }} />
+                <Tooltip formatter={function (value: any) { return "₦" + Number(value).toLocaleString(); }} />
+                <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+          <h3 className="mb-2 font-semibold">Top products</h3>
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Loading...</p>
+          ) : topProducts.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No sales yet.</p>
+          ) : (
+            topProducts.map(renderTopProduct)
+          )}
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+          <h3 className="mb-2 font-semibold">Listings by category</h3>
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Loading...</p>
+          ) : categories.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No products yet.</p>
+          ) : (
+            categories.map(renderCategory)
+          )}
+        </div>
       </div>
     </div>
   );

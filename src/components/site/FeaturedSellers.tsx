@@ -1,55 +1,72 @@
-﻿import { BadgeCheck, Star, Store } from "lucide-react";
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { Star, BadgeCheck, ShoppingBag } from "lucide-react";
 import { SectionHeader } from "./CategoryGrid";
-import { getFeaturedSellers, type FeaturedSeller } from "@/lib/sellers";
-
-const TINTS = ["primary", "orange"];
+import { getTopSellers, getSellerProducts } from "@/lib/sellers";
+import { getSellerRatingSummary } from "@/lib/analytics";
 
 export function FeaturedSellers() {
-  const [sellers, setSellers] = useState<FeaturedSeller[]>([]);
+  const [sellers, setSellers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(function () {
-    getFeaturedSellers(6)
-      .then(setSellers)
-      .catch(function () {
-        setSellers([]);
+    getTopSellers(6)
+      .then(function (data) {
+        return Promise.all(
+          data.map(function (s: any) {
+            return Promise.all([
+              getSellerProducts(s.id),
+              getSellerRatingSummary(s.id),
+            ]).then(function (results) {
+              return {
+                id: s.id,
+                store_name: s.store_name,
+                productCount: results[0].length,
+                rating: results[1],
+              };
+            });
+          })
+        );
       })
-      .finally(function () {
-        setLoading(false);
-      });
+      .then(function (enriched) {
+        setSellers(enriched.filter(function (s: any) { return s.productCount > 0; }));
+      })
+      .catch(function () { setSellers([]); })
+      .finally(function () { setLoading(false); });
   }, []);
 
-  function renderSeller(s: FeaturedSeller, i: number) {
-    const tint = TINTS[i % 2];
-    const initial = s.storeName.charAt(0).toUpperCase();
+  function renderSeller(s: any) {
     return (
-      <article key={s.id} className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-soft">
-        <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl font-display text-2xl font-bold ${
-          tint === "primary" ? "bg-primary/10 text-primary" : "bg-accent-orange/15 text-accent-orange"
-        }`}>
-          {initial}
+      <div key={s.id} className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-soft">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl gradient-brand font-display font-bold text-primary-foreground">
+          {s.store_name ? s.store_name.charAt(0).toUpperCase() : "S"}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
-            <h3 className="truncate font-semibold">{s.storeName}</h3>
-            <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />
+          <div className="flex items-center gap-1">
+            <span className="truncate text-sm font-semibold">{s.store_name}</span>
+            <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-primary" />
           </div>
-          <div className="text-xs text-muted-foreground">{s.category}</div>
-          <div className="mt-1.5 flex items-center gap-3 text-xs">
-            <span className="flex items-center gap-1 text-foreground">
-              <Star className="h-3 w-3 fill-accent-orange text-accent-orange" />
-              {s.reviewCount > 0 ? s.rating.toFixed(2) : "New"}
-            </span>
-            <span className="flex items-center gap-1 text-muted-foreground">
-              <Store className="h-3 w-3" /> {s.salesCount} sale{s.salesCount !== 1 ? "s" : ""}
+          <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+            {s.rating.count > 0 ? (
+              <span className="flex items-center gap-0.5">
+                <Star className="h-3 w-3 fill-accent-orange text-accent-orange" /> {s.rating.average.toFixed(2)}
+              </span>
+            ) : (
+              <span>New seller</span>
+            )}
+            <span className="flex items-center gap-0.5">
+              <ShoppingBag className="h-3 w-3" /> {s.productCount} listing{s.productCount !== 1 ? "s" : ""}
             </span>
           </div>
         </div>
-        <button className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold transition hover:bg-primary hover:text-primary-foreground">
+        <Link
+          to="/store/$sellerId"
+          params={{ sellerId: s.id }}
+          className="shrink-0 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-foreground"
+        >
           Visit
-        </button>
-      </article>
+        </Link>
+      </div>
     );
   }
 
@@ -58,14 +75,13 @@ export function FeaturedSellers() {
       <SectionHeader
         eyebrow="Top rated"
         title="Featured sellers"
-        subtitle="Verified businesses trusted by buyers across Nigeria."
-        action={<a href="#" className="text-sm font-semibold text-primary hover:underline">Browse all sellers →</a>}
+        subtitle="Real verified stores on SABU."
       />
       {loading ? (
         <div className="mt-8 text-center text-sm text-muted-foreground">Loading sellers...</div>
       ) : sellers.length === 0 ? (
         <div className="mt-8 rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-          No approved sellers yet. Once sellers are approved, they'll show up here.
+          No active sellers with listings yet.
         </div>
       ) : (
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

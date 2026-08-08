@@ -5,7 +5,7 @@ import { getCurrentUser, getProfile } from "@/lib/auth";
 import { getMyProducts } from "@/lib/products";
 import { getSellerOrderItems } from "@/lib/cart";
 import {
-  LayoutDashboard, Package, ShoppingCart, MessageSquare, Wallet, BarChart3,
+  LayoutDashboard, Package, ShoppingCart, Wallet, BarChart3,
   Star, Users, Bell, Settings, Upload, TrendingUp,
 } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
@@ -90,7 +90,6 @@ function SellerLayout() {
       label: "Finance & Comms",
       items: [
         { title: "Wallet", url: "/seller/wallet", icon: Wallet },
-        { title: "Messages", url: "/seller/messages", icon: MessageSquare },
         { title: "Notifications", url: "/seller/notifications", icon: Bell },
         { title: "Settings", url: "/seller/settings", icon: Settings },
       ],

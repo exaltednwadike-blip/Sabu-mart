@@ -5,15 +5,12 @@ export type IdType = "nin" | "drivers_license" | "voters_card" | "passport";
 
 const supabase = createClient();
 
-export async function signUp(email: string, password: string, fullName: string, role: UserRole) {
+export async function signUp(email: string, password: string, fullName: string) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: {
-        full_name: fullName,
-        role: role,
-      },
+      data: { full_name: fullName },
       emailRedirectTo: window.location.origin + "/login",
     },
   });
@@ -22,10 +19,7 @@ export async function signUp(email: string, password: string, fullName: string, 
 }
 
 export async function signIn(email: string, password: string) {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
   return data;
 }
@@ -33,9 +27,7 @@ export async function signIn(email: string, password: string) {
 export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: {
-      redirectTo: window.location.origin + "/auth/callback",
-    },
+    options: { redirectTo: window.location.origin + "/auth/callback" },
   });
   if (error) throw error;
   return data;
@@ -71,6 +63,26 @@ export async function requestPasswordReset(email: string) {
 
 export async function updatePassword(newPassword: string) {
   const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) throw error;
+}
+
+export async function uploadAvatar(userId: string, file: File) {
+  const fileExt = file.name.split(".").pop();
+  const filePath = userId + "/avatar." + fileExt;
+  const { error } = await supabase.storage.from("avatars").upload(filePath, file, { upsert: true });
+  if (error) throw error;
+  const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+  return data.publicUrl + "?t=" + Date.now();
+}
+
+export async function updateProfile(userId: string, updates: { fullName?: string; phone?: string; avatarUrl?: string; storeName?: string }) {
+  const payload: any = {};
+  if (updates.fullName !== undefined) payload.full_name = updates.fullName;
+  if (updates.phone !== undefined) payload.phone = updates.phone;
+  if (updates.avatarUrl !== undefined) payload.avatar_url = updates.avatarUrl;
+  if (updates.storeName !== undefined) payload.store_name = updates.storeName;
+
+  const { error } = await supabase.from("profiles").update(payload).eq("id", userId);
   if (error) throw error;
 }
 
