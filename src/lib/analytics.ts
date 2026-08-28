@@ -1,4 +1,4 @@
-﻿import { createClient } from "./supabase/client";
+import { createClient } from "./supabase/client";
 
 const supabase = createClient();
 
@@ -63,6 +63,45 @@ export async function getCategoryBreakdown(sellerId: string) {
   return Object.keys(byCategory).map(function (name) {
     return { name, count: byCategory[name] };
   });
+}
+
+export async function getProductViewsAndLikes(sellerId: string) {
+  const { data: products, error: productsError } = await supabase
+    .from("products")
+    .select("id, title")
+    .eq("seller_id", sellerId);
+  if (productsError) throw productsError;
+
+  const productIds = (products || []).map(function (p: any) { return p.id; });
+  if (productIds.length === 0) return [];
+
+  const [viewsResult, likesResult] = await Promise.all([
+    supabase.from("product_views").select("product_id").in("product_id", productIds),
+    supabase.from("wishlist_items").select("product_id").in("product_id", productIds),
+  ]);
+  if (viewsResult.error) throw viewsResult.error;
+  if (likesResult.error) throw likesResult.error;
+
+  const viewCounts: { [key: string]: number } = {};
+  (viewsResult.data || []).forEach(function (row: any) {
+    viewCounts[row.product_id] = (viewCounts[row.product_id] || 0) + 1;
+  });
+
+  const likeCounts: { [key: string]: number } = {};
+  (likesResult.data || []).forEach(function (row: any) {
+    likeCounts[row.product_id] = (likeCounts[row.product_id] || 0) + 1;
+  });
+
+  return (products || [])
+    .map(function (p: any) {
+      return {
+        id: p.id,
+        title: p.title,
+        views: viewCounts[p.id] || 0,
+        likes: likeCounts[p.id] || 0,
+      };
+    })
+    .sort(function (a: any, b: any) { return b.views - a.views; });
 }
 
 export async function getFulfillmentFunnel(sellerId: string) {

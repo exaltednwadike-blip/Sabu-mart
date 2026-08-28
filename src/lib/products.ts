@@ -1,4 +1,4 @@
-﻿import { createClient } from "./supabase/client";
+import { createClient } from "./supabase/client";
 
 const supabase = createClient();
 
@@ -135,16 +135,23 @@ export async function updateAvailability(productId: string, availability: "avail
   if (error) throw error;
 }
 
-export async function getPublishedProducts(limit: number = 12) {
+export async function getPublishedProducts(limit: number = 12, offset: number = 0) {
   const { data, error } = await supabase
     .from("products")
     .select("id, title, price, images, city, neighbourhood, listing_categories(name), profiles(store_name)")
     .eq("status", "published")
     .eq("availability", "available")
     .order("created_at", { ascending: false })
-    .limit(limit);
+    .range(offset, offset + limit - 1);
   if (error) throw error;
   return data;
+}
+
+export async function recordProductView(productId: string, viewerId: string | null) {
+  const { error } = await supabase
+    .from("product_views")
+    .insert({ product_id: productId, viewer_id: viewerId });
+  if (error) throw error;
 }
 
 export async function getProductById(productId: string) {

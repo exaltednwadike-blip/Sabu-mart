@@ -3,9 +3,8 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { Hero } from "@/components/site/Hero";
 import { CategoryGrid } from "@/components/site/CategoryGrid";
-import { ProductGrid } from "@/components/site/ProductGrid";
+import { ProductFeed } from "@/components/site/ProductFeed";
 import { Accommodation } from "@/components/site/Accommodation";
-import { FeaturedSellers } from "@/components/site/FeaturedSellers";
 import { SellCTA } from "@/components/site/SellCTA";
 import { Reviews } from "@/components/site/Reviews";
 import { Newsletter } from "@/components/site/Newsletter";
@@ -21,12 +20,9 @@ function Home() {
       <main>
         <Hero />
         <CategoryGrid />
-        <ProductGrid eyebrow="Limited time" title="⚡ Flash deals" subtitle="Hand-picked deals refreshed every 6 hours." variant="flash" />
-        <FeaturedSellers />
-        <ProductGrid eyebrow="Trending" title="Trending products" subtitle="What buyers are loving on SABU right now." />
+        <ProductFeed />
         <Accommodation />
         <SellCTA />
-        <ProductGrid eyebrow="Just landed" title="Recently added" subtitle="Fresh listings from verified sellers across Nigeria." />
         <Reviews />
         <Newsletter />
       </main>
