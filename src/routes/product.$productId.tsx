@@ -1,7 +1,7 @@
 ﻿import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { MapPin, MessageCircle, Heart, ShoppingCart, BadgeCheck, Truck, Check, Star } from "lucide-react";
-import { getProductById, getRelatedProducts } from "@/lib/products";
+import { getProductById, getRelatedProducts, recordProductView } from "@/lib/products";
 import { addToCart } from "@/lib/cart";
 import { toggleWishlist, isInWishlist } from "@/lib/wishlist";
 import { getCurrentUser } from "@/lib/auth";
@@ -35,6 +35,7 @@ function ProductDetail() {
         getProductReviews(data.id).then(setReviews);
         getProductRatingSummary(data.id).then(setRatingSummary);
         getCurrentUser().then(function (user) {
+          recordProductView(data.id, user ? user.id : null).catch(function () {});
           if (!user) return;
           isInWishlist(user.id, data.id).then(setWishlisted);
         });

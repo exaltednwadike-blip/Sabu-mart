@@ -1,5 +1,5 @@
 ﻿import { Link, useRouterState } from "@tanstack/react-router";
-import { ShieldCheck, Users, Package, LogOut, LayoutDashboard, Banknote, AlertTriangle } from "lucide-react";
+import { ShieldCheck, Users, Package, LogOut, LayoutDashboard, Banknote, AlertTriangle, Ticket } from "lucide-react";
 import { signOut } from "@/lib/auth";
 import { useNavigate } from "@tanstack/react-router";
 
@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { title: "Products", url: "/admin/products", icon: Package },
   { title: "Withdrawals", url: "/admin/withdrawals", icon: Banknote },
   { title: "Disputes", url: "/admin/disputes", icon: AlertTriangle },
+  { title: "Support", url: "/admin/support", icon: Ticket },
 ];
 
 export function AdminShell(props: { children: React.ReactNode }) {
