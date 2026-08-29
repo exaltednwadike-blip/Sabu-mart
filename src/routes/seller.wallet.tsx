@@ -1,10 +1,9 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Wallet, TrendingUp, Clock, ArrowUpRight, ArrowDownRight, X, CheckCircle2 } from "lucide-react";
+import { Wallet, TrendingUp, Clock, ArrowUpRight, ArrowDownRight, AlertTriangle } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/DashboardShell";
 import { getCurrentUser } from "@/lib/auth";
-import { getWalletSummary, getWalletTransactions, requestWithdrawal, getWithdrawalRequests } from "@/lib/wallet";
-import { listBanks, resolveAccountNumber } from "@/lib/flutterwave-server";
+import { getWalletSummary, getWalletTransactions, getWithdrawalRequests } from "@/lib/wallet";
 
 export const Route = createFileRoute("/seller/wallet")({
   component: SellerWallet,
@@ -40,28 +39,13 @@ type WithdrawalRequest = {
   created_at: string;
 };
 
-type BankOption = {
-  code: string;
-  name: string;
-};
-
 function SellerWallet() {
   const [summary, setSummary] = useState({ available: 0, pending: 0, totalEarned: 0 });
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [banks, setBanks] = useState<BankOption[]>([]);
-  const [amount, setAmount] = useState("");
-  const [bankCode, setBankCode] = useState("");
-  const [accountNumber, setAccountNumber] = useState("");
-  const [accountName, setAccountName] = useState("");
-  const [verifying, setVerifying] = useState(false);
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
-  function load() {
-    setLoading(true);
+  useEffect(function () {
     getCurrentUser().then(function (user) {
       if (!user) return;
       Promise.all([
@@ -78,75 +62,7 @@ function SellerWallet() {
           setLoading(false);
         });
     });
-  }
-
-  useEffect(function () {
-    load();
   }, []);
-
-  function openModal() {
-    setModalOpen(true);
-    setAccountName("");
-    if (banks.length === 0) {
-      listBanks({}).then(setBanks).catch(function (err) { setError(err instanceof Error ? err.message : "Could not load banks."); });
-    }
-  }
-
-  function handleVerify() {
-    if (!bankCode || accountNumber.length < 10) {
-      setError("Select a bank and enter a valid account number.");
-      return;
-    }
-    setError("");
-    setVerifying(true);
-    resolveAccountNumber({ data: { accountNumber, bankCode } })
-      .then(function (result) {
-        setAccountName(result.accountName);
-      })
-      .catch(function (err) {
-        setError(err instanceof Error ? err.message : "Could not verify account.");
-      })
-      .finally(function () {
-        setVerifying(false);
-      });
-  }
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    const amt = Number(amount);
-    const bank = banks.find(function (b: any) { return b.code === bankCode; });
-
-    if (!amt || amt <= 0) {
-      setError("Enter a valid amount.");
-      return;
-    }
-    if (amt > summary.available) {
-      setError("Amount exceeds your available balance.");
-      return;
-    }
-    if (!accountName) {
-      setError("Please verify your account details first.");
-      return;
-    }
-
-    setSubmitting(true);
-    requestWithdrawal(amt, bank ? bank.name : "", bankCode, accountNumber, accountName)
-      .then(function () {
-        setModalOpen(false);
-        setAmount("");
-        setBankCode("");
-        setAccountNumber("");
-        setAccountName("");
-        load();
-      })
-      .catch(function (err) {
-        setError(err instanceof Error ? err.message : "Something went wrong.");
-      })
-      .finally(function () {
-        setSubmitting(false);
-      });
-  }
 
   function renderTransaction(t: any) {
     const isCredit = t.type === "escrow_release" || t.type === "refund";
@@ -187,6 +103,15 @@ function SellerWallet() {
     <div>
       <PageHeader title="Wallet" subtitle="Track your earnings and payouts." />
 
+      <div className="mb-6 flex items-start gap-3 rounded-2xl border border-accent-orange/30 bg-accent-orange/10 p-4 text-sm">
+        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accent-orange" />
+        <p className="text-muted-foreground">
+          <strong className="text-foreground">Withdrawals are temporarily paused</strong> while we resolve an issue with our
+          payment provider. Your balance and transaction history below are unaffected and still accurate — you just can't
+          request a new withdrawal right now. We'll re-enable this as soon as it's fixed.
+        </p>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -194,10 +119,10 @@ function SellerWallet() {
           </div>
           <div className="mt-2 font-display text-2xl font-bold">₦{summary.available.toLocaleString()}</div>
           <button
-            onClick={openModal}
-            className="mt-3 w-full rounded-lg bg-primary/10 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-foreground"
+            disabled
+            className="mt-3 w-full cursor-not-allowed rounded-lg bg-muted py-1.5 text-xs font-semibold text-muted-foreground"
           >
-            Withdraw
+            Withdrawals paused
           </button>
         </div>
         <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
@@ -236,84 +161,6 @@ function SellerWallet() {
           </div>
         )}
       </div>
-
-      {modalOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-elegant">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-lg font-bold">Withdraw funds</h2>
-              <button onClick={function () { setModalOpen(false); }} className="text-muted-foreground hover:text-foreground">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">Available: ₦{summary.available.toLocaleString()}</p>
-
-            <form onSubmit={handleSubmit} className="mt-4 space-y-3">
-              <div>
-                <label className="mb-1 block text-xs font-medium">Amount</label>
-                <input
-                  type="number"
-                  value={amount}
-                  onChange={function (e) { setAmount(e.target.value); }}
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-                  placeholder="0"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium">Bank</label>
-                <select
-                  value={bankCode}
-                  onChange={function (e) { setBankCode(e.target.value); setAccountName(""); }}
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-                >
-                  <option value="">Select your bank</option>
-                  {banks.map(function (b: any) {
-                    return <option key={b.code} value={b.code}>{b.name}</option>;
-                  })}
-                </select>
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium">Account number</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={accountNumber}
-                    onChange={function (e) { setAccountNumber(e.target.value); setAccountName(""); }}
-                    className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-                    placeholder="0123456789"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleVerify}
-                    disabled={verifying}
-                    className="rounded-xl border border-border px-3 py-2 text-xs font-semibold hover:bg-accent disabled:opacity-60"
-                  >
-                    {verifying ? "Checking..." : "Verify"}
-                  </button>
-                </div>
-              </div>
-
-              {accountName ? (
-                <div className="flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm text-success">
-                  <CheckCircle2 className="h-4 w-4" /> {accountName}
-                </div>
-              ) : null}
-
-              {error ? (
-                <div className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>
-              ) : null}
-
-              <button
-                type="submit"
-                disabled={submitting || !accountName}
-                className="w-full rounded-xl gradient-brand py-2.5 text-sm font-semibold text-primary-foreground shadow-soft hover:opacity-90 disabled:opacity-60"
-              >
-                {submitting ? "Submitting..." : "Request withdrawal"}
-              </button>
-            </form>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }

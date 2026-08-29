@@ -1,4 +1,4 @@
-import { createClient } from "./supabase/client";
+﻿import { createClient } from "./supabase/client";
 
 const supabase = createClient();
 
@@ -34,9 +34,9 @@ export interface ProductInput {
   whatsapp: string;
   tags: string[];
   images: File[];
-  listingFee: number;
-  txRef: string;
-  providerTransactionId: string;
+  listingFee?: number;
+  txRef?: string;
+  providerTransactionId?: string;
 }
 
 export async function uploadProductImages(sellerId: string, images: File[]) {
@@ -52,7 +52,25 @@ export async function uploadProductImages(sellerId: string, images: File[]) {
   return urls;
 }
 
+export const FREE_LISTING_LIMIT = 10;
+
+export async function getMyProductCount(sellerId: string) {
+  const { count, error } = await supabase
+    .from("products")
+    .select("id", { count: "exact", head: true })
+    .eq("seller_id", sellerId);
+  if (error) throw error;
+  return count ?? 0;
+}
+
 export async function createProduct(sellerId: string, input: ProductInput) {
+  const currentCount = await getMyProductCount(sellerId);
+  if (currentCount >= FREE_LISTING_LIMIT) {
+    throw new Error(
+      "You've reached the free launch limit of " + FREE_LISTING_LIMIT + " products. More plans are coming soon."
+    );
+  }
+
   const imageUrls = input.images.length > 0
     ? await uploadProductImages(sellerId, input.images)
     : [];
@@ -78,9 +96,9 @@ export async function createProduct(sellerId: string, input: ProductInput) {
       images: imageUrls,
       status: "pending_review",
       payment_status: "paid",
-      listing_fee: input.listingFee,
-      paystack_reference: input.txRef,
-      provider_transaction_id: input.providerTransactionId,
+      listing_fee: 0,
+      paystack_reference: input.txRef || null,
+      provider_transaction_id: input.providerTransactionId || null,
     })
     .select()
     .single();

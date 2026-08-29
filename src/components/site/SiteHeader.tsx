@@ -149,7 +149,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 w-full">
       <div className="hidden bg-primary py-1.5 text-center text-xs font-medium text-primary-foreground md:block">
-        Free delivery on orders over ₦25,000 · Sell on SABU from just ₦500 per listing
+        Free delivery on orders over ₦25,000 · Sell on SABU for free — limited launch offer
       </div>
       <div className="glass border-b">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 lg:gap-6">

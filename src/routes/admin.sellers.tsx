@@ -1,24 +1,46 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { FileCheck, CheckCircle2, XCircle, ExternalLink, Users } from "lucide-react";
-import { listApplications, approveApplication, rejectApplication, getDocumentUrl } from "@/lib/admin";
+import { FileCheck, CheckCircle2, XCircle, ExternalLink, Users, Store, Phone } from "lucide-react";
+import { listApplications, approveApplication, rejectApplication, getDocumentUrl, getAllSellers } from "@/lib/admin";
 
 export const Route = createFileRoute("/admin/sellers")({
   component: AdminSellers,
 });
 
 function AdminSellers() {
-  const [applications, setApplications] = useState([]);
+  const [tab, setTab] = useState<"pending" | "all">("pending");
+  const [applications, setApplications] = useState<any[]>([]);
+  const [sellers, setSellers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [busyId, setBusyId] = useState(null);
-  const [rejectingId, setRejectingId] = useState(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [error, setError] = useState("");
 
-  function load() {
+  function loadPending() {
     setLoading(true);
+    setError("");
     listApplications("pending")
       .then(function (data) {
         setApplications(data);
+      })
+      .catch(function (err) {
+        setError(err instanceof Error ? err.message : "Could not load applications.");
+      })
+      .finally(function () {
+        setLoading(false);
+      });
+  }
+
+  function loadAllSellers() {
+    setLoading(true);
+    setError("");
+    getAllSellers()
+      .then(function (data) {
+        setSellers(data);
+      })
+      .catch(function (err) {
+        setError(err instanceof Error ? err.message : "Could not load sellers.");
       })
       .finally(function () {
         setLoading(false);
@@ -26,14 +48,22 @@ function AdminSellers() {
   }
 
   useEffect(function () {
-    load();
-  }, []);
+    if (tab === "pending") {
+      loadPending();
+    } else {
+      loadAllSellers();
+    }
+  }, [tab]);
 
   function handleApprove(app: any) {
     setBusyId(app.id);
+    setError("");
     approveApplication(app.id, app.user_id, app.business_name)
       .then(function () {
         setApplications(function (prev) { return prev.filter(function (a: any) { return a.id !== app.id; }); });
+      })
+      .catch(function (err) {
+        setError(err instanceof Error ? err.message : "Could not approve this application. Nothing was changed.");
       })
       .finally(function () {
         setBusyId(null);
@@ -43,11 +73,15 @@ function AdminSellers() {
   function handleReject(app: any) {
     if (!rejectionReason.trim()) return;
     setBusyId(app.id);
+    setError("");
     rejectApplication(app.id, app.user_id, rejectionReason.trim())
       .then(function () {
         setApplications(function (prev) { return prev.filter(function (a: any) { return a.id !== app.id; }); });
         setRejectingId(null);
         setRejectionReason("");
+      })
+      .catch(function (err) {
+        setError(err instanceof Error ? err.message : "Could not reject this application. Nothing was changed.");
       })
       .finally(function () {
         setBusyId(null);
@@ -121,7 +155,7 @@ function AdminSellers() {
               disabled={busyId === app.id}
               className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              <CheckCircle2 className="h-3.5 w-3.5" /> Approve
+              <CheckCircle2 className="h-3.5 w-3.5" /> {busyId === app.id ? "Approving..." : "Approve"}
             </button>
             <button
               onClick={function () { setRejectingId(app.id); }}
@@ -136,6 +170,37 @@ function AdminSellers() {
     );
   }
 
+  function renderSeller(seller: any) {
+    const initial = seller.store_name
+      ? seller.store_name.charAt(0).toUpperCase()
+      : (seller.full_name ? seller.full_name.charAt(0).toUpperCase() : "S");
+    return (
+      <div key={seller.id} className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-soft">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl gradient-brand font-display text-sm font-bold text-primary-foreground">
+            {initial}
+          </div>
+          <div>
+            <p className="font-semibold">{seller.store_name || seller.full_name || "Unnamed store"}</p>
+            <p className="text-xs text-muted-foreground">{seller.full_name}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          {seller.phone ? (
+            <span className="flex items-center gap-1">
+              <Phone className="h-3.5 w-3.5" /> {seller.phone}
+            </span>
+          ) : null}
+          {seller.is_seller ? (
+            <span className="rounded-full bg-success/10 px-2 py-0.5 font-semibold text-success">Active</span>
+          ) : (
+            <span className="rounded-full bg-accent-orange/10 px-2 py-0.5 font-semibold text-accent-orange">Needs re-sync</span>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="mb-6 flex items-center gap-3">
@@ -143,20 +208,55 @@ function AdminSellers() {
           <Users className="h-5 w-5" />
         </div>
         <div>
-          <h1 className="font-display text-2xl font-bold">Seller applications</h1>
-          <p className="text-sm text-muted-foreground">Review KYC submissions and approve new sellers.</p>
+          <h1 className="font-display text-2xl font-bold">Sellers</h1>
+          <p className="text-sm text-muted-foreground">Review KYC submissions, approve new sellers, and see everyone active on SABU.</p>
         </div>
       </div>
 
+      <div className="mb-6 flex gap-2">
+        <button
+          onClick={function () { setTab("pending"); }}
+          className={
+            "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition " +
+            (tab === "pending" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-accent")
+          }
+        >
+          <FileCheck className="h-3.5 w-3.5" /> Pending applications
+        </button>
+        <button
+          onClick={function () { setTab("all"); }}
+          className={
+            "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition " +
+            (tab === "all" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-accent")
+          }
+        >
+          <Store className="h-3.5 w-3.5" /> All sellers
+        </button>
+      </div>
+
+      {error ? (
+        <div className="mb-4 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>
+      ) : null}
+
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading...</p>
-      ) : applications.length === 0 ? (
+      ) : tab === "pending" ? (
+        applications.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
+            No pending applications right now.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {applications.map(renderApp)}
+          </div>
+        )
+      ) : sellers.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
-          No pending applications right now.
+          No approved sellers yet.
         </div>
       ) : (
-        <div className="space-y-4">
-          {applications.map(renderApp)}
+        <div className="space-y-3">
+          {sellers.map(renderSeller)}
         </div>
       )}
     </div>

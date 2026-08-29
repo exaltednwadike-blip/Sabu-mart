@@ -37,6 +37,16 @@ export async function listApplications(status: "pending" | "approved" | "rejecte
   return data as SellerApplication[];
 }
 
+export async function getAllSellers() {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("seller_status", "approved")
+    .order("store_name", { ascending: true });
+  if (error) throw error;
+  return data;
+}
+
 export async function getDocumentUrl(path: string) {
   const { data, error } = await supabase.storage
     .from("seller-documents")

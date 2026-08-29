@@ -28,7 +28,7 @@ export async function addToCart(buyerId: string, productId: string, quantity: nu
 export async function getCart(buyerId: string) {
   const { data, error } = await supabase
     .from("cart_items")
-    .select("id, quantity, products(id, title, price, images, city, stock_quantity, seller_id, profiles(store_name))")
+    .select("id, quantity, products(id, title, price, images, city, stock_quantity, seller_id, phone, whatsapp, profiles(store_name))")
     .eq("buyer_id", buyerId)
     .order("created_at", { ascending: false });
   if (error) throw error;

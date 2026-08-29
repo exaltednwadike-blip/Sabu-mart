@@ -19,7 +19,7 @@ const HANDBOOK_POINTS = [
   {
     icon: <ShieldCheck className="h-4 w-4" />,
     title: "Listing fee",
-    body: "₦500 per product listing, one-time. No hidden charges.",
+    body: "Free during our launch period — every seller gets 10 free product listings. Paid plans with higher limits are coming soon.",
   },
   {
     icon: <WalletIcon className="h-4 w-4" />,
@@ -46,10 +46,10 @@ export function SellCTA() {
               For sellers
             </span>
             <h2 className="mt-4 font-display text-3xl font-bold leading-tight md:text-5xl">
-              Start selling on SABU for just <span className="text-accent-orange">₦500</span>.
+              Start selling on SABU for <span className="text-accent-orange">free</span>.
             </h2>
             <p className="mt-4 max-w-lg text-primary-foreground/90">
-              List a product, get approved instantly, and reach millions of buyers. No hidden fees.
+              List up to 10 products free during our launch period, get approved fast, and reach millions of buyers.
               Get paid straight to your wallet with next-day withdrawals.
             </p>
             <ul className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -109,8 +109,8 @@ export function SellCTA() {
               <StatCard icon={<TrendingUp />} label="Listing views (30d)" value="24.6K" trend="+31%" />
               <div className="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur">
                 <div className="text-xs text-primary-foreground/80">Listing fee</div>
-                <div className="mt-1 font-display text-3xl font-bold text-primary-foreground">₦500</div>
-                <div className="mt-1 text-[11px] text-primary-foreground/70">Per product · one-time</div>
+                <div className="mt-1 font-display text-3xl font-bold text-primary-foreground">Free</div>
+                <div className="mt-1 text-[11px] text-primary-foreground/70">Up to 10 products · launch offer</div>
               </div>
             </div>
           </div>
