@@ -318,6 +318,14 @@ export function SiteHeader() {
             <div className="mt-3 grid grid-cols-2 gap-2">
               {loggedIn ? (
                 <>
+                  {isSeller ? (
+                    <Link
+                      to="/seller"
+                      className="col-span-2 flex items-center justify-center gap-1.5 rounded-xl bg-accent-orange py-2 text-center text-sm font-semibold text-accent-orange-foreground"
+                    >
+                      <Store className="h-4 w-4" /> Sell / Seller dashboard
+                    </Link>
+                  ) : null}
                   <Link to="/buyer" className="rounded-xl border border-border py-2 text-center text-sm font-medium">Dashboard</Link>
                   <Link to="/buyer/cart" className="rounded-xl border border-border py-2 text-center text-sm font-medium">Cart ({cartCount})</Link>
                   {isAdminUser ? (
