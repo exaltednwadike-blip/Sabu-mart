@@ -192,6 +192,23 @@ function ProductDetail() {
               {images.map(renderThumb)}
             </div>
           ) : null}
+          {product.videos && product.videos.length > 0 ? (
+            <div className="mt-4">
+              <h3 className="mb-2 text-sm font-semibold">Videos</h3>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {product.videos.map(function (vid: string, i: number) {
+                  return (
+                    <video
+                      key={i}
+                      src={vid}
+                      controls
+                      className="aspect-square w-full rounded-lg border border-border bg-black object-cover"
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
         </div>
 
         <div>

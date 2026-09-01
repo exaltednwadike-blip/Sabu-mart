@@ -1,16 +1,22 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Video } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/DashboardShell";
 import { getCurrentUser } from "@/lib/auth";
-import { getCategories, createProduct, getMyProductCount, FREE_LISTING_LIMIT, type ListingCategory } from "@/lib/products";
+import { getCategories, createProduct, getMyProductCount, FREE_LISTING_LIMIT, MAX_PRODUCT_VIDEOS, type ListingCategory } from "@/lib/products";
 
 export const Route = createFileRoute("/seller/upload")({
   component: SellerUpload,
 });
 
 const CONDITIONS = ["Brand new", "Used - like new", "Used - good", "For parts"];
-const CITIES = ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano"];
+const CITIES = [
+  "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno",
+  "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "FCT (Abuja)", "Gombe",
+  "Imo", "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos",
+  "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto",
+  "Taraba", "Yobe", "Zamfara",
+];
 
 function SellerUpload() {
   const navigate = useNavigate();
@@ -31,6 +37,7 @@ function SellerUpload() {
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [images, setImages] = useState<File[]>([]);
+  const [videos, setVideos] = useState<File[]>([]);
   const [productCount, setProductCount] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,6 +63,15 @@ function SellerUpload() {
 
   function removeImage(index: number) {
     setImages(function (prev) { return prev.filter(function (_, i) { return i !== index; }); });
+  }
+
+  function handleVideoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    setVideos(function (prev) { return [...prev, ...files].slice(0, MAX_PRODUCT_VIDEOS); });
+  }
+
+  function removeVideo(index: number) {
+    setVideos(function (prev) { return prev.filter(function (_, i) { return i !== index; }); });
   }
 
   function addTag() {
@@ -108,6 +124,7 @@ function SellerUpload() {
           whatsapp: whatsapp.trim(),
           tags,
           images,
+          videos,
         });
       })
       .then(function (result) {
@@ -169,6 +186,36 @@ function SellerUpload() {
                     <Upload className="mb-1 h-5 w-5" />
                     {images.length === 0 ? "Main image" : "Add"}
                     <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageChange} />
+                  </label>
+                ) : null}
+              </div>
+            </Card>
+
+            <Card title="Product videos (optional)">
+              <p className="mb-3 text-xs text-muted-foreground">
+                Upload up to {MAX_PRODUCT_VIDEOS} short videos showing your product in action. Keep clips short (under a
+                minute) so they upload quickly.
+              </p>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {videos.map(function (vid, i) {
+                  return (
+                    <div key={i} className="relative aspect-square overflow-hidden rounded-xl border border-border bg-black">
+                      <video src={URL.createObjectURL(vid)} className="h-full w-full object-cover" muted />
+                      <button
+                        type="button"
+                        onClick={function () { removeVideo(i); }}
+                        className="absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  );
+                })}
+                {videos.length < MAX_PRODUCT_VIDEOS ? (
+                  <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/40 text-xs text-muted-foreground transition hover:border-primary/40 hover:bg-primary/5">
+                    <Video className="mb-1 h-5 w-5" />
+                    Add video
+                    <input type="file" accept="video/*" multiple className="hidden" onChange={handleVideoChange} />
                   </label>
                 ) : null}
               </div>

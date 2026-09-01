@@ -34,6 +34,7 @@ export interface ProductInput {
   whatsapp: string;
   tags: string[];
   images: File[];
+  videos?: File[];
   listingFee?: number;
   txRef?: string;
   providerTransactionId?: string;
@@ -45,6 +46,21 @@ export async function uploadProductImages(sellerId: string, images: File[]) {
     const fileExt = image.name.split(".").pop();
     const filePath = `${sellerId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
     const { error } = await supabase.storage.from("product-images").upload(filePath, image);
+    if (error) throw error;
+    const { data } = supabase.storage.from("product-images").getPublicUrl(filePath);
+    urls.push(data.publicUrl);
+  }
+  return urls;
+}
+
+export const MAX_PRODUCT_VIDEOS = 3;
+
+export async function uploadProductVideos(sellerId: string, videos: File[]) {
+  const urls: string[] = [];
+  for (const video of videos.slice(0, MAX_PRODUCT_VIDEOS)) {
+    const fileExt = video.name.split(".").pop();
+    const filePath = `${sellerId}/videos/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+    const { error } = await supabase.storage.from("product-images").upload(filePath, video);
     if (error) throw error;
     const { data } = supabase.storage.from("product-images").getPublicUrl(filePath);
     urls.push(data.publicUrl);
@@ -75,6 +91,10 @@ export async function createProduct(sellerId: string, input: ProductInput) {
     ? await uploadProductImages(sellerId, input.images)
     : [];
 
+  const videoUrls = input.videos && input.videos.length > 0
+    ? await uploadProductVideos(sellerId, input.videos)
+    : [];
+
   const { data, error } = await supabase
     .from("products")
     .insert({
@@ -94,6 +114,7 @@ export async function createProduct(sellerId: string, input: ProductInput) {
       whatsapp: input.whatsapp,
       tags: input.tags,
       images: imageUrls,
+      videos: videoUrls,
       status: "pending_review",
       payment_status: "paid",
       listing_fee: 0,
