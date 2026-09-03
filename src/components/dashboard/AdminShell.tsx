@@ -55,6 +55,9 @@ export function AdminShell(props: { children: React.ReactNode }) {
             <div className="font-display text-sm font-bold leading-none">SABU Admin</div>
             <div className="text-[10px] text-muted-foreground">Control panel</div>
           </div>
+          <div className="ml-auto hidden md:block">
+            <Link to="/" className="rounded-full bg-muted px-3 py-1 text-xs font-medium hover:bg-accent">Back to home</Link>
+          </div>
         </div>
         <nav className="space-y-1 p-3">
           {NAV_ITEMS.map(renderNavItem)}

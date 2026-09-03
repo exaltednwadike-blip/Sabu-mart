@@ -41,7 +41,7 @@ export async function getAllSellers() {
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
-    .eq("seller_status", "approved")
+    .in("seller_status", ["approved", "verified"])
     .order("store_name", { ascending: true });
   if (error) throw error;
   return data;

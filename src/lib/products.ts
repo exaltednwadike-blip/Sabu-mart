@@ -27,7 +27,7 @@ export interface ProductInput {
   stockQuantity: number;
   deliveryOption: "pickup_only" | "delivery_available" | "both";
   negotiable: boolean;
-  freeDeliveryLagos: boolean;
+  freeDeliveryRegions?: string[];
   city: string;
   neighbourhood: string;
   phone: string;
@@ -107,7 +107,7 @@ export async function createProduct(sellerId: string, input: ProductInput) {
       stock_quantity: input.stockQuantity,
       delivery_option: input.deliveryOption,
       negotiable: input.negotiable,
-      free_delivery_lagos: input.freeDeliveryLagos,
+      free_delivery_regions: input.freeDeliveryRegions || [],
       city: input.city,
       neighbourhood: input.neighbourhood,
       phone: input.phone,
@@ -242,9 +242,9 @@ export async function searchProducts(query: string) {
 }
 
 export async function getMarketplaceStats() {
-  const [products, sellers, reviews] = await Promise.all([
+  const [products, users, reviews] = await Promise.all([
     supabase.from("products").select("id", { count: "exact", head: true }).eq("status", "published"),
-    supabase.from("profiles").select("id", { count: "exact", head: true }).eq("seller_status", "approved"),
+    supabase.from("profiles").select("id", { count: "exact", head: true }),
     supabase.from("reviews").select("rating"),
   ]);
 
@@ -255,7 +255,7 @@ export async function getMarketplaceStats() {
 
   return {
     productCount: products.count ?? 0,
-    sellerCount: sellers.count ?? 0,
+    userCount: users.count ?? 0,
     avgRating,
     reviewCount: reviewData.length,
   };

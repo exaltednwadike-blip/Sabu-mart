@@ -1,4 +1,4 @@
-﻿import { Search, MapPin, Shield, Sparkles, Star } from "lucide-react";
+﻿import { Search, MapPin, Shield, TrendingUp, Sparkles, Star } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import hero from "@/assets/hero-shopper.jpg";
@@ -12,7 +12,7 @@ function formatCount(n: number) {
 export function Hero() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
-  const [stats, setStats] = useState({ productCount: 0, sellerCount: 0, avgRating: 0, reviewCount: 0 });
+  const [stats, setStats] = useState({ productCount: 0, userCount: 0, avgRating: 0, reviewCount: 0 });
   const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(function () {
@@ -136,7 +136,12 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="mt-8 grid grid-cols-1 gap-4">
+          <div className="mt-8 grid grid-cols-2 gap-4">
+            <Stat
+              icon={<TrendingUp className="h-4 w-4" />}
+              value={statsLoading ? "…" : formatCount(stats.userCount)}
+              label="Users"
+            />
             <Stat
               icon={<Star className="h-4 w-4" />}
               value={statsLoading ? "…" : stats.reviewCount > 0 ? `${stats.avgRating.toFixed(1)}/5` : "No ratings yet"}

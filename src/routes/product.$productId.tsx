@@ -246,9 +246,9 @@ function ProductDetail() {
             {product.listing_categories ? (
               <span className="rounded-full bg-muted px-3 py-1 font-medium">{product.listing_categories.name}</span>
             ) : null}
-            {product.free_delivery_lagos ? (
+            {product.free_delivery_regions && product.free_delivery_regions.length > 0 ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-3 py-1 font-medium text-success">
-                <Truck className="h-3 w-3" /> Free delivery in Lagos
+                <Truck className="h-3 w-3" /> Free delivery in {Array.isArray(product.free_delivery_regions) ? product.free_delivery_regions.join(", ") : product.free_delivery_regions}
               </span>
             ) : null}
           </div>
