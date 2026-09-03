@@ -1,4 +1,4 @@
-﻿import { Search, MapPin, Shield, TrendingUp, Sparkles, Star } from "lucide-react";
+﻿import { Search, MapPin, Shield, Sparkles, Star } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import hero from "@/assets/hero-shopper.jpg";
@@ -136,17 +136,7 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="mt-8 grid grid-cols-3 gap-4">
-            <Stat
-              icon={<Shield className="h-4 w-4" />}
-              value={statsLoading ? "…" : formatCount(stats.sellerCount)}
-              label="Verified sellers"
-            />
-            <Stat
-              icon={<TrendingUp className="h-4 w-4" />}
-              value={statsLoading ? "…" : formatCount(stats.productCount)}
-              label="Live listings"
-            />
+          <div className="mt-8 grid grid-cols-1 gap-4">
             <Stat
               icon={<Star className="h-4 w-4" />}
               value={statsLoading ? "…" : stats.reviewCount > 0 ? `${stats.avgRating.toFixed(1)}/5` : "No ratings yet"}
