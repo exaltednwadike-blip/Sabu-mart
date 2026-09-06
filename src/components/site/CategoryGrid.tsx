@@ -1,7 +1,7 @@
 ﻿import {
   Smartphone, Shirt, Home, Car, Wheat, UtensilsCrossed, Sparkles, Briefcase,
   Wrench, Building2, Laptop, Sofa, Baby, Gamepad2, Plane, Dumbbell, HeartPulse,
-  GraduationCap, Hammer, Music, Dog, ShoppingBasket, Package,
+  GraduationCap, Hammer, Music, Dog, ShoppingBasket, Package, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -35,10 +35,12 @@ const ICON_MAP: { [key: string]: any } = {
 };
 
 const TINTS = ["primary", "orange"];
+const COLLAPSED_COUNT = 5;
 
 export function CategoryGrid() {
   const [categories, setCategories] = useState<ListingCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(function () {
     getCategories()
@@ -72,6 +74,9 @@ export function CategoryGrid() {
     );
   }
 
+  const visibleCategories = expanded ? categories : categories.slice(0, COLLAPSED_COUNT);
+  const hasMore = categories.length > COLLAPSED_COUNT;
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-16">
       <SectionHeader
@@ -82,9 +87,29 @@ export function CategoryGrid() {
       {loading ? (
         <div className="mt-8 text-center text-sm text-muted-foreground">Loading categories...</div>
       ) : (
-        <div className="mt-8 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-11">
-          {categories.map(renderCategory)}
-        </div>
+        <>
+          <div className="mt-8 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
+            {visibleCategories.map(renderCategory)}
+          </div>
+          {hasMore ? (
+            <div className="mt-5 text-center">
+              <button
+                onClick={function () { setExpanded(!expanded); }}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-accent hover:text-foreground"
+              >
+                {expanded ? (
+                  <>
+                    Show less <ChevronUp className="h-3.5 w-3.5" />
+                  </>
+                ) : (
+                  <>
+                    See all categories <ChevronDown className="h-3.5 w-3.5" />
+                  </>
+                )}
+              </button>
+            </div>
+          ) : null}
+        </>
       )}
     </section>
   );

@@ -27,7 +27,7 @@ export interface ProductInput {
   stockQuantity: number;
   deliveryOption: "pickup_only" | "delivery_available" | "both";
   negotiable: boolean;
-  freeDeliveryRegions?: string[];
+  freeDeliveryLagos: boolean;
   city: string;
   neighbourhood: string;
   phone: string;
@@ -107,7 +107,7 @@ export async function createProduct(sellerId: string, input: ProductInput) {
       stock_quantity: input.stockQuantity,
       delivery_option: input.deliveryOption,
       negotiable: input.negotiable,
-      free_delivery_regions: input.freeDeliveryRegions || [],
+      free_delivery_lagos: input.freeDeliveryLagos,
       city: input.city,
       neighbourhood: input.neighbourhood,
       phone: input.phone,
@@ -241,10 +241,40 @@ export async function searchProducts(query: string) {
   return data;
 }
 
+export async function getTeaserImages(limit: number = 30) {
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, images")
+    .eq("status", "published")
+    .eq("availability", "available")
+    .order("created_at", { ascending: false })
+    .limit(limit * 4);
+  if (error) throw error;
+  const urls: string[] = [];
+  (data || []).forEach(function (p: any) {
+    if (p.images && p.images.length > 0) urls.push(p.images[0]);
+  });
+  return urls.slice(0, limit);
+}
+
+export async function getProductVideos(limit: number = 20) {
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, title, price, videos, profiles(store_name)")
+    .eq("status", "published")
+    .eq("availability", "available")
+    .order("created_at", { ascending: false })
+    .limit(limit * 4);
+  if (error) throw error;
+  return (data || []).filter(function (p: any) {
+    return p.videos && p.videos.length > 0;
+  }).slice(0, limit);
+}
+
 export async function getMarketplaceStats() {
-  const [products, users, reviews] = await Promise.all([
+  const [products, sellers, reviews] = await Promise.all([
     supabase.from("products").select("id", { count: "exact", head: true }).eq("status", "published"),
-    supabase.from("profiles").select("id", { count: "exact", head: true }),
+    supabase.from("profiles").select("id", { count: "exact", head: true }).eq("seller_status", "approved"),
     supabase.from("reviews").select("rating"),
   ]);
 
@@ -255,7 +285,7 @@ export async function getMarketplaceStats() {
 
   return {
     productCount: products.count ?? 0,
-    userCount: users.count ?? 0,
+    sellerCount: sellers.count ?? 0,
     avgRating,
     reviewCount: reviewData.length,
   };

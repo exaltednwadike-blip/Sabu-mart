@@ -24,6 +24,8 @@ function ProductDetail() {
   const [wishlisted, setWishlisted] = useState(false);
   const [added, setAdded] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(function () {
     getProductById(params.productId)
@@ -36,6 +38,8 @@ function ProductDetail() {
         getProductRatingSummary(data.id).then(setRatingSummary);
         getCurrentUser().then(function (user) {
           recordProductView(data.id, user ? user.id : null).catch(function () {});
+          setLoggedIn(!!user);
+          setAuthChecked(true);
           if (!user) return;
           isInWishlist(user.id, data.id).then(setWishlisted);
         });
@@ -83,7 +87,9 @@ function ProductDetail() {
     const number = product.whatsapp || product.phone;
     if (!number) return;
     const cleaned = number.replace(/[^0-9]/g, "");
-    const text = encodeURIComponent("Hi, I'm interested in your listing: " + product.title + " on SABU Marketplace.");
+    const text = encodeURIComponent(
+      "Hello " + sellerName + ", I would like to purchase this " + product.title + "."
+    );
     window.open("https://wa.me/" + cleaned + "?text=" + text, "_blank");
   }
 
@@ -246,9 +252,9 @@ function ProductDetail() {
             {product.listing_categories ? (
               <span className="rounded-full bg-muted px-3 py-1 font-medium">{product.listing_categories.name}</span>
             ) : null}
-            {product.free_delivery_regions && product.free_delivery_regions.length > 0 ? (
+            {product.free_delivery_lagos ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-3 py-1 font-medium text-success">
-                <Truck className="h-3 w-3" /> Free delivery in {Array.isArray(product.free_delivery_regions) ? product.free_delivery_regions.join(", ") : product.free_delivery_regions}
+                <Truck className="h-3 w-3" /> Free delivery in Lagos
               </span>
             ) : null}
           </div>
@@ -275,12 +281,21 @@ function ProductDetail() {
               {added ? <Check className="h-4 w-4" /> : <ShoppingCart className="h-4 w-4" />}
               {added ? "Added to cart" : "Add to cart"}
             </button>
-            <button
-              onClick={handleChatSeller}
-              className="flex items-center justify-center gap-2 rounded-xl border border-border py-3 text-sm font-semibold hover:bg-accent"
-            >
-              <MessageCircle className="h-4 w-4" /> Chat on WhatsApp
-            </button>
+            {!authChecked || loggedIn ? (
+              <button
+                onClick={handleChatSeller}
+                className="flex items-center justify-center gap-2 rounded-xl border border-border py-3 text-sm font-semibold hover:bg-accent"
+              >
+                <MessageCircle className="h-4 w-4" /> Chat on WhatsApp
+              </button>
+            ) : (
+              <Link
+                to="/signup"
+                className="flex items-center justify-center gap-2 rounded-xl border border-border py-3 text-sm font-semibold hover:bg-accent"
+              >
+                <MessageCircle className="h-4 w-4" /> Sign up to contact seller
+              </Link>
+            )}
           </div>
         </div>
       </div>

@@ -1,8 +1,9 @@
-﻿import { Search, MapPin, Shield, TrendingUp, Sparkles, Star } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
+import { Search, MapPin, Shield, TrendingUp, Sparkles, Star, UserPlus, Store } from "lucide-react";
+import { useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import hero from "@/assets/hero-shopper.jpg";
 import { getMarketplaceStats } from "@/lib/products";
+import { getCurrentUser } from "@/lib/auth";
 
 function formatCount(n: number) {
   if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "K+";
@@ -12,8 +13,10 @@ function formatCount(n: number) {
 export function Hero() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
-  const [stats, setStats] = useState({ productCount: 0, userCount: 0, avgRating: 0, reviewCount: 0 });
+  const [stats, setStats] = useState({ productCount: 0, sellerCount: 0, avgRating: 0, reviewCount: 0 });
   const [statsLoading, setStatsLoading] = useState(true);
+  const [checked, setChecked] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(function () {
     getMarketplaceStats()
@@ -22,6 +25,10 @@ export function Hero() {
       .finally(function () {
         setStatsLoading(false);
       });
+    getCurrentUser().then(function (user) {
+      setLoggedIn(!!user);
+      setChecked(true);
+    });
   }, []);
 
   function runSearch(term: string) {
@@ -64,90 +71,114 @@ export function Hero() {
             verified sellers across Africa — all in one place.
           </p>
 
-          <div className="mt-8 rounded-2xl border border-border bg-card p-2 shadow-elegant">
-            <form className="flex flex-col gap-2 md:flex-row" onSubmit={handleSubmit}>
-              <div className="flex flex-1 items-center gap-2 rounded-xl bg-background px-4 py-3">
-                <Search className="h-5 w-5 text-primary" />
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                  placeholder="What are you looking for?"
-                />
-              </div>
-              <div className="flex items-center gap-2 rounded-xl bg-background px-4 py-3 md:w-48">
-                <MapPin className="h-5 w-5 text-accent-orange" />
-                <select className="flex-1 bg-transparent text-sm outline-none">
-                  <option>Abia</option>
-                  <option>Adamawa</option>
-                  <option>Akwa Ibom</option>
-                  <option>Anambra</option>
-                  <option>Bauchi</option>
-                  <option>Bayelsa</option>
-                  <option>Benue</option>
-                  <option>Borno</option>
-                  <option>Cross River</option>
-                  <option>Delta</option>
-                  <option>Ebonyi</option>
-                  <option>Edo</option>
-                  <option>Ekiti</option>
-                  <option>Enugu</option>
-                  <option>FCT (Abuja)</option>
-                  <option>Gombe</option>
-                  <option>Imo</option>
-                  <option>Jigawa</option>
-                  <option>Kaduna</option>
-                  <option>Kano</option>
-                  <option>Katsina</option>
-                  <option>Kebbi</option>
-                  <option>Kogi</option>
-                  <option>Kwara</option>
-                  <option>Lagos</option>
-                  <option>Nasarawa</option>
-                  <option>Niger</option>
-                  <option>Ogun</option>
-                  <option>Ondo</option>
-                  <option>Osun</option>
-                  <option>Oyo</option>
-                  <option>Plateau</option>
-                  <option>Rivers</option>
-                  <option>Sokoto</option>
-                  <option>Taraba</option>
-                  <option>Yobe</option>
-                  <option>Zamfara</option>
-                </select>
-              </div>
-              <button type="submit" className="rounded-xl gradient-brand px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95">
-                Search
-              </button>
-            </form>
-            <div className="flex flex-wrap gap-2 px-2 pb-1 pt-3">
-              <span className="text-xs text-muted-foreground">Popular:</span>
-              {["iPhone 15", "3-bedroom apartment", "Toyota Camry", "Ankara fabric", "Fresh tomatoes"].map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => handlePopularClick(t)}
-                  className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground transition hover:bg-primary hover:text-primary-foreground"
-                >
-                  {t}
+          {!checked ? null : loggedIn ? (
+            <div className="mt-8 rounded-2xl border border-border bg-card p-2 shadow-elegant">
+              <form className="flex flex-col gap-2 md:flex-row" onSubmit={handleSubmit}>
+                <div className="flex flex-1 items-center gap-2 rounded-xl bg-background px-4 py-3">
+                  <Search className="h-5 w-5 text-primary" />
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                    placeholder="What are you looking for?"
+                  />
+                </div>
+                <div className="flex items-center gap-2 rounded-xl bg-background px-4 py-3 md:w-48">
+                  <MapPin className="h-5 w-5 text-accent-orange" />
+                  <select className="flex-1 bg-transparent text-sm outline-none">
+                    <option>Abia</option>
+                    <option>Adamawa</option>
+                    <option>Akwa Ibom</option>
+                    <option>Anambra</option>
+                    <option>Bauchi</option>
+                    <option>Bayelsa</option>
+                    <option>Benue</option>
+                    <option>Borno</option>
+                    <option>Cross River</option>
+                    <option>Delta</option>
+                    <option>Ebonyi</option>
+                    <option>Edo</option>
+                    <option>Ekiti</option>
+                    <option>Enugu</option>
+                    <option>FCT (Abuja)</option>
+                    <option>Gombe</option>
+                    <option>Imo</option>
+                    <option>Jigawa</option>
+                    <option>Kaduna</option>
+                    <option>Kano</option>
+                    <option>Katsina</option>
+                    <option>Kebbi</option>
+                    <option>Kogi</option>
+                    <option>Kwara</option>
+                    <option>Lagos</option>
+                    <option>Nasarawa</option>
+                    <option>Niger</option>
+                    <option>Ogun</option>
+                    <option>Ondo</option>
+                    <option>Osun</option>
+                    <option>Oyo</option>
+                    <option>Plateau</option>
+                    <option>Rivers</option>
+                    <option>Sokoto</option>
+                    <option>Taraba</option>
+                    <option>Yobe</option>
+                    <option>Zamfara</option>
+                  </select>
+                </div>
+                <button type="submit" className="rounded-xl gradient-brand px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95">
+                  Search
                 </button>
-              ))}
+              </form>
+              <div className="flex flex-wrap gap-2 px-2 pb-1 pt-3">
+                <span className="text-xs text-muted-foreground">Popular:</span>
+                {["iPhone 15", "3-bedroom apartment", "Toyota Camry", "Ankara fabric", "Fresh tomatoes"].map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => handlePopularClick(t)}
+                    className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground transition hover:bg-primary hover:text-primary-foreground"
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                to="/signup"
+                className="inline-flex items-center justify-center gap-2 rounded-xl gradient-brand px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95"
+              >
+                <UserPlus className="h-4 w-4" /> Sign up to start buying
+              </Link>
+              <Link
+                to="/signup"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3.5 text-sm font-semibold shadow-soft transition hover:bg-accent"
+              >
+                <Store className="h-4 w-4" /> Become a seller — free
+              </Link>
+            </div>
+          )}
 
-          <div className="mt-8 grid grid-cols-2 gap-4">
-            <Stat
-              icon={<TrendingUp className="h-4 w-4" />}
-              value={statsLoading ? "…" : formatCount(stats.userCount)}
-              label="Users"
-            />
-            <Stat
-              icon={<Star className="h-4 w-4" />}
-              value={statsLoading ? "…" : stats.reviewCount > 0 ? `${stats.avgRating.toFixed(1)}/5` : "No ratings yet"}
-              label="Buyer rating"
-            />
-          </div>
+          {loggedIn ? (
+            <div className="mt-8 grid grid-cols-3 gap-4">
+              <Stat
+                icon={<Shield className="h-4 w-4" />}
+                value={statsLoading ? "…" : formatCount(stats.sellerCount)}
+                label="Verified sellers"
+              />
+              <Stat
+                icon={<TrendingUp className="h-4 w-4" />}
+                value={statsLoading ? "…" : formatCount(stats.productCount)}
+                label="Live listings"
+              />
+              <Stat
+                icon={<Star className="h-4 w-4" />}
+                value={statsLoading ? "…" : stats.reviewCount > 0 ? `${stats.avgRating.toFixed(1)}/5` : "No ratings yet"}
+                label="Buyer rating"
+              />
+            </div>
+          ) : null}
         </div>
 
         <div className="relative z-10">

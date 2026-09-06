@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { FileCheck, CheckCircle2, XCircle, ExternalLink, Users, Store, Phone } from "lucide-react";
-import { listApplications, approveApplication, rejectApplication, getDocumentUrl, getAllSellers } from "@/lib/admin";
+import { listApplications, getDocumentUrl, getAllSellers } from "@/lib/admin";
+import { approveSellerApplication, rejectSellerApplication } from "@/lib/admin-server";
 
 export const Route = createFileRoute("/admin/sellers")({
   component: AdminSellers,
@@ -58,7 +59,9 @@ function AdminSellers() {
   function handleApprove(app: any) {
     setBusyId(app.id);
     setError("");
-    approveApplication(app.id, app.user_id, app.business_name)
+    approveSellerApplication({
+      data: { applicationId: app.id, applicantUserId: app.user_id, businessName: app.business_name },
+    })
       .then(function () {
         setApplications(function (prev) { return prev.filter(function (a: any) { return a.id !== app.id; }); });
       })
@@ -74,7 +77,9 @@ function AdminSellers() {
     if (!rejectionReason.trim()) return;
     setBusyId(app.id);
     setError("");
-    rejectApplication(app.id, app.user_id, rejectionReason.trim())
+    rejectSellerApplication({
+      data: { applicationId: app.id, applicantUserId: app.user_id, reason: rejectionReason.trim() },
+    })
       .then(function () {
         setApplications(function (prev) { return prev.filter(function (a: any) { return a.id !== app.id; }); });
         setRejectingId(null);

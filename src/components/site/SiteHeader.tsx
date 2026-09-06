@@ -1,4 +1,4 @@
-﻿import { Search, MapPin, ChevronDown, Menu, Heart, ShoppingBag, User, Bell, LayoutDashboard, Store, LogOut, ShieldCheck, Check } from "lucide-react";
+import { Search, MapPin, ChevronDown, Menu, Heart, ShoppingBag, User, Bell, LayoutDashboard, Store, LogOut, ShieldCheck, Check, UserPlus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Logo } from "@/components/brand/Logo";
@@ -32,6 +32,7 @@ export function SiteHeader() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
 
   useEffect(function () {
     getCurrentUser().then(function (user) {
@@ -93,6 +94,13 @@ export function SiteHeader() {
     });
   }
 
+  function handleSearchSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = query.trim();
+    if (!trimmed) return;
+    navigate({ to: "/search", search: { q: trimmed } });
+  }
+
   function timeAgo(dateStr: string) {
     const diff = Date.now() - new Date(dateStr).getTime();
     const mins = Math.floor(diff / 60000);
@@ -148,39 +156,58 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 w-full">
-      <div className="hidden bg-primary py-1.5 text-center text-xs font-medium text-primary-foreground md:block">
-        Free delivery on orders over ₦25,000 · Sell on SABU for free — limited launch offer
-      </div>
+      {!checked ? null : loggedIn ? (
+        <div className="hidden bg-primary py-1.5 text-center text-xs font-medium text-primary-foreground md:block">
+          Free delivery on orders over ₦25,000 · Sell on SABU for free — limited launch offer
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-primary px-3 py-1.5 text-center text-xs font-medium text-primary-foreground">
+          <span>New to SABU?</span>
+          <Link to="/signup" className="underline underline-offset-2">Sign up to start buying</Link>
+          <span className="opacity-60">or</span>
+          <Link to="/signup" className="underline underline-offset-2">become a seller — free</Link>
+        </div>
+      )}
       <div className="glass border-b">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 lg:gap-6">
           <Logo />
 
-          <div className="hidden flex-1 items-center gap-2 md:flex">
-            <div className="flex flex-1 items-center rounded-xl border border-border bg-background/70 shadow-soft">
-              <div className="hidden items-center gap-1 border-r border-border px-3 py-2.5 text-sm text-muted-foreground lg:flex">
-                <MapPin className="h-4 w-4 text-primary" />
-                Lagos
-                <ChevronDown className="h-3.5 w-3.5" />
+          {loggedIn ? (
+            <div className="hidden flex-1 items-center gap-2 md:flex">
+              <div className="flex flex-1 items-center rounded-xl border border-border bg-background/70 shadow-soft">
+                <div className="hidden items-center gap-1 border-r border-border px-3 py-2.5 text-sm text-muted-foreground lg:flex">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  Lagos
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </div>
+                <form onSubmit={handleSearchSubmit} className="flex flex-1 items-center">
+                  <input
+                    value={query}
+                    onChange={function (e) { setQuery(e.target.value); }}
+                    className="flex-1 bg-transparent px-4 py-2.5 text-sm outline-none placeholder:text-muted-foreground"
+                    placeholder="Search products, brands, categories..."
+                  />
+                  <button type="submit" className="m-1 flex items-center gap-2 rounded-lg gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-soft transition hover:opacity-90">
+                    <Search className="h-4 w-4" /> Search
+                  </button>
+                </form>
               </div>
-              <input
-                className="flex-1 bg-transparent px-4 py-2.5 text-sm outline-none placeholder:text-muted-foreground"
-                placeholder="Search products, brands, categories..."
-              />
-              <button className="m-1 flex items-center gap-2 rounded-lg gradient-brand px-4 py-2 text-sm font-medium text-primary-foreground shadow-soft transition hover:opacity-90">
-                <Search className="h-4 w-4" /> Search
-              </button>
             </div>
-          </div>
+          ) : (
+            <div className="flex-1" />
+          )}
 
           <nav className="ml-auto flex items-center gap-1">
-            <Link to={loggedIn ? "/buyer/wishlist" : "/login"} className="relative rounded-lg p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground" aria-label="Wishlist">
-              <Heart className="h-5 w-5" />
-              {wishCount > 0 ? (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-orange px-1 text-[10px] font-bold text-accent-orange-foreground">
-                  {wishCount}
-                </span>
-              ) : null}
-            </Link>
+            {loggedIn ? (
+              <Link to="/buyer/wishlist" className="relative rounded-lg p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground" aria-label="Wishlist">
+                <Heart className="h-5 w-5" />
+                {wishCount > 0 ? (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-orange px-1 text-[10px] font-bold text-accent-orange-foreground">
+                    {wishCount}
+                  </span>
+                ) : null}
+              </Link>
+            ) : null}
 
             {loggedIn ? (
               <div className="relative">
@@ -216,18 +243,18 @@ export function SiteHeader() {
                   </div>
                 ) : null}
               </div>
-            ) : (
-              <IconBtn icon={<Bell className="h-5 w-5" />} label="Alerts" />
-            )}
+            ) : null}
 
-            <Link to={loggedIn ? "/buyer/cart" : "/login"} className="relative rounded-lg p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground" aria-label="Cart">
-              <ShoppingBag className="h-5 w-5" />
-              {cartCount > 0 ? (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-orange px-1 text-[10px] font-bold text-accent-orange-foreground">
-                  {cartCount}
-                </span>
-              ) : null}
-            </Link>
+            {loggedIn ? (
+              <Link to="/buyer/cart" className="relative rounded-lg p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground" aria-label="Cart">
+                <ShoppingBag className="h-5 w-5" />
+                {cartCount > 0 ? (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-orange px-1 text-[10px] font-bold text-accent-orange-foreground">
+                    {cartCount}
+                  </span>
+                ) : null}
+              </Link>
+            ) : null}
 
             {isSeller ? (
               <Link
@@ -275,12 +302,20 @@ export function SiteHeader() {
                 ) : null}
               </div>
             ) : (
-              <Link
-                to="/login"
-                className="hidden items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-medium hover:bg-accent md:inline-flex"
-              >
-                <User className="h-4 w-4" /> Sign in
-              </Link>
+              <div className="hidden items-center gap-2 md:flex">
+                <Link
+                  to="/login"
+                  className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-medium hover:bg-accent"
+                >
+                  <User className="h-4 w-4" /> Sign in
+                </Link>
+                <Link
+                  to="/signup"
+                  className="inline-flex items-center gap-2 rounded-xl gradient-brand px-3 py-2 text-sm font-semibold text-primary-foreground shadow-soft hover:opacity-95"
+                >
+                  <UserPlus className="h-4 w-4" /> Sign up
+                </Link>
+              </div>
             )}
 
             <button
@@ -293,28 +328,42 @@ export function SiteHeader() {
           </nav>
         </div>
 
-        <div className="mx-auto hidden max-w-7xl items-center gap-1 overflow-x-auto px-4 pb-3 no-scrollbar md:flex">
-          <a href="/" className="whitespace-nowrap rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">Home</a>
-          {MAIN_NAV.map(renderNavLink)}
-          <div className="group relative">
-            <button className="flex items-center gap-1 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground">
-              More <ChevronDown className="h-3 w-3" />
-            </button>
-            <div className="invisible absolute right-0 top-full z-50 mt-1 grid w-64 grid-cols-2 gap-1 rounded-xl border border-border bg-popover p-2 opacity-0 shadow-elegant transition group-hover:visible group-hover:opacity-100">
-              {MORE_NAV.map(renderMoreLink)}
+        {loggedIn ? (
+          <div className="border-t border-border bg-background px-4 py-2.5 md:hidden">
+            <form onSubmit={handleSearchSubmit} className="flex items-center rounded-xl border border-border bg-background">
+              <Search className="ml-3 h-4 w-4 text-muted-foreground" />
+              <input
+                value={query}
+                onChange={function (e) { setQuery(e.target.value); }}
+                className="flex-1 bg-transparent px-3 py-2 text-sm outline-none"
+                placeholder="Search SABU..."
+              />
+            </form>
+          </div>
+        ) : null}
+
+        {loggedIn ? (
+          <div className="mx-auto hidden max-w-7xl items-center gap-1 overflow-x-auto px-4 pb-3 no-scrollbar md:flex">
+            <a href="/" className="whitespace-nowrap rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">Home</a>
+            {MAIN_NAV.map(renderNavLink)}
+            <div className="group relative">
+              <button className="flex items-center gap-1 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground">
+                More <ChevronDown className="h-3 w-3" />
+              </button>
+              <div className="invisible absolute right-0 top-full z-50 mt-1 grid w-64 grid-cols-2 gap-1 rounded-xl border border-border bg-popover p-2 opacity-0 shadow-elegant transition group-hover:visible group-hover:opacity-100">
+                {MORE_NAV.map(renderMoreLink)}
+              </div>
             </div>
           </div>
-        </div>
+        ) : null}
 
         {open ? (
           <div className="border-t border-border bg-background px-4 py-3 md:hidden">
-            <div className="flex items-center rounded-xl border border-border bg-background">
-              <Search className="ml-3 h-4 w-4 text-muted-foreground" />
-              <input className="flex-1 bg-transparent px-3 py-2 text-sm outline-none" placeholder="Search SABU..." />
-            </div>
-            <div className="mt-3 grid grid-cols-2 gap-1">
-              {[...MAIN_NAV, ...MORE_NAV].map(renderMobileLink)}
-            </div>
+            {loggedIn ? (
+              <div className="mt-3 grid grid-cols-2 gap-1">
+                {[...MAIN_NAV, ...MORE_NAV].map(renderMobileLink)}
+              </div>
+            ) : null}
             <div className="mt-3 grid grid-cols-2 gap-2">
               {loggedIn ? (
                 <>
@@ -344,13 +393,5 @@ export function SiteHeader() {
         ) : null}
       </div>
     </header>
-  );
-}
-
-function IconBtn(props: { icon: React.ReactNode; label: string; badge?: string }) {
-  return (
-    <button aria-label={props.label} className="relative rounded-lg p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground">
-      {props.icon}
-    </button>
   );
 }
