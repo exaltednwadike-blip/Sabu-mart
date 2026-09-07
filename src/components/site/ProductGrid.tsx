@@ -17,7 +17,7 @@ export function ProductGrid(props: {
   subtitle?: string;
   variant?: "default" | "flash";
 }) {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(function () {

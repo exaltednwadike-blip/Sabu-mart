@@ -8,9 +8,9 @@ export const Route = createFileRoute("/admin/products")({
 });
 
 function AdminProducts() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [busyId, setBusyId] = useState(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   function load() {
     setLoading(true);

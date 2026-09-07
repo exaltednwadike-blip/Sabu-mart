@@ -13,7 +13,7 @@ export const Route = createFileRoute("/seller/")({
 
 function SellerHome() {
   const [stats, setStats] = useState({ liveProducts: 0, pendingOrders: 0, available: 0, totalEarned: 0 });
-  const [recentOrders, setRecentOrders] = useState([]);
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(function () {

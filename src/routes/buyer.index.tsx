@@ -23,8 +23,8 @@ function BuyerHome() {
   const [fullName, setFullName] = useState("");
   const [stats, setStats] = useState({ activeOrders: 0, completedOrders: 0, totalSpent: 0 });
   const [wishCount, setWishCount] = useState(0);
-  const [activeOrders, setActiveOrders] = useState([]);
-  const [wishlist, setWishlist] = useState([]);
+  const [activeOrders, setActiveOrders] = useState<any[]>([]);
+  const [wishlist, setWishlist] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(function () {

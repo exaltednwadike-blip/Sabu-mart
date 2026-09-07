@@ -10,7 +10,7 @@ export const Route = createFileRoute("/seller/followers")({
 });
 
 function SellerFollowers() {
-  const [followers, setFollowers] = useState([]);
+  const [followers, setFollowers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(function () {

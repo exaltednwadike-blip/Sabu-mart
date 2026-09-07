@@ -10,7 +10,7 @@ export const Route = createFileRoute("/seller/reviews")({
 });
 
 function SellerReviews() {
-  const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(function () {

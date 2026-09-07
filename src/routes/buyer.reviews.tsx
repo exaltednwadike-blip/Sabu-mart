@@ -10,10 +10,10 @@ export const Route = createFileRoute("/buyer/reviews")({
 });
 
 function BuyerReviews() {
-  const [pending, setPending] = useState([]);
-  const [submitted, setSubmitted] = useState([]);
+  const [pending, setPending] = useState<any[]>([]);
+  const [submitted, setSubmitted] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [userName, setUserName] = useState("");
   const [activeItemId, setActiveItemId] = useState(null);
   const [rating, setRating] = useState(5);

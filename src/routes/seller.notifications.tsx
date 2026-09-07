@@ -11,7 +11,7 @@ export const Route = createFileRoute("/seller/notifications")({
 
 function SellerNotifications() {
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 

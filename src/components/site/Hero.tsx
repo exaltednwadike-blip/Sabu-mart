@@ -1,4 +1,4 @@
-import { Search, MapPin, Shield, TrendingUp, Sparkles, Star, UserPlus, Store } from "lucide-react";
+import { Search, MapPin, Users, TrendingUp, Sparkles, UserPlus, Store, Shield } from "lucide-react";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import hero from "@/assets/hero-shopper.jpg";
@@ -13,7 +13,7 @@ function formatCount(n: number) {
 export function Hero() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
-  const [stats, setStats] = useState({ productCount: 0, sellerCount: 0, avgRating: 0, reviewCount: 0 });
+  const [stats, setStats] = useState({ productCount: 0, userCount: 0, avgRating: 0, reviewCount: 0 });
   const [statsLoading, setStatsLoading] = useState(true);
   const [checked, setChecked] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -52,10 +52,7 @@ export function Hero() {
       <div className="pointer-events-none absolute inset-0 opacity-60" style={{ backgroundImage: "var(--gradient-mesh)" }} />
       <div className="mx-auto grid max-w-7xl gap-10 px-4 pb-16 pt-10 lg:grid-cols-2 lg:pt-16">
         <div className="relative z-10 flex flex-col justify-center">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
-            <Sparkles className="h-3.5 w-3.5" /> Nigeria's fastest-growing marketplace
-          </div>
-          <h1 className="mt-5 font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground md:text-6xl">
+          <h1 className="mt-0 font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground md:text-6xl">
             Everything you need,{" "}
             <span className="text-gradient-brand">from anyone</span>{" "}
             <span className="relative inline-block">
@@ -161,21 +158,16 @@ export function Hero() {
           )}
 
           {loggedIn ? (
-            <div className="mt-8 grid grid-cols-3 gap-4">
+            <div className="mt-8 grid grid-cols-2 gap-4">
               <Stat
-                icon={<Shield className="h-4 w-4" />}
-                value={statsLoading ? "…" : formatCount(stats.sellerCount)}
-                label="Verified sellers"
+                icon={<Users className="h-4 w-4" />}
+                value={statsLoading ? "…" : formatCount(stats.userCount)}
+                label="Users signed up"
               />
               <Stat
                 icon={<TrendingUp className="h-4 w-4" />}
                 value={statsLoading ? "…" : formatCount(stats.productCount)}
                 label="Live listings"
-              />
-              <Stat
-                icon={<Star className="h-4 w-4" />}
-                value={statsLoading ? "…" : stats.reviewCount > 0 ? `${stats.avgRating.toFixed(1)}/5` : "No ratings yet"}
-                label="Buyer rating"
               />
             </div>
           ) : null}

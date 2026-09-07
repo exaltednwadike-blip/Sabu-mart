@@ -6,7 +6,7 @@ import { getTopSellers, getSellerProducts } from "@/lib/sellers";
 import { getSellerRatingSummary } from "@/lib/analytics";
 
 export function FeaturedSellers() {
-  const [sellers, setSellers] = useState([]);
+  const [sellers, setSellers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(function () {

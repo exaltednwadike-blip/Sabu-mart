@@ -1,26 +1,59 @@
+import { Link } from "@tanstack/react-router";
 import { Logo } from "@/components/brand/Logo";
 import { Facebook, Instagram, Twitter, Youtube, Apple, Smartphone } from "lucide-react";
 
 const cols = [
   {
     title: "Company",
-    items: ["About SABU", "Careers", "Press", "Blog", "Investors", "Sustainability"],
+    items: [
+      { label: "About SABU", href: "/about" },
+      { label: "Careers", href: "/careers" },
+      { label: "Press", href: "/press" },
+      { label: "Blog", href: "/blog" },
+      { label: "Investors", href: "/investors" },
+      { label: "Sustainability", href: "/sustainability" },
+    ],
   },
   {
     title: "Marketplace",
-    items: ["Become a Seller", "Seller Handbook", "Advertise", "Bulk Orders", "Verified Stores"],
+    items: [
+      { label: "Become a Seller", href: "/buyer/become-seller" },
+      { label: "Seller Handbook", href: "/seller-handbook" },
+      { label: "Advertise", href: "/advertise" },
+      { label: "Bulk Orders", href: "/bulk-orders" },
+      { label: "Verified Stores", href: "/verified-stores" },
+    ],
   },
   {
     title: "Accommodation",
-    items: ["List a Property", "Hotels", "Short Lets", "Student Housing", "Trust & Safety"],
+    items: [
+      { label: "List a Property", href: "/list-property" },
+      { label: "Hotels", href: "/hotels" },
+      { label: "Short Lets", href: "/short-lets" },
+      { label: "Student Housing", href: "/student-housing" },
+      { label: "Trust & Safety", href: "/community-guidelines" },
+    ],
   },
   {
     title: "Support",
-    items: ["Help Center", "Contact", "Track Order", "Returns", "Report a Listing", "FAQ"],
+    items: [
+      { label: "Help Center", href: "/help-center" },
+      { label: "Contact", href: "/contact" },
+      { label: "Track Order", href: "/track-order" },
+      { label: "Returns", href: "/returns" },
+      { label: "Report a Listing", href: "/report-listing" },
+      { label: "FAQ", href: "/faq" },
+    ],
   },
   {
     title: "Legal",
-    items: ["Privacy", "Terms", "Refund Policy", "Cookies", "Community Guidelines"],
+    items: [
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" },
+      { label: "Refund Policy", href: "/refund-policy" },
+      { label: "Cookies", href: "/cookies" },
+      { label: "Community Guidelines", href: "/community-guidelines" },
+    ],
   },
 ];
 
@@ -53,7 +86,7 @@ export function SiteFooter() {
             </div>
             <div className="mt-6 flex gap-2">
               {[Facebook, Instagram, Twitter, Youtube].map((Icon, i) => (
-                <a key={i} href="#" className="rounded-lg border border-border p-2 text-muted-foreground transition hover:bg-primary hover:text-primary-foreground">
+                <a key={i} href="/" className="rounded-lg border border-border p-2 text-muted-foreground transition hover:bg-primary hover:text-primary-foreground">
                   <Icon className="h-4 w-4" />
                 </a>
               ))}
@@ -64,11 +97,11 @@ export function SiteFooter() {
             <div key={c.title}>
               <h4 className="mb-4 text-sm font-semibold text-foreground">{c.title}</h4>
               <ul className="space-y-2.5">
-                {c.items.map((i) => (
-                  <li key={i}>
-                    <a href="#" className="text-sm text-muted-foreground transition hover:text-primary">
-                      {i}
-                    </a>
+                {c.items.map((item) => (
+                  <li key={item.label}>
+                    <Link to={item.href} className="text-sm text-muted-foreground transition hover:text-primary">
+                      {item.label}
+                    </Link>
                   </li>
                 ))}
               </ul>

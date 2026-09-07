@@ -11,9 +11,9 @@ export const Route = createFileRoute("/seller/analytics")({
 });
 
 function SellerAnalytics() {
-  const [revenueData, setRevenueData] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [revenueData, setRevenueData] = useState<any[]>([]);
+  const [topProducts, setTopProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [viewStats, setViewStats] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 

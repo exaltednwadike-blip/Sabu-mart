@@ -30,7 +30,7 @@ const NEXT_LABEL: { [key: string]: string } = {
 };
 
 function SellerOrders() {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
 

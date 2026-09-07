@@ -1,6 +1,34 @@
 import { Mail, Sparkles } from "lucide-react";
+import { FormEvent, useState } from "react";
+import { saveNewsletterSubscriber } from "@/lib/newsletter";
 
 export function Newsletter() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<{ type: "idle" | "success" | "error"; message: string }>({
+    type: "idle",
+    message: "",
+  });
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setStatus({ type: "idle", message: "" });
+    setLoading(true);
+
+    try {
+      await saveNewsletterSubscriber(email);
+      setStatus({ type: "success", message: "Thanks — you are on the list." });
+      setEmail("");
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message: error instanceof Error ? error.message : "We could not save your email right now.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-16">
       <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-8 shadow-soft md:p-12">
@@ -18,21 +46,37 @@ export function Newsletter() {
               Join 240,000+ shoppers getting the best of SABU every Sunday. No spam, unsubscribe anytime.
             </p>
           </div>
-          <form className="flex flex-col gap-2 sm:flex-row" onSubmit={(e) => e.preventDefault()}>
+          <form className="flex flex-col gap-2 sm:flex-row" onSubmit={handleSubmit}>
             <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-background px-4 py-3">
               <Mail className="h-4 w-4 text-muted-foreground" />
               <input
                 type="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@email.com"
                 className="flex-1 bg-transparent text-sm outline-none"
               />
             </div>
-            <button className="rounded-xl gradient-brand px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95">
-              Subscribe
+            <button
+              type="submit"
+              disabled={loading}
+              className="rounded-xl gradient-brand px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95 disabled:opacity-60"
+            >
+              {loading ? "Saving..." : "Subscribe"}
             </button>
           </form>
         </div>
+        {status.message ? (
+          <p
+            className={
+              "mt-4 text-sm " +
+              (status.type === "success" ? "text-success" : "text-destructive")
+            }
+          >
+            {status.message}
+          </p>
+        ) : null}
       </div>
     </section>
   );

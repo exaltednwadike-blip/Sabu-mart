@@ -12,7 +12,7 @@ export const Route = createFileRoute("/buyer/wishlist")({
 
 function BuyerWishlist() {
   const navigate = useNavigate();
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   function load() {

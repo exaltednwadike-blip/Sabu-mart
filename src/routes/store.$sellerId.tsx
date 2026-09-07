@@ -14,7 +14,7 @@ function StorePage() {
   const params = Route.useParams();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [followerCount, setFollowerCount] = useState(0);
   const [rating, setRating] = useState({ average: 0, count: 0 });
   const [following, setFollowing] = useState(false);

@@ -19,7 +19,7 @@ const statusMeta: { [key: string]: { color: string; icon: any; label: string } }
 };
 
 function BuyerOrders() {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);

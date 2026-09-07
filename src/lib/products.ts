@@ -272,9 +272,9 @@ export async function getProductVideos(limit: number = 20) {
 }
 
 export async function getMarketplaceStats() {
-  const [products, sellers, reviews] = await Promise.all([
+  const [products, users, reviews] = await Promise.all([
     supabase.from("products").select("id", { count: "exact", head: true }).eq("status", "published"),
-    supabase.from("profiles").select("id", { count: "exact", head: true }).eq("seller_status", "approved"),
+    supabase.from("profiles").select("id", { count: "exact", head: true }),
     supabase.from("reviews").select("rating"),
   ]);
 
@@ -285,7 +285,7 @@ export async function getMarketplaceStats() {
 
   return {
     productCount: products.count ?? 0,
-    sellerCount: sellers.count ?? 0,
+    userCount: users.count ?? 0,
     avgRating,
     reviewCount: reviewData.length,
   };

@@ -29,7 +29,7 @@ function SellerUpload() {
   const [stockQuantity, setStockQuantity] = useState("1");
   const [deliveryOption, setDeliveryOption] = useState<"pickup_only" | "delivery_available" | "both">("both");
   const [negotiable, setNegotiable] = useState(true);
-  const [freeDeliveryRegions, setFreeDeliveryRegions] = useState<string[]>([]);
+  const [freeDeliveryLagos, setFreeDeliveryLagos] = useState(false);
   const [city, setCity] = useState(CITIES[0]);
   const [neighbourhood, setNeighbourhood] = useState("");
   const [phone, setPhone] = useState("");
@@ -117,7 +117,7 @@ function SellerUpload() {
           stockQuantity: Number(stockQuantity),
           deliveryOption,
           negotiable,
-          freeDeliveryRegions,
+          freeDeliveryLagos,
           city,
           neighbourhood: neighbourhood.trim(),
           phone: phone.trim(),
@@ -284,28 +284,15 @@ function SellerUpload() {
                 <label className="flex items-center gap-2">
                   <input type="checkbox" className="rounded" checked={negotiable} onChange={function (e) { setNegotiable(e.target.checked); }} /> Negotiable
                 </label>
-                <div>
-                  <div className="mb-2 text-sm font-medium">Free delivery regions</div>
-                  <div className="grid max-h-40 grid-cols-2 gap-2 overflow-auto border border-border rounded-lg p-2">
-                    {CITIES.map(function (c) {
-                      const checked = freeDeliveryRegions.includes(c);
-                      return (
-                        <label key={c} className="flex items-center gap-2 text-xs">
-                          <input
-                            type="checkbox"
-                            className="rounded"
-                            checked={checked}
-                            onChange={function (e) {
-                              if (e.target.checked) setFreeDeliveryRegions(function (prev) { return [...prev, c]; });
-                              else setFreeDeliveryRegions(function (prev) { return prev.filter(function (x) { return x !== c; }); });
-                            }}
-                          />
-                          {c}
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="rounded"
+                    checked={freeDeliveryLagos}
+                    onChange={function (e) { setFreeDeliveryLagos(e.target.checked); }}
+                  />
+                  Free delivery available in Lagos
+                </label>
               </div>
             </Card>
 

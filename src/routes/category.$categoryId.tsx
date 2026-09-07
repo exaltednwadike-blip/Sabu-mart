@@ -9,7 +9,7 @@ export const Route = createFileRoute("/category/$categoryId")({
 
 function CategoryPage() {
   const params = Route.useParams();
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [categoryName, setCategoryName] = useState("");
   const [loading, setLoading] = useState(true);
 

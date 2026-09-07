@@ -86,6 +86,21 @@ export async function updateProfile(userId: string, updates: { fullName?: string
   if (error) throw error;
 }
 
+export async function becomeSeller(userId: string, storeName: string) {
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      store_name: storeName,
+      is_seller: true,
+      seller_status: "pending",
+    })
+    .eq("id", userId);
+
+  if (error) throw error;
+
+  return { userId, storeName };
+}
+
 interface SellerApplicationInput {
   businessName: string;
   businessAddress: string;
