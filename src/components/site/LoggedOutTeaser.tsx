@@ -70,7 +70,7 @@ export function LoggedOutTeaser() {
       <h2 className="mt-2 font-display text-2xl font-bold md:text-3xl">Thousands of items, waiting for you</h2>
       <p className="mt-2 text-sm text-muted-foreground">Sign up to see prices, sellers, and message them directly.</p>
 
-      <div className="relative mx-auto mt-10 h-[300px] w-full max-w-[980px] overflow-hidden sm:h-[390px] md:h-[430px]">
+      <div className="relative mx-auto mt-10 h-[300px] w-full max-w-[980px] overflow-visible sm:h-[390px] md:h-[430px]">
         {slides.map(function (slide, slotIndex) {
           const isCenter = slotIndex === 1;
           return (
@@ -86,7 +86,7 @@ export function LoggedOutTeaser() {
                 zIndex: slide.zIndex,
               }}
             >
-              <img src={slide.image} alt="" className="h-full w-full object-cover" />
+              <img src={slide.image} alt="" className="h-full w-full object-contain bg-muted" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-black/0" />
               <div className="absolute inset-0 flex items-end justify-center p-4 sm:p-6">
                 <span className="inline-flex items-center gap-2 rounded-xl bg-white/90 px-3 py-2 text-[11px] font-semibold text-foreground shadow-soft backdrop-blur-sm sm:text-sm">

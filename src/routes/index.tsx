@@ -5,7 +5,6 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { Hero } from "@/components/site/Hero";
 import { CategoryGrid } from "@/components/site/CategoryGrid";
 import { ProductFeed } from "@/components/site/ProductFeed";
-import { ReelsSection } from "@/components/site/ReelsSection";
 import { LoggedOutTeaser } from "@/components/site/LoggedOutTeaser";
 import { SellCTA } from "@/components/site/SellCTA";
 import { Reviews } from "@/components/site/Reviews";
@@ -35,7 +34,6 @@ function Home() {
         {!checked ? null : loggedIn ? (
           <>
             <CategoryGrid />
-            <ReelsSection />
             <ProductFeed />
           </>
         ) : (

@@ -1,7 +1,6 @@
-import { Search, MapPin, Users, TrendingUp, Sparkles, UserPlus, Store, Shield } from "lucide-react";
+import { Search, MapPin, Users, TrendingUp, UserPlus, Store } from "lucide-react";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import hero from "@/assets/hero-shopper.jpg";
 import { getMarketplaceStats } from "@/lib/products";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -50,8 +49,8 @@ export function Hero() {
   return (
     <section className="relative overflow-hidden gradient-hero">
       <div className="pointer-events-none absolute inset-0 opacity-60" style={{ backgroundImage: "var(--gradient-mesh)" }} />
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 pb-16 pt-10 lg:grid-cols-2 lg:pt-16">
-        <div className="relative z-10 flex flex-col justify-center">
+      <div className="mx-auto max-w-7xl px-4 pb-16 pt-10 lg:pt-16">
+        <div className="relative z-10 mx-auto flex max-w-3xl flex-col justify-center text-center">
           <h1 className="mt-0 font-display text-4xl font-bold leading-[1.05] tracking-tight text-foreground md:text-6xl">
             Everything you need,{" "}
             <span className="text-gradient-brand">from anyone</span>{" "}
@@ -173,40 +172,6 @@ export function Hero() {
           ) : null}
         </div>
 
-        <div className="relative z-10">
-          <div className="relative">
-            <div className="absolute -inset-6 rounded-[2rem] gradient-brand opacity-20 blur-3xl" />
-            <img
-              src={hero}
-              alt="Happy SABU shopper"
-              width={1400}
-              height={1200}
-              className="relative rounded-[2rem] object-cover shadow-elegant"
-            />
-            <FloatingCard className="-left-6 top-10 md:-left-10" delay="0s">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Shield className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground">Escrow protected</div>
-                  <div className="text-sm font-semibold">Buyer safety</div>
-                </div>
-              </div>
-            </FloatingCard>
-            <FloatingCard className="bottom-8 right-2 md:-right-6" delay="1.2s">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent-orange/15 text-accent-orange">
-                  <Sparkles className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="text-xs text-muted-foreground">Flash deal</div>
-                  <div className="text-sm font-semibold">-45% today</div>
-                </div>
-              </div>
-            </FloatingCard>
-          </div>
-        </div>
       </div>
     </section>
   );
@@ -221,13 +186,3 @@ function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; la
   );
 }
 
-function FloatingCard({ children, className = "", delay = "0s" }: { children: React.ReactNode; className?: string; delay?: string }) {
-  return (
-    <div
-      className={`absolute rounded-2xl border border-border bg-background/90 p-3 shadow-elegant backdrop-blur animate-float ${className}`}
-      style={{ animationDelay: delay }}
-    >
-      {children}
-    </div>
-  );
-}
