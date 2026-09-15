@@ -1,0 +1,5 @@
+[33m136d888[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge bolt-test into main
+[33mfe4230b[m Homepage feed restructure and teaser cleanup
+[33m4b1ca62[m Finalize homepage polish and runtime cleanup
+[33mabbbadf[m Overhaul homepage: logged-out teaser experience, logged-in improvements (reels, reshuffled feed, mobile search), and server-side seller approval fix
+[33m2b79ed0[m db: add free_delivery_regions column and backfill from free_delivery_lagos

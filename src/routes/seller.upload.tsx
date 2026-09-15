@@ -125,6 +125,9 @@ function SellerUpload() {
           tags,
           images,
           videos,
+          listingFee: 0,
+          txRef: "free-listing",
+          providerTransactionId: "free-listing",
         });
       })
       .then(function (result) {

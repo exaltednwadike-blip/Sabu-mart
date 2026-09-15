@@ -2,6 +2,17 @@ import { createClient } from "@/lib/supabase/client";
 
 const supabase = createClient();
 
+export const FREE_LISTING_LIMIT = 10;
+
+export async function getMyProductCount(sellerId: string) {
+  const { count, error } = await supabase
+    .from("products")
+    .select("id", { count: "exact", head: true })
+    .eq("seller_id", sellerId);
+  if (error) throw error;
+  return count ?? 0;
+}
+
 export interface ListingCategory {
   id: string;
   name: string;
@@ -34,6 +45,7 @@ export interface ProductInput {
   whatsapp: string;
   tags: string[];
   images: File[];
+  videos?: File[];
   listingFee: number;
   txRef: string;
   providerTransactionId: string;
@@ -52,9 +64,34 @@ export async function uploadProductImages(sellerId: string, images: File[]) {
   return urls;
 }
 
+export const MAX_PRODUCT_VIDEOS = 3;
+
+export async function uploadProductVideos(sellerId: string, videos: File[]) {
+  const urls: string[] = [];
+  for (const video of videos.slice(0, MAX_PRODUCT_VIDEOS)) {
+    const fileExt = video.name.split(".").pop();
+    const filePath = `${sellerId}/videos/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+    const { error } = await supabase.storage.from("product-images").upload(filePath, video);
+    if (error) throw error;
+    const { data } = supabase.storage.from("product-images").getPublicUrl(filePath);
+    urls.push(data.publicUrl);
+  }
+  return urls;
+}
+
 export async function createProduct(sellerId: string, input: ProductInput) {
+  const currentCount = await getMyProductCount(sellerId);
+  if (currentCount >= FREE_LISTING_LIMIT) {
+    throw new Error(
+      "You've reached the free launch limit of " + FREE_LISTING_LIMIT + " products. More plans are coming soon."
+    );
+  }
+
   const imageUrls = input.images.length > 0
     ? await uploadProductImages(sellerId, input.images)
+    : [];
+  const videoUrls = input.videos && input.videos.length > 0
+    ? await uploadProductVideos(sellerId, input.videos)
     : [];
 
   const { data, error } = await supabase
@@ -76,6 +113,7 @@ export async function createProduct(sellerId: string, input: ProductInput) {
       whatsapp: input.whatsapp,
       tags: input.tags,
       images: imageUrls,
+      videos: videoUrls,
       status: "pending_review",
       payment_status: "paid",
       listing_fee: input.listingFee,
@@ -86,6 +124,19 @@ export async function createProduct(sellerId: string, input: ProductInput) {
     .single();
   if (error) throw error;
   return data;
+}
+
+export async function getTeaserImages(limit: number = 30) {
+  const { data, error } = await supabase
+    .from("products")
+    .select("images")
+    .eq("status", "published")
+    .eq("availability", "available")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data || [])
+    .flatMap(function (product: any) { return Array.isArray(product.images) ? product.images.slice(0, 1) : []; });
 }
 
 export async function getMyProducts(sellerId: string) {

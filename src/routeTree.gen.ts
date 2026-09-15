@@ -10,22 +10,48 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AdvertiseRouteImport } from './routes/advertise'
+import { Route as BlogRouteImport } from './routes/blog'
+import { Route as BulkOrdersRouteImport } from './routes/bulk-orders'
 import { Route as BuyerRouteImport } from './routes/buyer'
+import { Route as CareersRouteImport } from './routes/careers'
+import { Route as CommunityGuidelinesRouteImport } from './routes/community-guidelines'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FoodRouteImport } from './routes/food'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as HelpCenterRouteImport } from './routes/help-center'
+import { Route as HotelsRouteImport } from './routes/hotels'
+import { Route as InvestorsRouteImport } from './routes/investors'
+import { Route as ListPropertyRouteImport } from './routes/list-property'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as PressRouteImport } from './routes/press'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
+import { Route as ReportListingRouteImport } from './routes/report-listing'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as ReturnsRouteImport } from './routes/returns'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SellerRouteImport } from './routes/seller'
+import { Route as SellerHandbookRouteImport } from './routes/seller-handbook'
+import { Route as ShortLetsRouteImport } from './routes/short-lets'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as StudentHousingRouteImport } from './routes/student-housing'
+import { Route as SustainabilityRouteImport } from './routes/sustainability'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as TrackOrderRouteImport } from './routes/track-order'
+import { Route as VerifiedStoresRouteImport } from './routes/verified-stores'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminDisputesRouteImport } from './routes/admin.disputes'
 import { Route as AdminFoodOrdersRouteImport } from './routes/admin.food-orders'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminRestaurantsRouteImport } from './routes/admin.restaurants'
 import { Route as AdminSellersRouteImport } from './routes/admin.sellers'
+import { Route as AdminSupportRouteImport } from './routes/admin.support'
 import { Route as AdminWithdrawalsRouteImport } from './routes/admin.withdrawals'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as BuyerIndexRouteImport } from './routes/buyer.index'
@@ -64,14 +90,54 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdvertiseRoute = AdvertiseRouteImport.update({
+  id: '/advertise',
+  path: '/advertise',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BulkOrdersRoute = BulkOrdersRouteImport.update({
+  id: '/bulk-orders',
+  path: '/bulk-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BuyerRoute = BuyerRouteImport.update({
   id: '/buyer',
   path: '/buyer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersRoute = CareersRouteImport.update({
+  id: '/careers',
+  path: '/careers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityGuidelinesRoute = CommunityGuidelinesRouteImport.update({
+  id: '/community-guidelines',
+  path: '/community-guidelines',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -89,14 +155,59 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HelpCenterRoute = HelpCenterRouteImport.update({
+  id: '/help-center',
+  path: '/help-center',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HotelsRoute = HotelsRouteImport.update({
+  id: '/hotels',
+  path: '/hotels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvestorsRoute = InvestorsRouteImport.update({
+  id: '/investors',
+  path: '/investors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListPropertyRoute = ListPropertyRouteImport.update({
+  id: '/list-property',
+  path: '/list-property',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PressRoute = PressRouteImport.update({
+  id: '/press',
+  path: '/press',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportListingRoute = ReportListingRouteImport.update({
+  id: '/report-listing',
+  path: '/report-listing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReturnsRoute = ReturnsRouteImport.update({
+  id: '/returns',
+  path: '/returns',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -109,9 +220,49 @@ const SellerRoute = SellerRouteImport.update({
   path: '/seller',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellerHandbookRoute = SellerHandbookRouteImport.update({
+  id: '/seller-handbook',
+  path: '/seller-handbook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShortLetsRoute = ShortLetsRouteImport.update({
+  id: '/short-lets',
+  path: '/short-lets',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentHousingRoute = StudentHousingRouteImport.update({
+  id: '/student-housing',
+  path: '/student-housing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SustainabilityRoute = SustainabilityRouteImport.update({
+  id: '/sustainability',
+  path: '/sustainability',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrackOrderRoute = TrackOrderRouteImport.update({
+  id: '/track-order',
+  path: '/track-order',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifiedStoresRoute = VerifiedStoresRouteImport.update({
+  id: '/verified-stores',
+  path: '/verified-stores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -142,6 +293,11 @@ const AdminRestaurantsRoute = AdminRestaurantsRouteImport.update({
 const AdminSellersRoute = AdminSellersRouteImport.update({
   id: '/sellers',
   path: '/sellers',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSupportRoute = AdminSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminWithdrawalsRoute = AdminWithdrawalsRouteImport.update({
@@ -307,21 +463,47 @@ const FoodTrackOrderIdRoute = FoodTrackOrderIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
+  '/advertise': typeof AdvertiseRoute
+  '/blog': typeof BlogRoute
+  '/bulk-orders': typeof BulkOrdersRoute
   '/buyer': typeof BuyerRouteWithChildren
+  '/careers': typeof CareersRoute
+  '/community-guidelines': typeof CommunityGuidelinesRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
   '/faq': typeof FaqRoute
   '/food': typeof FoodRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/help-center': typeof HelpCenterRoute
+  '/hotels': typeof HotelsRoute
+  '/investors': typeof InvestorsRoute
+  '/list-property': typeof ListPropertyRoute
   '/login': typeof LoginRoute
+  '/press': typeof PressRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/report-listing': typeof ReportListingRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/returns': typeof ReturnsRoute
   '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
+  '/seller-handbook': typeof SellerHandbookRoute
+  '/short-lets': typeof ShortLetsRoute
   '/signup': typeof SignupRoute
+  '/student-housing': typeof StudentHousingRoute
+  '/sustainability': typeof SustainabilityRoute
+  '/terms': typeof TermsRoute
+  '/track-order': typeof TrackOrderRoute
+  '/verified-stores': typeof VerifiedStoresRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/admin/disputes': typeof AdminDisputesRoute
   '/admin/food-orders': typeof AdminFoodOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/restaurants': typeof AdminRestaurantsRoute
   '/admin/sellers': typeof AdminSellersRoute
+  '/admin/support': typeof AdminSupportRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/buyer/become-seller': typeof BuyerBecomeSellerRoute
@@ -358,18 +540,44 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/advertise': typeof AdvertiseRoute
+  '/blog': typeof BlogRoute
+  '/bulk-orders': typeof BulkOrdersRoute
+  '/careers': typeof CareersRoute
+  '/community-guidelines': typeof CommunityGuidelinesRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
   '/faq': typeof FaqRoute
   '/food': typeof FoodRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/help-center': typeof HelpCenterRoute
+  '/hotels': typeof HotelsRoute
+  '/investors': typeof InvestorsRoute
+  '/list-property': typeof ListPropertyRoute
   '/login': typeof LoginRoute
+  '/press': typeof PressRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/report-listing': typeof ReportListingRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/returns': typeof ReturnsRoute
   '/search': typeof SearchRoute
+  '/seller-handbook': typeof SellerHandbookRoute
+  '/short-lets': typeof ShortLetsRoute
   '/signup': typeof SignupRoute
+  '/student-housing': typeof StudentHousingRoute
+  '/sustainability': typeof SustainabilityRoute
+  '/terms': typeof TermsRoute
+  '/track-order': typeof TrackOrderRoute
+  '/verified-stores': typeof VerifiedStoresRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/admin/disputes': typeof AdminDisputesRoute
   '/admin/food-orders': typeof AdminFoodOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/restaurants': typeof AdminRestaurantsRoute
   '/admin/sellers': typeof AdminSellersRoute
+  '/admin/support': typeof AdminSupportRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/buyer/become-seller': typeof BuyerBecomeSellerRoute
@@ -407,21 +615,47 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
+  '/advertise': typeof AdvertiseRoute
+  '/blog': typeof BlogRoute
+  '/bulk-orders': typeof BulkOrdersRoute
   '/buyer': typeof BuyerRouteWithChildren
+  '/careers': typeof CareersRoute
+  '/community-guidelines': typeof CommunityGuidelinesRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
   '/faq': typeof FaqRoute
   '/food': typeof FoodRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
+  '/help-center': typeof HelpCenterRoute
+  '/hotels': typeof HotelsRoute
+  '/investors': typeof InvestorsRoute
+  '/list-property': typeof ListPropertyRoute
   '/login': typeof LoginRoute
+  '/press': typeof PressRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/report-listing': typeof ReportListingRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/returns': typeof ReturnsRoute
   '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
+  '/seller-handbook': typeof SellerHandbookRoute
+  '/short-lets': typeof ShortLetsRoute
   '/signup': typeof SignupRoute
+  '/student-housing': typeof StudentHousingRoute
+  '/sustainability': typeof SustainabilityRoute
+  '/terms': typeof TermsRoute
+  '/track-order': typeof TrackOrderRoute
+  '/verified-stores': typeof VerifiedStoresRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/admin/disputes': typeof AdminDisputesRoute
   '/admin/food-orders': typeof AdminFoodOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/restaurants': typeof AdminRestaurantsRoute
   '/admin/sellers': typeof AdminSellersRoute
+  '/admin/support': typeof AdminSupportRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/buyer/become-seller': typeof BuyerBecomeSellerRoute
@@ -460,21 +694,47 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/admin'
+    | '/advertise'
+    | '/blog'
+    | '/bulk-orders'
     | '/buyer'
+    | '/careers'
+    | '/community-guidelines'
+    | '/contact'
+    | '/cookies'
     | '/faq'
     | '/food'
     | '/forgot-password'
+    | '/help-center'
+    | '/hotels'
+    | '/investors'
+    | '/list-property'
     | '/login'
+    | '/press'
+    | '/privacy'
+    | '/refund-policy'
+    | '/report-listing'
     | '/reset-password'
+    | '/returns'
     | '/search'
     | '/seller'
+    | '/seller-handbook'
+    | '/short-lets'
     | '/signup'
+    | '/student-housing'
+    | '/sustainability'
+    | '/terms'
+    | '/track-order'
+    | '/verified-stores'
+    | '/verify-email'
     | '/admin/disputes'
     | '/admin/food-orders'
     | '/admin/products'
     | '/admin/restaurants'
     | '/admin/sellers'
+    | '/admin/support'
     | '/admin/withdrawals'
     | '/auth/callback'
     | '/buyer/become-seller'
@@ -511,18 +771,44 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
+    | '/advertise'
+    | '/blog'
+    | '/bulk-orders'
+    | '/careers'
+    | '/community-guidelines'
+    | '/contact'
+    | '/cookies'
     | '/faq'
     | '/food'
     | '/forgot-password'
+    | '/help-center'
+    | '/hotels'
+    | '/investors'
+    | '/list-property'
     | '/login'
+    | '/press'
+    | '/privacy'
+    | '/refund-policy'
+    | '/report-listing'
     | '/reset-password'
+    | '/returns'
     | '/search'
+    | '/seller-handbook'
+    | '/short-lets'
     | '/signup'
+    | '/student-housing'
+    | '/sustainability'
+    | '/terms'
+    | '/track-order'
+    | '/verified-stores'
+    | '/verify-email'
     | '/admin/disputes'
     | '/admin/food-orders'
     | '/admin/products'
     | '/admin/restaurants'
     | '/admin/sellers'
+    | '/admin/support'
     | '/admin/withdrawals'
     | '/auth/callback'
     | '/buyer/become-seller'
@@ -559,21 +845,47 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/admin'
+    | '/advertise'
+    | '/blog'
+    | '/bulk-orders'
     | '/buyer'
+    | '/careers'
+    | '/community-guidelines'
+    | '/contact'
+    | '/cookies'
     | '/faq'
     | '/food'
     | '/forgot-password'
+    | '/help-center'
+    | '/hotels'
+    | '/investors'
+    | '/list-property'
     | '/login'
+    | '/press'
+    | '/privacy'
+    | '/refund-policy'
+    | '/report-listing'
     | '/reset-password'
+    | '/returns'
     | '/search'
     | '/seller'
+    | '/seller-handbook'
+    | '/short-lets'
     | '/signup'
+    | '/student-housing'
+    | '/sustainability'
+    | '/terms'
+    | '/track-order'
+    | '/verified-stores'
+    | '/verify-email'
     | '/admin/disputes'
     | '/admin/food-orders'
     | '/admin/products'
     | '/admin/restaurants'
     | '/admin/sellers'
+    | '/admin/support'
     | '/admin/withdrawals'
     | '/auth/callback'
     | '/buyer/become-seller'
@@ -611,16 +923,41 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AdvertiseRoute: typeof AdvertiseRoute
+  BlogRoute: typeof BlogRoute
+  BulkOrdersRoute: typeof BulkOrdersRoute
   BuyerRoute: typeof BuyerRouteWithChildren
+  CareersRoute: typeof CareersRoute
+  CommunityGuidelinesRoute: typeof CommunityGuidelinesRoute
+  ContactRoute: typeof ContactRoute
+  CookiesRoute: typeof CookiesRoute
   FaqRoute: typeof FaqRoute
   FoodRoute: typeof FoodRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  HelpCenterRoute: typeof HelpCenterRoute
+  HotelsRoute: typeof HotelsRoute
+  InvestorsRoute: typeof InvestorsRoute
+  ListPropertyRoute: typeof ListPropertyRoute
   LoginRoute: typeof LoginRoute
+  PressRoute: typeof PressRoute
+  PrivacyRoute: typeof PrivacyRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
+  ReportListingRoute: typeof ReportListingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ReturnsRoute: typeof ReturnsRoute
   SearchRoute: typeof SearchRoute
   SellerRoute: typeof SellerRouteWithChildren
+  SellerHandbookRoute: typeof SellerHandbookRoute
+  ShortLetsRoute: typeof ShortLetsRoute
   SignupRoute: typeof SignupRoute
+  StudentHousingRoute: typeof StudentHousingRoute
+  SustainabilityRoute: typeof SustainabilityRoute
+  TermsRoute: typeof TermsRoute
+  TrackOrderRoute: typeof TrackOrderRoute
+  VerifiedStoresRoute: typeof VerifiedStoresRoute
+  VerifyEmailRoute: typeof VerifyEmailRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   CategoryCategoryIdRoute: typeof CategoryCategoryIdRoute
   ProductProductIdRoute: typeof ProductProductIdRoute
@@ -638,6 +975,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -645,11 +989,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/advertise': {
+      id: '/advertise'
+      path: '/advertise'
+      fullPath: '/advertise'
+      preLoaderRoute: typeof AdvertiseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bulk-orders': {
+      id: '/bulk-orders'
+      path: '/bulk-orders'
+      fullPath: '/bulk-orders'
+      preLoaderRoute: typeof BulkOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/buyer': {
       id: '/buyer'
       path: '/buyer'
       fullPath: '/buyer'
       preLoaderRoute: typeof BuyerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers': {
+      id: '/careers'
+      path: '/careers'
+      fullPath: '/careers'
+      preLoaderRoute: typeof CareersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community-guidelines': {
+      id: '/community-guidelines'
+      path: '/community-guidelines'
+      fullPath: '/community-guidelines'
+      preLoaderRoute: typeof CommunityGuidelinesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -673,6 +1066,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/help-center': {
+      id: '/help-center'
+      path: '/help-center'
+      fullPath: '/help-center'
+      preLoaderRoute: typeof HelpCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hotels': {
+      id: '/hotels'
+      path: '/hotels'
+      fullPath: '/hotels'
+      preLoaderRoute: typeof HotelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/investors': {
+      id: '/investors'
+      path: '/investors'
+      fullPath: '/investors'
+      preLoaderRoute: typeof InvestorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/list-property': {
+      id: '/list-property'
+      path: '/list-property'
+      fullPath: '/list-property'
+      preLoaderRoute: typeof ListPropertyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -680,11 +1101,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/press': {
+      id: '/press'
+      path: '/press'
+      fullPath: '/press'
+      preLoaderRoute: typeof PressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/report-listing': {
+      id: '/report-listing'
+      path: '/report-listing'
+      fullPath: '/report-listing'
+      preLoaderRoute: typeof ReportListingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/returns': {
+      id: '/returns'
+      path: '/returns'
+      fullPath: '/returns'
+      preLoaderRoute: typeof ReturnsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -701,11 +1157,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/seller-handbook': {
+      id: '/seller-handbook'
+      path: '/seller-handbook'
+      fullPath: '/seller-handbook'
+      preLoaderRoute: typeof SellerHandbookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/short-lets': {
+      id: '/short-lets'
+      path: '/short-lets'
+      fullPath: '/short-lets'
+      preLoaderRoute: typeof ShortLetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/student-housing': {
+      id: '/student-housing'
+      path: '/student-housing'
+      fullPath: '/student-housing'
+      preLoaderRoute: typeof StudentHousingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sustainability': {
+      id: '/sustainability'
+      path: '/sustainability'
+      fullPath: '/sustainability'
+      preLoaderRoute: typeof SustainabilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/track-order': {
+      id: '/track-order'
+      path: '/track-order'
+      fullPath: '/track-order'
+      preLoaderRoute: typeof TrackOrderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verified-stores': {
+      id: '/verified-stores'
+      path: '/verified-stores'
+      fullPath: '/verified-stores'
+      preLoaderRoute: typeof VerifiedStoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -748,6 +1260,13 @@ declare module '@tanstack/react-router' {
       path: '/sellers'
       fullPath: '/admin/sellers'
       preLoaderRoute: typeof AdminSellersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/support': {
+      id: '/admin/support'
+      path: '/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AdminSupportRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/withdrawals': {
@@ -983,6 +1502,7 @@ interface AdminRouteChildren {
   AdminProductsRoute: typeof AdminProductsRoute
   AdminRestaurantsRoute: typeof AdminRestaurantsRoute
   AdminSellersRoute: typeof AdminSellersRoute
+  AdminSupportRoute: typeof AdminSupportRoute
   AdminWithdrawalsRoute: typeof AdminWithdrawalsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -993,6 +1513,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminProductsRoute: AdminProductsRoute,
   AdminRestaurantsRoute: AdminRestaurantsRoute,
   AdminSellersRoute: AdminSellersRoute,
+  AdminSupportRoute: AdminSupportRoute,
   AdminWithdrawalsRoute: AdminWithdrawalsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
@@ -1076,16 +1597,41 @@ const SellerRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   AdminRoute: AdminRouteWithChildren,
+  AdvertiseRoute: AdvertiseRoute,
+  BlogRoute: BlogRoute,
+  BulkOrdersRoute: BulkOrdersRoute,
   BuyerRoute: BuyerRouteWithChildren,
+  CareersRoute: CareersRoute,
+  CommunityGuidelinesRoute: CommunityGuidelinesRoute,
+  ContactRoute: ContactRoute,
+  CookiesRoute: CookiesRoute,
   FaqRoute: FaqRoute,
   FoodRoute: FoodRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  HelpCenterRoute: HelpCenterRoute,
+  HotelsRoute: HotelsRoute,
+  InvestorsRoute: InvestorsRoute,
+  ListPropertyRoute: ListPropertyRoute,
   LoginRoute: LoginRoute,
+  PressRoute: PressRoute,
+  PrivacyRoute: PrivacyRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
+  ReportListingRoute: ReportListingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ReturnsRoute: ReturnsRoute,
   SearchRoute: SearchRoute,
   SellerRoute: SellerRouteWithChildren,
+  SellerHandbookRoute: SellerHandbookRoute,
+  ShortLetsRoute: ShortLetsRoute,
   SignupRoute: SignupRoute,
+  StudentHousingRoute: StudentHousingRoute,
+  SustainabilityRoute: SustainabilityRoute,
+  TermsRoute: TermsRoute,
+  TrackOrderRoute: TrackOrderRoute,
+  VerifiedStoresRoute: VerifiedStoresRoute,
+  VerifyEmailRoute: VerifyEmailRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   CategoryCategoryIdRoute: CategoryCategoryIdRoute,
   ProductProductIdRoute: ProductProductIdRoute,
