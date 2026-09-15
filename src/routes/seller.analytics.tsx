@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+﻿import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { BarChart3, TrendingUp, Package, Eye, Heart } from "lucide-react";
+import { BarChart3, TrendingUp, Package } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/DashboardShell";
 import { getCurrentUser } from "@/lib/auth";
-import { getRevenueOverTime, getTopProducts, getCategoryBreakdown, getProductViewsAndLikes } from "@/lib/analytics";
+import { getRevenueOverTime, getTopProducts, getCategoryBreakdown } from "@/lib/analytics";
 
 export const Route = createFileRoute("/seller/analytics")({
   component: SellerAnalytics,
@@ -14,7 +14,6 @@ function SellerAnalytics() {
   const [revenueData, setRevenueData] = useState<any[]>([]);
   const [topProducts, setTopProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
-  const [viewStats, setViewStats] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(function () {
@@ -24,13 +23,11 @@ function SellerAnalytics() {
         getRevenueOverTime(user.id, 30),
         getTopProducts(user.id, 5),
         getCategoryBreakdown(user.id),
-        getProductViewsAndLikes(user.id),
       ])
         .then(function (results) {
           setRevenueData(results[0]);
           setTopProducts(results[1]);
           setCategories(results[2]);
-          setViewStats(results[3]);
         })
         .finally(function () {
           setLoading(false);
@@ -39,8 +36,6 @@ function SellerAnalytics() {
   }, []);
 
   const totalRevenue = revenueData.reduce(function (sum: number, d: any) { return sum + d.revenue; }, 0);
-  const totalViews = viewStats.reduce(function (sum: number, p: any) { return sum + p.views; }, 0);
-  const totalLikes = viewStats.reduce(function (sum: number, p: any) { return sum + p.likes; }, 0);
 
   function renderTopProduct(p: any, i: number) {
     return (
@@ -59,22 +54,6 @@ function SellerAnalytics() {
     );
   }
 
-  function renderViewStat(p: any) {
-    return (
-      <div key={p.id} className="flex items-center justify-between border-b border-border py-3 last:border-0">
-        <p className="text-sm font-medium">{p.title}</p>
-        <div className="flex items-center gap-4 text-sm">
-          <span className="flex items-center gap-1 text-muted-foreground">
-            <Eye className="h-3.5 w-3.5" /> {p.views}
-          </span>
-          <span className="flex items-center gap-1 text-muted-foreground">
-            <Heart className="h-3.5 w-3.5" /> {p.likes}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
   function renderCategory(c: any) {
     return (
       <div key={c.name} className="flex items-center justify-between border-b border-border py-3 last:border-0">
@@ -88,7 +67,7 @@ function SellerAnalytics() {
     <div>
       <PageHeader title="Analytics" subtitle="Real performance data from your store." />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <TrendingUp className="h-4 w-4 text-success" /> Revenue (last 30 days)
@@ -102,18 +81,6 @@ function SellerAnalytics() {
           <div className="mt-2 font-display text-2xl font-bold">
             {categories.reduce(function (sum: number, c: any) { return sum + c.count; }, 0)}
           </div>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Eye className="h-4 w-4 text-primary" /> Total product views
-          </div>
-          <div className="mt-2 font-display text-2xl font-bold">{totalViews.toLocaleString()}</div>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Heart className="h-4 w-4 text-destructive" /> Total likes
-          </div>
-          <div className="mt-2 font-display text-2xl font-bold">{totalLikes.toLocaleString()}</div>
         </div>
       </div>
 
@@ -161,19 +128,6 @@ function SellerAnalytics() {
             categories.map(renderCategory)
           )}
         </div>
-      </div>
-
-      <div className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-soft">
-        <h3 className="mb-2 flex items-center gap-2 font-semibold">
-          <Eye className="h-4 w-4 text-primary" /> Views &amp; likes by product
-        </h3>
-        {loading ? (
-          <p className="text-sm text-muted-foreground">Loading...</p>
-        ) : viewStats.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No products yet.</p>
-        ) : (
-          viewStats.map(renderViewStat)
-        )}
       </div>
     </div>
   );

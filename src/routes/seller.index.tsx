@@ -1,6 +1,6 @@
 ﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Package, ShoppingCart, Wallet, TrendingUp, ArrowUpRight, Clock, Upload } from "lucide-react";
+import { Package, ShoppingCart, Wallet, TrendingUp, ArrowUpRight, Clock, Upload, Share2, Copy, Check } from "lucide-react";
 import { PageHeader, StatCard } from "@/components/dashboard/DashboardShell";
 import { getCurrentUser } from "@/lib/auth";
 import { getMyProducts } from "@/lib/products";
@@ -15,6 +15,13 @@ function SellerHome() {
   const [stats, setStats] = useState({ liveProducts: 0, pendingOrders: 0, available: 0, totalEarned: 0 });
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [inviteLink, setInviteLink] = useState("");
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(function () {
+    setInviteLink(window.location.origin + "/signup");
+  }, []);
 
   useEffect(function () {
     getCurrentUser().then(function (user) {
@@ -83,6 +90,46 @@ function SellerHome() {
         <StatCard label="Orders to fulfil" value={loading ? "-" : String(stats.pendingOrders)} icon={ShoppingCart} tint="orange" />
         <StatCard label="Available balance" value={loading ? "-" : "₦" + stats.available.toLocaleString()} icon={Wallet} tint="success" />
         <StatCard label="Total earned" value={loading ? "-" : "₦" + stats.totalEarned.toLocaleString()} icon={TrendingUp} tint="primary" />
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-soft">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h3 className="font-semibold">Invite a friend</h3>
+            <p className="text-sm text-muted-foreground">Share SABU with your network.</p>
+          </div>
+          <button
+            type="button"
+            onClick={function () { setInviteOpen(function (open) { return !open; }); }}
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+          >
+            <Share2 className="h-4 w-4" /> Invite a friend
+          </button>
+        </div>
+        {inviteOpen ? (
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <a
+              href={"https://wa.me/?text=" + encodeURIComponent("Join me on SABU Marketplace — Nigeria's growing marketplace! Sign up here: " + inviteLink)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground"
+            >
+              Share on WhatsApp
+            </a>
+            <button
+              type="button"
+              onClick={async function () {
+                await navigator.clipboard.writeText(inviteLink);
+                setCopied(true);
+                window.setTimeout(function () { setCopied(false); }, 1800);
+              }}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground"
+            >
+              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copied ? "Copied" : "Copy link"}
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-soft">

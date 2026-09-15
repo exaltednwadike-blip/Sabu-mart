@@ -74,6 +74,7 @@ export function ProductCard(props: { p: any }) {
   const image = p.images && p.images.length > 0 ? p.images[0] : null;
   const location = p.neighbourhood ? p.neighbourhood + ", " + p.city : p.city;
   const sellerName = p.profiles && p.profiles.store_name ? p.profiles.store_name : "SABU Seller";
+  const isNew = p.created_at ? Date.now() - new Date(p.created_at).getTime() < 7 * 24 * 60 * 60 * 1000 : false;
 
   useEffect(function () {
     getCurrentUser().then(function (user) {
@@ -141,6 +142,9 @@ export function ProductCard(props: { p: any }) {
         ) : (
           <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">No image</div>
         )}
+        {isNew ? (
+          <div className="absolute left-2 top-2 rounded-full bg-accent-orange px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white">NEW</div>
+        ) : null}
         <button
           onClick={handleToggleWishlist}
           disabled={wishBusy}

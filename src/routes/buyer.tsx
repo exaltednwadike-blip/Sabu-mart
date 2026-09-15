@@ -14,6 +14,7 @@ const groups = [
       { title: "Dashboard", url: "/buyer", icon: LayoutDashboard },
       { title: "Cart", url: "/buyer/cart", icon: ShoppingCart },
       { title: "Orders", url: "/buyer/orders", icon: ShoppingBag },
+      { title: "Food Orders", url: "/buyer/food-orders", icon: ShoppingBag },
       { title: "Recently viewed", url: "/buyer/recent", icon: Clock },
     ],
   },

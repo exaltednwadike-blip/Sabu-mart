@@ -1,14 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { Hero } from "@/components/site/Hero";
 import { CategoryGrid } from "@/components/site/CategoryGrid";
+import { OrderFoodBanner } from "@/components/site/OrderFoodBanner";
+import { FeaturedSellers } from "@/components/site/FeaturedSellers";
+import { ReelsSection } from "@/components/site/ReelsSection";
 import { ProductFeed } from "@/components/site/ProductFeed";
-import { LoggedOutTeaser } from "@/components/site/LoggedOutTeaser";
+import { Accommodation } from "@/components/site/Accommodation";
 import { SellCTA } from "@/components/site/SellCTA";
 import { Reviews } from "@/components/site/Reviews";
 import { Newsletter } from "@/components/site/Newsletter";
+import { useEffect, useState } from "react";
 import { getCurrentUser } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
@@ -16,13 +19,11 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const [checked, setChecked] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(function () {
     getCurrentUser().then(function (user) {
-      setLoggedIn(!!user);
-      setChecked(true);
+      setLoggedIn(Boolean(user));
     });
   }, []);
 
@@ -31,14 +32,18 @@ function Home() {
       <SiteHeader />
       <main>
         <Hero />
-        {!checked ? null : loggedIn ? (
+        <CategoryGrid />
+        {loggedIn ? (
           <>
-            <CategoryGrid />
-            <ProductFeed />
+            <OrderFoodBanner />
+            <FeaturedSellers />
+            <ReelsSection />
           </>
-        ) : (
-          <LoggedOutTeaser />
-        )}
+        ) : null}
+        <section id="product-feed">
+          <ProductFeed />
+        </section>
+        <Accommodation />
         <SellCTA />
         <Reviews />
         <Newsletter />

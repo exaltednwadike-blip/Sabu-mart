@@ -1,4 +1,4 @@
-﻿import { createClient } from "./supabase/client";
+import { createClient } from "@/lib/supabase/client";
 
 const supabase = createClient();
 
@@ -34,10 +34,9 @@ export interface ProductInput {
   whatsapp: string;
   tags: string[];
   images: File[];
-  videos?: File[];
-  listingFee?: number;
-  txRef?: string;
-  providerTransactionId?: string;
+  listingFee: number;
+  txRef: string;
+  providerTransactionId: string;
 }
 
 export async function uploadProductImages(sellerId: string, images: File[]) {
@@ -53,46 +52,9 @@ export async function uploadProductImages(sellerId: string, images: File[]) {
   return urls;
 }
 
-export const MAX_PRODUCT_VIDEOS = 3;
-
-export async function uploadProductVideos(sellerId: string, videos: File[]) {
-  const urls: string[] = [];
-  for (const video of videos.slice(0, MAX_PRODUCT_VIDEOS)) {
-    const fileExt = video.name.split(".").pop();
-    const filePath = `${sellerId}/videos/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-    const { error } = await supabase.storage.from("product-images").upload(filePath, video);
-    if (error) throw error;
-    const { data } = supabase.storage.from("product-images").getPublicUrl(filePath);
-    urls.push(data.publicUrl);
-  }
-  return urls;
-}
-
-export const FREE_LISTING_LIMIT = 10;
-
-export async function getMyProductCount(sellerId: string) {
-  const { count, error } = await supabase
-    .from("products")
-    .select("id", { count: "exact", head: true })
-    .eq("seller_id", sellerId);
-  if (error) throw error;
-  return count ?? 0;
-}
-
 export async function createProduct(sellerId: string, input: ProductInput) {
-  const currentCount = await getMyProductCount(sellerId);
-  if (currentCount >= FREE_LISTING_LIMIT) {
-    throw new Error(
-      "You've reached the free launch limit of " + FREE_LISTING_LIMIT + " products. More plans are coming soon."
-    );
-  }
-
   const imageUrls = input.images.length > 0
     ? await uploadProductImages(sellerId, input.images)
-    : [];
-
-  const videoUrls = input.videos && input.videos.length > 0
-    ? await uploadProductVideos(sellerId, input.videos)
     : [];
 
   const { data, error } = await supabase
@@ -114,12 +76,11 @@ export async function createProduct(sellerId: string, input: ProductInput) {
       whatsapp: input.whatsapp,
       tags: input.tags,
       images: imageUrls,
-      videos: videoUrls,
       status: "pending_review",
       payment_status: "paid",
-      listing_fee: 0,
-      paystack_reference: input.txRef || null,
-      provider_transaction_id: input.providerTransactionId || null,
+      listing_fee: input.listingFee,
+      paystack_reference: input.txRef,
+      provider_transaction_id: input.providerTransactionId,
     })
     .select()
     .single();
@@ -177,13 +138,128 @@ export async function updateAvailability(productId: string, availability: "avail
 export async function getPublishedProducts(limit: number = 12, offset: number = 0) {
   const { data, error } = await supabase
     .from("products")
-    .select("id, title, price, images, city, neighbourhood, listing_categories(name), profiles(store_name)")
+    .select("id, title, price, images, city, neighbourhood, created_at, listing_categories(name), profiles(store_name)")
     .eq("status", "published")
     .eq("availability", "available")
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
   if (error) throw error;
   return data;
+}
+
+export async function getTotalUserCount() {
+  const { count, error } = await supabase
+    .from("profiles")
+    .select("id", { count: "exact", head: true });
+  if (error) throw error;
+  return count ?? 0;
+}
+
+export async function getRestaurantCount() {
+  const { count, error } = await supabase
+    .from("restaurants")
+    .select("id", { count: "exact", head: true })
+    .eq("is_open", true);
+  if (error) return 0;
+  return count ?? 0;
+}
+
+export async function getFeaturedSellers(limit: number = 8) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, store_name")
+    .eq("seller_status", "approved")
+    .eq("is_seller", true)
+    .not("store_name", "is", null)
+    .limit(limit);
+  if (error) throw error;
+  const sellers = data || [];
+  const withDetails = await Promise.all(sellers.map(async function (seller: any) {
+    const [ratingResult, productResult] = await Promise.all([
+      supabase.from("reviews").select("rating").eq("seller_id", seller.id),
+      supabase.from("products").select("city").eq("seller_id", seller.id)
+        .eq("status", "published").order("created_at", { ascending: false }).limit(1),
+    ]);
+    const ratings = ratingResult.data || [];
+    const avgRating = ratings.length > 0
+      ? ratings.reduce(function (sum: number, r: any) { return sum + r.rating; }, 0) / ratings.length
+      : 0;
+    const city = productResult.data && productResult.data[0] ? productResult.data[0].city : null;
+    return {
+      id: seller.id,
+      storeName: seller.store_name,
+      avgRating,
+      reviewCount: ratings.length,
+      city,
+    };
+  }));
+  return withDetails;
+}
+
+export async function getReelItems(limit: number = 30) {
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, title, price, images, videos, seller_id, profiles(store_name)")
+    .eq("status", "published")
+    .eq("availability", "available")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  const items: any[] = [];
+  (data || []).forEach(function (p: any) {
+    if (p.videos && p.videos.length > 0) {
+      p.videos.forEach(function (url: string) {
+        items.push({
+          id: p.id + "-v-" + url,
+          productId: p.id,
+          type: "video",
+          url,
+          title: p.title,
+          price: p.price,
+          storeName: p.profiles ? p.profiles.store_name : "Seller",
+        });
+      });
+    }
+    if (p.images && p.images.length > 0) {
+      items.push({
+        id: p.id + "-i-" + p.images[0],
+        productId: p.id,
+        type: "image",
+        url: p.images[0],
+        title: p.title,
+        price: p.price,
+        storeName: p.profiles ? p.profiles.store_name : "Seller",
+      });
+    }
+  });
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = items[i]; items[i] = items[j]; items[j] = tmp;
+  }
+  return items.slice(0, limit);
+}
+
+export async function getReelComments(productId: string) {
+  const { data, error } = await supabase.from("reel_comments")
+    .select("id, body, created_at, profiles(full_name)")
+    .eq("product_id", productId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function postReelComment(productId: string, userId: string, body: string) {
+  const { error } = await supabase.from("reel_comments")
+    .insert({ product_id: productId, user_id: userId, body });
+  if (error) throw error;
+}
+
+export async function subscribeToNewsletter(email: string) {
+  const { error } = await supabase.from("newsletter_subscribers").insert({ email });
+  if (error) {
+    if (error.code === "23505") throw new Error("This email is already subscribed.");
+    throw error;
+  }
 }
 
 export async function recordProductView(productId: string, viewerId: string | null) {
@@ -241,40 +317,9 @@ export async function searchProducts(query: string) {
   return data;
 }
 
-export async function getTeaserImages(limit: number = 30) {
-  const { data, error } = await supabase
-    .from("products")
-    .select("id, images")
-    .eq("status", "published")
-    .eq("availability", "available")
-    .order("created_at", { ascending: false })
-    .limit(limit * 4);
-  if (error) throw error;
-  const urls: string[] = [];
-  (data || []).forEach(function (p: any) {
-    if (p.images && p.images.length > 0) urls.push(p.images[0]);
-  });
-  return urls.slice(0, limit);
-}
-
-export async function getProductVideos(limit: number = 20) {
-  const { data, error } = await supabase
-    .from("products")
-    .select("id, title, price, videos, profiles(store_name)")
-    .eq("status", "published")
-    .eq("availability", "available")
-    .order("created_at", { ascending: false })
-    .limit(limit * 4);
-  if (error) throw error;
-  return (data || []).filter(function (p: any) {
-    return p.videos && p.videos.length > 0;
-  }).slice(0, limit);
-}
-
 export async function getMarketplaceStats() {
-  const [products, users, reviews] = await Promise.all([
+  const [products, reviews] = await Promise.all([
     supabase.from("products").select("id", { count: "exact", head: true }).eq("status", "published"),
-    supabase.from("profiles").select("id", { count: "exact", head: true }),
     supabase.from("reviews").select("rating"),
   ]);
 
@@ -285,7 +330,7 @@ export async function getMarketplaceStats() {
 
   return {
     productCount: products.count ?? 0,
-    userCount: users.count ?? 0,
+    userCount: 0,
     avgRating,
     reviewCount: reviewData.length,
   };

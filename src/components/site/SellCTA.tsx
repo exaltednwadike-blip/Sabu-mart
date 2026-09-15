@@ -1,4 +1,4 @@
-﻿import { ArrowRight, CheckCircle2, ShieldCheck, Truck, Wallet as WalletIcon, FileCheck, BadgeCheck, ListChecks } from "lucide-react";
+﻿import { ArrowRight, CheckCircle2, MessageSquareText, ShieldCheck, Sparkles, Wallet, FileCheck, BadgeCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import {
   Dialog,
@@ -12,34 +12,24 @@ import {
 
 const HANDBOOK_POINTS = [
   {
-    icon: <BadgeCheck className="h-4 w-4" />,
-    title: "1. Get approved",
-    body: "Create your seller profile, complete your identity verification, and submit the documents SABU requires for approval. Reviews are assessed before you can publish listings.",
-  },
-  {
     icon: <FileCheck className="h-4 w-4" />,
-    title: "2. List accurately",
-    body: "Use clear photos, a truthful title, correct category, and honest pricing. Listings that misrepresent items, prices, or availability may be removed or restricted.",
+    title: "Getting approved",
+    body: "Submit your ID for a manual review before your store is approved.",
   },
   {
-    icon: <ListChecks className="h-4 w-4" />,
-    title: "3. Follow our rules",
-    body: "Only sell items allowed by Sabu's marketplace policy. Prohibited items, fake scarcity, duplicated listings, and misleading offers can lead to account restrictions.",
+    icon: <BadgeCheck className="h-4 w-4" />,
+    title: "Listing fee",
+    body: "Free during launch, up to 10 products. No commission and no in-app fees.",
   },
   {
-    icon: <WalletIcon className="h-4 w-4" />,
-    title: "4. Handle payments and payouts",
-    body: "Buyer payments are processed according to the platform's payment flow. Payouts are subject to verification, order status, and any settlement checks required by the marketplace.",
+    icon: <MessageSquareText className="h-4 w-4" />,
+    title: "How buyers reach you",
+    body: "Buyers message you directly on WhatsApp and you arrange payment and delivery together.",
   },
   {
-    icon: <Truck className="h-4 w-4" />,
-    title: "5. Fulfill orders professionally",
-    body: "Confirm stock before accepting orders, respond to buyer messages promptly, update fulfillment status, and keep delivery expectations realistic.",
-  },
-  {
-    icon: <ShieldCheck className="h-4 w-4" />,
-    title: "6. Protect trust",
-    body: "SABU buyers rely on good communication, honest descriptions, and quick issue resolution. Repeated complaints or poor fulfillment can affect your seller standing.",
+    icon: <Sparkles className="h-4 w-4" />,
+    title: "Managing your listings",
+    body: "Add, edit or remove listings anytime. Removing a listing frees up a slot.",
   },
 ];
 
@@ -56,17 +46,20 @@ export function SellCTA() {
               For sellers
             </span>
             <h2 className="mt-4 font-display text-3xl font-bold leading-tight md:text-5xl">
-              Start selling on SABU
+              Start selling on SABU for free.
             </h2>
             <p className="mt-4 max-w-lg text-primary-foreground/90">
-              Create a seller profile, complete verification, and list products clearly and honestly. SABU is designed for trusted transactions, clear communication, and better buyer confidence.
+              List up to 10 products free during our launch period. Buyers reach you directly on
+              WhatsApp to arrange payment and delivery — no commission, no in-app fees.
             </p>
             <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-              {["ID verification required", "Clear product listings only", "Buyer communication standards", "Order fulfillment and trust"].map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm text-primary-foreground/95">
-                  <CheckCircle2 className="h-4 w-4 text-accent-orange" /> {f}
-                </li>
-              ))}
+              {["Fast admin review", "Free storefront", "Direct buyer contact", "Verified badge"].map(function (f) {
+                return (
+                  <li key={f} className="flex items-center gap-2 text-sm text-primary-foreground/95">
+                    <CheckCircle2 className="h-4 w-4 text-accent-orange" /> {f}
+                  </li>
+                );
+              })}
             </ul>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/buyer/become-seller" className="inline-flex items-center gap-2 rounded-xl bg-accent-orange px-5 py-3 text-sm font-semibold text-accent-orange-foreground shadow-orange transition hover:opacity-90">
@@ -80,23 +73,25 @@ export function SellCTA() {
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
-                    <DialogTitle>Seller handbook</DialogTitle>
+                    <DialogTitle>Selling on SABU</DialogTitle>
                     <DialogDescription>
-                      Everything you need to know before listing, selling, and fulfilling orders on SABU.
+                      A quick rundown before you get started.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-2">
-                    {HANDBOOK_POINTS.map((p) => (
-                      <div key={p.title} className="flex gap-3">
-                        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                          {p.icon}
+                    {HANDBOOK_POINTS.map(function (p) {
+                      return (
+                        <div key={p.title} className="flex gap-3">
+                          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                            {p.icon}
+                          </div>
+                          <div>
+                            <div className="text-sm font-semibold">{p.title}</div>
+                            <p className="text-sm text-muted-foreground">{p.body}</p>
+                          </div>
                         </div>
-                        <div>
-                          <div className="text-sm font-semibold">{p.title}</div>
-                          <p className="text-sm text-muted-foreground">{p.body}</p>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   <DialogFooter>
                     <Link
@@ -113,10 +108,14 @@ export function SellCTA() {
 
           <div className="relative">
             <div className="grid gap-4 sm:grid-cols-2">
-              <InfoCard title="Approval" value="Required" detail="Complete profile + verification before listing" />
-              <InfoCard title="Listing quality" value="Accurate" detail="Honest titles, photos, and pricing" />
-              <InfoCard title="Payments" value="Platform flow" detail="Based on confirmed order status and policy" />
-              <InfoCard title="Trust" value="Ongoing" detail="Good communication protects your seller reputation" />
+              <InfoTile icon={<Wallet className="h-4 w-4" />} label="Listing fee" value="Free" detail="Up to 10 products, launch offer" />
+              <InfoTile icon={<ShieldCheck className="h-4 w-4" />} label="Commission" value="0%" detail="Keep everything you sell for" />
+              <div className="sm:col-span-2 rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur">
+                <div className="text-xs text-primary-foreground/80">How it works</div>
+                <div className="mt-2 text-sm font-medium text-primary-foreground/95">
+                  Buyers message you directly on WhatsApp to buy — You arrange payment and delivery together
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -125,12 +124,14 @@ export function SellCTA() {
   );
 }
 
-function InfoCard({ title, value, detail }: { title: string; value: string; detail: string }) {
+function InfoTile({ icon, label, value, detail }: { icon: React.ReactNode; label: string; value: string; detail: string }) {
   return (
     <div className="rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur">
-      <div className="text-xs text-primary-foreground/80">{title}</div>
-      <div className="mt-1 font-display text-2xl font-bold text-primary-foreground">{value}</div>
-      <div className="mt-0.5 text-[11px] font-medium text-primary-foreground/80">{detail}</div>
+      <div className="flex items-center gap-2 text-xs text-primary-foreground/80">
+        <span className="[&>svg]:h-4 [&>svg]:w-4">{icon}</span> {label}
+      </div>
+      <div className="mt-2 font-display text-2xl font-bold text-primary-foreground">{value}</div>
+      <div className="mt-1 text-[11px] text-primary-foreground/75">{detail}</div>
     </div>
   );
 }

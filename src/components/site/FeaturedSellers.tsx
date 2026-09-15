@@ -1,93 +1,85 @@
 ﻿import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Star, BadgeCheck, ShoppingBag } from "lucide-react";
+import { Star, BadgeCheck, MapPin } from "lucide-react";
 import { SectionHeader } from "./CategoryGrid";
-import { getTopSellers, getSellerProducts } from "@/lib/sellers";
-import { getSellerRatingSummary } from "@/lib/analytics";
+import { getFeaturedSellers } from "@/lib/products";
 
 export function FeaturedSellers() {
   const [sellers, setSellers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(function () {
-    getTopSellers(6)
+    getFeaturedSellers(8)
       .then(function (data) {
-        return Promise.all(
-          data.map(function (s: any) {
-            return Promise.all([
-              getSellerProducts(s.id),
-              getSellerRatingSummary(s.id),
-            ]).then(function (results) {
-              return {
-                id: s.id,
-                store_name: s.store_name,
-                productCount: results[0].length,
-                rating: results[1],
-              };
-            });
-          })
-        );
+        setSellers(data || []);
       })
-      .then(function (enriched) {
-        setSellers(enriched.filter(function (s: any) { return s.productCount > 0; }));
+      .catch(function () {
+        setSellers([]);
       })
-      .catch(function () { setSellers([]); })
-      .finally(function () { setLoading(false); });
+      .finally(function () {
+        setLoading(false);
+      });
   }, []);
 
-  function renderSeller(s: any) {
+  if (loading) {
+    return null;
+  }
+
+  if (sellers.length === 0) {
+    return null;
+  }
+
+  function renderSeller(seller: any) {
+    const initial = seller.storeName ? seller.storeName.charAt(0).toUpperCase() : "S";
+    const ratingText = seller.reviewCount === 0
+      ? "New seller"
+      : `${seller.avgRating.toFixed(1)} ★ (${seller.reviewCount} reviews)`;
+
     return (
-      <div key={s.id} className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-soft">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl gradient-brand font-display font-bold text-primary-foreground">
-          {s.store_name ? s.store_name.charAt(0).toUpperCase() : "S"}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1">
-            <span className="truncate text-sm font-semibold">{s.store_name}</span>
-            <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-primary" />
+      <Link
+        key={seller.id}
+        to="/store/$sellerId"
+        params={{ sellerId: seller.id }}
+        className="group min-w-[220px] flex-1 rounded-2xl border border-border bg-card p-4 shadow-soft transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-elegant"
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
+            {initial}
           </div>
-          <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-            {s.rating.count > 0 ? (
-              <span className="flex items-center gap-0.5">
-                <Star className="h-3 w-3 fill-accent-orange text-accent-orange" /> {s.rating.average.toFixed(2)}
-              </span>
-            ) : (
-              <span>New seller</span>
-            )}
-            <span className="flex items-center gap-0.5">
-              <ShoppingBag className="h-3 w-3" /> {s.productCount} listing{s.productCount !== 1 ? "s" : ""}
-            </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <span className="truncate text-sm font-semibold text-foreground">{seller.storeName}</span>
+              <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />
+            </div>
           </div>
         </div>
-        <Link
-          to="/store/$sellerId"
-          params={{ sellerId: s.id }}
-          className="shrink-0 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-foreground"
-        >
-          Visit
-        </Link>
-      </div>
+
+        <div className="mt-3 space-y-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <Star className="h-3.5 w-3.5 fill-accent-orange text-accent-orange" />
+            <span>{ratingText}</span>
+          </div>
+          {seller.city ? (
+            <div className="flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5" />
+              <span>{seller.city}</span>
+            </div>
+          ) : null}
+        </div>
+      </Link>
     );
   }
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-14">
       <SectionHeader
-        eyebrow="Top rated"
+        eyebrow="Top sellers"
         title="Featured sellers"
-        subtitle="Real verified stores on SABU."
+        subtitle="Approved stores that are active on SABU."
       />
-      {loading ? (
-        <div className="mt-8 text-center text-sm text-muted-foreground">Loading sellers...</div>
-      ) : sellers.length === 0 ? (
-        <div className="mt-8 rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-          No active sellers with listings yet.
-        </div>
-      ) : (
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {sellers.map(renderSeller)}
-        </div>
-      )}
+      <div className="mt-8 flex gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {sellers.map(renderSeller)}
+      </div>
     </section>
   );
 }

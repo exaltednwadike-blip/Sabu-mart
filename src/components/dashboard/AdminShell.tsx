@@ -1,5 +1,5 @@
 ﻿import { Link, useRouterState } from "@tanstack/react-router";
-import { ShieldCheck, Users, Package, LogOut, LayoutDashboard, Ticket } from "lucide-react";
+import { ShieldCheck, Users, Package, LogOut, LayoutDashboard, Banknote, AlertTriangle, Utensils, ShoppingBag } from "lucide-react";
 import { signOut } from "@/lib/auth";
 import { useNavigate } from "@tanstack/react-router";
 
@@ -7,7 +7,10 @@ const NAV_ITEMS = [
   { title: "Overview", url: "/admin", icon: LayoutDashboard },
   { title: "Sellers", url: "/admin/sellers", icon: Users },
   { title: "Products", url: "/admin/products", icon: Package },
-  { title: "Support", url: "/admin/support", icon: Ticket },
+  { title: "Restaurants", url: "/admin/restaurants", icon: Utensils },
+  { title: "Food Orders", url: "/admin/food-orders", icon: ShoppingBag },
+  { title: "Withdrawals", url: "/admin/withdrawals", icon: Banknote },
+  { title: "Disputes", url: "/admin/disputes", icon: AlertTriangle },
 ];
 
 export function AdminShell(props: { children: React.ReactNode }) {
@@ -54,9 +57,6 @@ export function AdminShell(props: { children: React.ReactNode }) {
           <div>
             <div className="font-display text-sm font-bold leading-none">SABU Admin</div>
             <div className="text-[10px] text-muted-foreground">Control panel</div>
-          </div>
-          <div className="ml-auto hidden md:block">
-            <Link to="/" className="rounded-full bg-muted px-3 py-1 text-xs font-medium hover:bg-accent">Back to home</Link>
           </div>
         </div>
         <nav className="space-y-1 p-3">

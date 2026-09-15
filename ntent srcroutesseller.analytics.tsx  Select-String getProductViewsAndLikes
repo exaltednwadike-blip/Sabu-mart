@@ -1,0 +1,13 @@
+[33mcommit c4ecb03c42b82d528bee2e9a9b48f79d1dd0fd9a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Exalted Nwadike <exaltednwadike@gmail.com>
+Date:   Fri Aug 28 08:19:51 2026 +0100
+
+    app new features
+
+ src/components/site/ProductFeed.tsx | 100 [32m++++++++++++++++[m
+ src/lib/analytics.ts                |  41 [32m++++++[m[31m-[m
+ src/lib/products.ts                 |  13 [32m++[m[31m-[m
+ src/lib/support.ts                  |  83 [32m+++++++++++++[m
+ src/routes/buyer.support.tsx        | 224 [32m++++++++++++++++++++++++++++++++++++[m
+ src/routes/index.tsx                |   8 [32m+[m[31m-[m
+ 6 files changed, 459 insertions(+), 10 deletions(-)

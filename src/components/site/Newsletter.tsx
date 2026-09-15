@@ -1,32 +1,43 @@
 import { Mail, Sparkles } from "lucide-react";
-import { FormEvent, useState } from "react";
-import { saveNewsletterSubscriber } from "@/lib/newsletter";
+import { useState } from "react";
+import { subscribeToNewsletter } from "@/lib/products";
 
 export function Newsletter() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<{ type: "idle" | "success" | "error"; message: string }>({
-    type: "idle",
-    message: "",
-  });
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
 
-  async function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setStatus({ type: "idle", message: "" });
-    setLoading(true);
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setStatus("error");
+      setMessage("Please enter an email address.");
+      return;
+    }
+
+    setStatus("loading");
+    setMessage("");
 
     try {
-      await saveNewsletterSubscriber(email);
-      setStatus({ type: "success", message: "Thanks — you are on the list." });
+      await subscribeToNewsletter(trimmed);
+      setStatus("success");
+      setMessage("Thanks! You're subscribed.");
       setEmail("");
-    } catch (error) {
-      setStatus({
-        type: "error",
-        message: error instanceof Error ? error.message : "We could not save your email right now.",
-      });
-    } finally {
-      setLoading(false);
+    } catch (error: any) {
+      setStatus("error");
+      setMessage(error?.message || "Something went wrong. Please try again.");
     }
+  }
+
+  if (status === "success") {
+    return (
+      <section className="mx-auto max-w-7xl px-4 py-16">
+        <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-soft md:p-12">
+          <h3 className="font-display text-2xl font-bold md:text-3xl">Thanks! You're subscribed.</h3>
+        </div>
+      </section>
+    );
   }
 
   return (
@@ -43,7 +54,7 @@ export function Newsletter() {
               Deals, drops & new listings — in your inbox.
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Join 240,000+ shoppers getting the best of SABU every Sunday. No spam, unsubscribe anytime.
+              Get the best of SABU every Sunday. No spam, unsubscribe anytime.
             </p>
           </div>
           <form className="flex flex-col gap-2 sm:flex-row" onSubmit={handleSubmit}>
@@ -51,31 +62,24 @@ export function Newsletter() {
               <Mail className="h-4 w-4 text-muted-foreground" />
               <input
                 type="email"
-                required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={function (e) { setEmail(e.target.value); }}
+                required
                 placeholder="you@email.com"
                 className="flex-1 bg-transparent text-sm outline-none"
               />
             </div>
             <button
               type="submit"
-              disabled={loading}
-              className="rounded-xl gradient-brand px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95 disabled:opacity-60"
+              disabled={status === "loading"}
+              className="rounded-xl gradient-brand px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {loading ? "Saving..." : "Subscribe"}
+              {status === "loading" ? "Subscribing..." : "Subscribe"}
             </button>
           </form>
         </div>
-        {status.message ? (
-          <p
-            className={
-              "mt-4 text-sm " +
-              (status.type === "success" ? "text-success" : "text-destructive")
-            }
-          >
-            {status.message}
-          </p>
+        {message ? (
+          <p className={status === "error" ? "mt-4 text-sm text-red-600" : "mt-4 text-sm text-primary"}>{message}</p>
         ) : null}
       </div>
     </section>

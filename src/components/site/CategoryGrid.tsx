@@ -55,8 +55,8 @@ export function CategoryGrid() {
     return (
       <Link
         key={c.id}
-        to="/category/$categoryId"
-        params={{ categoryId: c.id }}
+        to={c.name === "Food" ? "/food" : "/category/$categoryId"}
+        params={c.name === "Food" ? undefined : { categoryId: c.id }}
         className="group relative flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 text-center transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-soft"
       >
         <div
