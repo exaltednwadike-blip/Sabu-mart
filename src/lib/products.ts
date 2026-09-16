@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+﻿import { createClient } from "@/lib/supabase/client";
 
 const supabase = createClient();
 
@@ -189,7 +189,7 @@ export async function updateAvailability(productId: string, availability: "avail
 export async function getPublishedProducts(limit: number = 12, offset: number = 0) {
   const { data, error } = await supabase
     .from("products")
-    .select("id, title, price, images, city, neighbourhood, created_at, listing_categories(name), profiles(store_name)")
+    .select("id, title, price, images, videos, city, neighbourhood, created_at, listing_categories(name), profiles(store_name)")
     .eq("status", "published")
     .eq("availability", "available")
     .order("created_at", { ascending: false })
@@ -226,9 +226,11 @@ export async function getFeaturedSellers(limit: number = 8) {
   if (error) throw error;
   const sellers = data || [];
   const withDetails = await Promise.all(sellers.map(async function (seller: any) {
-    const [ratingResult, productResult] = await Promise.all([
+    const [ratingResult, productResult, productImageResult] = await Promise.all([
       supabase.from("reviews").select("rating").eq("seller_id", seller.id),
       supabase.from("products").select("city").eq("seller_id", seller.id)
+        .eq("status", "published").order("created_at", { ascending: false }).limit(1),
+      supabase.from("products").select("images").eq("seller_id", seller.id)
         .eq("status", "published").order("created_at", { ascending: false }).limit(1),
     ]);
     const ratings = ratingResult.data || [];
@@ -236,12 +238,16 @@ export async function getFeaturedSellers(limit: number = 8) {
       ? ratings.reduce(function (sum: number, r: any) { return sum + r.rating; }, 0) / ratings.length
       : 0;
     const city = productResult.data && productResult.data[0] ? productResult.data[0].city : null;
+    const displayImage = productImageResult.data && productImageResult.data[0] && Array.isArray(productImageResult.data[0].images)
+      ? productImageResult.data[0].images[0]
+      : null;
     return {
       id: seller.id,
       storeName: seller.store_name,
       avgRating,
       reviewCount: ratings.length,
       city,
+      displayImage,
     };
   }));
   return withDetails;
@@ -288,6 +294,29 @@ export async function getReelItems(limit: number = 30) {
     const tmp = items[i]; items[i] = items[j]; items[j] = tmp;
   }
   return items.slice(0, limit);
+}
+
+export async function getVideoProducts(limit: number = 30) {
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, title, price, videos, seller_id, profiles(store_name)")
+    .eq("status", "published")
+    .eq("availability", "available")
+    .order("created_at", { ascending: false })
+    .limit(limit * 3);
+  if (error) throw error;
+  return (data || [])
+    .filter(function (p: any) { return p.videos && p.videos.length > 0; })
+    .map(function (p: any) {
+      return {
+        id: p.id,
+        title: p.title,
+        price: p.price,
+        videoUrl: p.videos[0],
+        storeName: p.profiles ? p.profiles.store_name : "Seller",
+      };
+    })
+    .slice(0, limit);
 }
 
 export async function getReelComments(productId: string) {
@@ -357,12 +386,13 @@ export async function getProductsByCategory(categoryId: string) {
 }
 
 export async function searchProducts(query: string) {
+  const term = "%" + query + "%";
   const { data, error } = await supabase
     .from("products")
     .select("id, title, price, images, city, neighbourhood, listing_categories(name), profiles(store_name)")
     .eq("status", "published")
     .eq("availability", "available")
-    .ilike("title", "%" + query + "%")
+    .or("title.ilike." + term + ",description.ilike." + term)
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data;

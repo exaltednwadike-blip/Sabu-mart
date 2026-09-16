@@ -4,12 +4,15 @@ import { Sparkles } from "lucide-react";
 import { SectionHeader } from "./CategoryGrid";
 import { getPublishedProducts } from "@/lib/products";
 
+const PAGE_SIZE = 8;
+
 export function ProductFeed() {
   const [products, setProducts] = useState<any[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   useEffect(function () {
-    getPublishedProducts(18, 0)
+    getPublishedProducts(24, 0)
       .then(function (data) {
         setProducts(data || []);
       })
@@ -20,6 +23,9 @@ export function ProductFeed() {
         setInitialLoading(false);
       });
   }, []);
+
+  const visibleProducts = products.slice(0, visibleCount);
+  const hasMore = visibleCount < products.length;
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-14">
@@ -36,9 +42,9 @@ export function ProductFeed() {
           No products published yet. Check back soon.
         </div>
       ) : (
-        <div className="mt-8 overflow-x-auto pb-4">
-          <div className="flex min-w-max gap-4">
-            {products.map(function (product) {
+        <>
+          <div className="mt-8 grid gap-4 grid-cols-2 md:grid-cols-4">
+            {visibleProducts.map(function (product) {
               const image = product.images && product.images.length > 0 ? product.images[0] : null;
 
               return (
@@ -46,7 +52,7 @@ export function ProductFeed() {
                   key={product.id}
                   to="/product/$productId"
                   params={{ productId: product.id }}
-                  className="group block w-[260px] shrink-0 overflow-hidden rounded-[1.6rem] border border-border bg-card shadow-soft transition hover:-translate-y-1 hover:shadow-elegant"
+                  className="group block overflow-hidden rounded-[1.6rem] border border-border bg-card shadow-soft transition hover:-translate-y-1 hover:shadow-elegant"
                 >
                   <div className="relative aspect-[4/5] overflow-hidden">
                     {image ? (
@@ -70,7 +76,23 @@ export function ProductFeed() {
               );
             })}
           </div>
-        </div>
+
+          {hasMore ? (
+            <div className="mt-8 flex justify-center">
+              <button
+                type="button"
+                onClick={function () {
+                  setVisibleCount(function (current) {
+                    return Math.min(current + PAGE_SIZE, products.length);
+                  });
+                }}
+                className="rounded-full border border-[#dfe7e4] bg-white px-5 py-2.5 text-sm font-semibold text-[#1f2b2a] shadow-sm transition hover:border-[#0d8b87] hover:text-[#0d8b87]"
+              >
+                See more
+              </button>
+            </div>
+          ) : null}
+        </>
       )}
     </section>
   );

@@ -70,6 +70,7 @@ import { Route as FoodRestaurantIdRouteImport } from './routes/food.$restaurantI
 import { Route as FoodCartRouteImport } from './routes/food.cart'
 import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
 import { Route as ReelsItemIdRouteImport } from './routes/reels.$itemId'
+import { Route as ReelsProductIdRouteImport } from './routes/reels.$productId'
 import { Route as SellerIndexRouteImport } from './routes/seller.index'
 import { Route as SellerAnalyticsRouteImport } from './routes/seller.analytics'
 import { Route as SellerFollowersRouteImport } from './routes/seller.followers'
@@ -390,6 +391,11 @@ const ReelsItemIdRoute = ReelsItemIdRouteImport.update({
   path: '/reels/$itemId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReelsProductIdRoute = ReelsProductIdRouteImport.update({
+  id: '/reels/$productId',
+  path: '/reels/$productId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellerIndexRoute = SellerIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -521,6 +527,7 @@ export interface FileRoutesByFullPath {
   '/food/cart': typeof FoodCartRoute
   '/product/$productId': typeof ProductProductIdRoute
   '/reels/$itemId': typeof ReelsItemIdRoute
+  '/reels/$productId': typeof ReelsProductIdRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/followers': typeof SellerFollowersRoute
   '/seller/notifications': typeof SellerNotificationsRoute
@@ -595,6 +602,7 @@ export interface FileRoutesByTo {
   '/food/cart': typeof FoodCartRoute
   '/product/$productId': typeof ProductProductIdRoute
   '/reels/$itemId': typeof ReelsItemIdRoute
+  '/reels/$productId': typeof ReelsProductIdRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/followers': typeof SellerFollowersRoute
   '/seller/notifications': typeof SellerNotificationsRoute
@@ -673,6 +681,7 @@ export interface FileRoutesById {
   '/food/cart': typeof FoodCartRoute
   '/product/$productId': typeof ProductProductIdRoute
   '/reels/$itemId': typeof ReelsItemIdRoute
+  '/reels/$productId': typeof ReelsProductIdRoute
   '/seller/analytics': typeof SellerAnalyticsRoute
   '/seller/followers': typeof SellerFollowersRoute
   '/seller/notifications': typeof SellerNotificationsRoute
@@ -752,6 +761,7 @@ export interface FileRouteTypes {
     | '/food/cart'
     | '/product/$productId'
     | '/reels/$itemId'
+    | '/reels/$productId'
     | '/seller/analytics'
     | '/seller/followers'
     | '/seller/notifications'
@@ -826,6 +836,7 @@ export interface FileRouteTypes {
     | '/food/cart'
     | '/product/$productId'
     | '/reels/$itemId'
+    | '/reels/$productId'
     | '/seller/analytics'
     | '/seller/followers'
     | '/seller/notifications'
@@ -903,6 +914,7 @@ export interface FileRouteTypes {
     | '/food/cart'
     | '/product/$productId'
     | '/reels/$itemId'
+    | '/reels/$productId'
     | '/seller/analytics'
     | '/seller/followers'
     | '/seller/notifications'
@@ -962,6 +974,7 @@ export interface RootRouteChildren {
   CategoryCategoryIdRoute: typeof CategoryCategoryIdRoute
   ProductProductIdRoute: typeof ProductProductIdRoute
   ReelsItemIdRoute: typeof ReelsItemIdRoute
+  ReelsProductIdRoute: typeof ReelsProductIdRoute
   SettingsDeleteAccountRoute: typeof SettingsDeleteAccountRoute
   StoreSellerIdRoute: typeof StoreSellerIdRoute
 }
@@ -1395,6 +1408,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReelsItemIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reels/$productId': {
+      id: '/reels/$productId'
+      path: '/reels/$productId'
+      fullPath: '/reels/$productId'
+      preLoaderRoute: typeof ReelsProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seller/': {
       id: '/seller/'
       path: '/'
@@ -1636,6 +1656,7 @@ const rootRouteChildren: RootRouteChildren = {
   CategoryCategoryIdRoute: CategoryCategoryIdRoute,
   ProductProductIdRoute: ProductProductIdRoute,
   ReelsItemIdRoute: ReelsItemIdRoute,
+  ReelsProductIdRoute: ReelsProductIdRoute,
   SettingsDeleteAccountRoute: SettingsDeleteAccountRoute,
   StoreSellerIdRoute: StoreSellerIdRoute,
 }

@@ -57,19 +57,19 @@ export function CategoryGrid() {
         key={c.id}
         to={c.name === "Food" ? "/food" : "/category/$categoryId"}
         params={c.name === "Food" ? undefined : { categoryId: c.id }}
-        className="group relative flex flex-col items-center gap-2 rounded-2xl border border-border bg-card p-4 text-center transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-soft"
+        className="group relative flex w-[96px] shrink-0 flex-col items-center gap-2 rounded-2xl border border-border bg-card p-3 text-center transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-soft sm:w-[110px]"
       >
         <div
           className={
-            "flex h-12 w-12 items-center justify-center rounded-xl transition group-hover:scale-110 " +
+            "flex h-10 w-10 items-center justify-center rounded-xl transition group-hover:scale-110 sm:h-12 sm:w-12 " +
             (tint === "primary"
               ? "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground"
               : "bg-accent-orange/10 text-accent-orange group-hover:bg-accent-orange group-hover:text-accent-orange-foreground")
           }
         >
-          <Icon className="h-6 w-6" />
+          <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
         </div>
-        <span className="text-xs font-medium text-foreground">{c.name}</span>
+        <span className="text-[11px] font-medium leading-tight text-foreground sm:text-xs">{c.name}</span>
       </Link>
     );
   }
@@ -78,17 +78,17 @@ export function CategoryGrid() {
   const hasMore = categories.length > COLLAPSED_COUNT;
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16">
+    <section className="mx-auto max-w-7xl px-4 py-10 sm:py-16">
       <SectionHeader
         eyebrow="Browse"
         title="Shop by category"
         subtitle="Real categories from our live pricing catalog."
       />
       {loading ? (
-        <div className="mt-8 text-center text-sm text-muted-foreground">Loading categories...</div>
+        <div className="mt-6 text-center text-sm text-muted-foreground">Loading categories...</div>
       ) : (
         <>
-          <div className="mt-8 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
+          <div className="mt-6 flex min-w-max flex-nowrap gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {visibleCategories.map(renderCategory)}
           </div>
           {hasMore ? (

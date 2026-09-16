@@ -43,8 +43,14 @@ export function FeaturedSellers() {
         className="group min-w-[220px] flex-1 rounded-2xl border border-border bg-card p-4 shadow-soft transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-elegant"
       >
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
-            {initial}
+          <div className="h-12 w-12 overflow-hidden rounded-full border border-border bg-primary/10">
+            {seller.displayImage ? (
+              <img src={seller.displayImage} alt={seller.storeName} className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-lg font-bold text-primary">
+                {initial}
+              </div>
+            )}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">

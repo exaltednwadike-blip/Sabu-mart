@@ -9,7 +9,7 @@ import { getWishlistCount } from "@/lib/wishlist";
 import { getNotifications, getUnreadCount, markAsRead, markAllAsRead } from "@/lib/notifications";
 
 const MAIN_NAV = [
-  "Marketplace", "Accommodation", "Vehicles", "Electronics",
+  "Marketplace", "Vehicles", "Electronics",
   "Fashion", "Agriculture", "Food", "Jobs", "Services", "Properties",
 ];
 
