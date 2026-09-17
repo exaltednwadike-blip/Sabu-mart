@@ -1,7 +1,11 @@
 ﻿import { Search, MapPin, ShoppingBag, Store, UtensilsCrossed, MessageCircle, Shield, TrendingUp, Users, UserPlus } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { getMarketplaceStats, getTotalUserCount } from "@/lib/products";
+import { getMarketplaceStats } from "@/lib/products";
+import heroSellImg from "@/assets/hero-slide-sell.jpg";
+import heroFoodImg from "@/assets/hero-slide-food.jpg";
+import heroChatImg from "@/assets/hero-slide-chat.jpg";
+import { getPublicUserCount } from "@/lib/stats-server";
 import { getCurrentUser } from "@/lib/auth";
 
 const SLIDES = [
@@ -20,6 +24,7 @@ const SLIDES = [
     cta: "Become a seller",
     to: "/signup",
     gradient: "from-accent-orange to-accent-orange/70",
+    image: heroSellImg,
   },
   {
     icon: UtensilsCrossed,
@@ -28,6 +33,7 @@ const SLIDES = [
     cta: "Order food",
     to: "/food",
     gradient: "from-primary to-accent-orange",
+    image: heroFoodImg,
   },
   {
     icon: MessageCircle,
@@ -36,6 +42,7 @@ const SLIDES = [
     cta: "Learn how",
     to: "/faq",
     gradient: "from-accent-orange to-primary",
+    image: heroChatImg,
   },
 ];
 
@@ -60,11 +67,11 @@ export function Hero() {
       setLoggedIn(!!user);
       setChecked(true);
     });
-    Promise.all([getMarketplaceStats(), getTotalUserCount()])
-      .then(function (results) {
-        setStats(results[0]);
-        setUserCount(results[1]);
-      })
+    getMarketplaceStats()
+      .then(setStats)
+      .catch(function () {});
+    getPublicUserCount()
+      .then(setUserCount)
       .catch(function () {})
       .finally(function () {
         setStatsLoading(false);
@@ -106,7 +113,14 @@ export function Hero() {
     <section className="mx-auto max-w-7xl px-4 pb-8 pt-6">
       {/* Ad-feed carousel */}
       <div className={"relative overflow-hidden rounded-[28px] bg-gradient-to-br p-8 text-primary-foreground shadow-elegant sm:p-12 " + current.gradient}>
-        <div className="flex flex-col items-start gap-4">
+        {(current as any).image ? (
+          <img
+            src={(current as any).image}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover opacity-40 mix-blend-overlay"
+          />
+        ) : null}
+        <div className="relative flex flex-col items-start gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
             <Icon className="h-6 w-6" />
           </div>
