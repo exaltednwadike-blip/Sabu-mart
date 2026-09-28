@@ -162,10 +162,13 @@ export function ProductCard(props: { p: any }) {
           <MapPin className="h-3 w-3" /> {location}
         </div>
         <div className="flex items-center justify-between gap-2 border-t border-border pt-2">
-          <div className="flex min-w-0 items-center gap-1">
+          <button
+            onClick={function (e) { e.preventDefault(); e.stopPropagation(); navigate({ to: "/store/$sellerId", params: { sellerId: p.seller_id } }); }}
+            className="flex min-w-0 items-center gap-1 hover:underline"
+          >
             <span className="truncate text-[11px] font-medium text-foreground">{sellerName}</span>
             <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-primary" />
-          </div>
+          </button>
         </div>
         <div className="mt-1 grid grid-cols-2 gap-1.5">
           <button

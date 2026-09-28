@@ -1,7 +1,7 @@
 ﻿import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { MapPin, MessageCircle, Heart, ShoppingCart, BadgeCheck, Truck, Check, Star } from "lucide-react";
-import { getProductById, getRelatedProducts, recordProductView } from "@/lib/products";
+import { getProductById, getRelatedProducts, recordProductView, logWhatsappClick } from "@/lib/products";
 import { addToCart } from "@/lib/cart";
 import { toggleWishlist, isInWishlist } from "@/lib/wishlist";
 import { getCurrentUser } from "@/lib/auth";
@@ -94,6 +94,8 @@ function ProductDetail() {
   function handleChatSeller() {
     const number = product.whatsapp || product.phone;
     if (!number) return;
+    fetch("/api/log-whatsapp-click", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ productId: product.id, sellerId: product.seller_id }) }).catch(function () {});
+    logWhatsappClick(product.id, product.seller_id).catch(function () {});
     const cleaned = number.replace(/[^0-9]/g, "");
     const text = encodeURIComponent(
       "Hello " + sellerName + ", I would like to purchase this " + product.title + "."

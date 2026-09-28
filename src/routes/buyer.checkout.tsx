@@ -4,6 +4,7 @@ import { MapPin, Phone, Home, MessageCircle } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/DashboardShell";
 import { getCurrentUser } from "@/lib/auth";
 import { getCart } from "@/lib/cart";
+import { logWhatsappClick } from "@/lib/products";
 
 export const Route = createFileRoute("/buyer/checkout")({
   component: BuyerCheckout,
@@ -89,6 +90,9 @@ function BuyerCheckout() {
       "Total: ₦" + total.toLocaleString() + "\n" +
       "Delivery: " + address.trim() + ", " + city + "\n" +
       "Phone: " + phone.trim();
+    group.items.forEach(function (item: any) {
+      logWhatsappClick(item.products.id, item.products.seller_id).catch(function () {});
+    });
     window.open("https://wa.me/" + cleaned + "?text=" + encodeURIComponent(text), "_blank");
   }
 

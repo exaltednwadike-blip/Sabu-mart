@@ -152,3 +152,31 @@ export async function getSellerPerformance(sellerId: string): Promise<SellerPerf
     ratingBreakdown,
   };
 }
+
+export async function getReviewLikeCounts(reviewIds: string[]) {
+  if (reviewIds.length === 0) return {};
+  const { data, error } = await supabase.from("review_likes").select("review_id").in("review_id", reviewIds);
+  if (error) throw error;
+  const counts: { [key: string]: number } = {};
+  (data || []).forEach(function (row: any) {
+    counts[row.review_id] = (counts[row.review_id] || 0) + 1;
+  });
+  return counts;
+}
+
+export async function hasUserLikedReviews(reviewIds: string[], userId: string) {
+  if (reviewIds.length === 0) return new Set<string>();
+  const { data, error } = await supabase.from("review_likes").select("review_id").eq("user_id", userId).in("review_id", reviewIds);
+  if (error) throw error;
+  return new Set((data || []).map(function (row: any) { return row.review_id; }));
+}
+
+export async function toggleReviewLike(reviewId: string, userId: string) {
+  const { data: existing } = await supabase.from("review_likes").select("id").eq("review_id", reviewId).eq("user_id", userId).maybeSingle();
+  if (existing) {
+    await supabase.from("review_likes").delete().eq("id", existing.id);
+    return false;
+  }
+  await supabase.from("review_likes").insert({ review_id: reviewId, user_id: userId });
+  return true;
+}

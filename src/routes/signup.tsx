@@ -30,6 +30,16 @@ function Signup() {
     e.preventDefault();
     setError("");
 
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email.trim())) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email.trim())) {
+      setError("Please enter a valid email address.");
+      return;
+    }
     if (!passwordValid) {
       setError("Password must be at least 8 characters.");
       return;
@@ -45,6 +55,7 @@ function Signup() {
         if (data.session) {
           supabase.from("notifications").insert({
             user_id: data.user?.id,
+            type: "system",
             title: "Add SABU to your home screen",
             message: "Open the browser menu and tap 'Add to Home screen' for quicker access.",
             read: false,

@@ -1,7 +1,8 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CheckCircle2, XCircle, ImageOff, Package } from "lucide-react";
-import { listPendingProducts, publishProduct, rejectProduct } from "@/lib/admin";
+import { listPendingProducts, publishProduct, rejectProduct, evaluateProductFlags } from "@/lib/admin";
+import { AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/admin/products")({
   component: AdminProducts,
@@ -16,7 +17,10 @@ function AdminProducts() {
     setLoading(true);
     listPendingProducts()
       .then(function (data) {
-        setProducts(data);
+        const sorted = [...data].sort(function (a: any, b: any) {
+          return evaluateProductFlags(b).length - evaluateProductFlags(a).length;
+        });
+        setProducts(sorted);
       })
       .finally(function () {
         setLoading(false);
@@ -50,8 +54,17 @@ function AdminProducts() {
   }
 
   function renderProduct(p: any) {
+    const flags = evaluateProductFlags(p);
     return (
-      <div key={p.id} className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+      <div key={p.id} className={"rounded-2xl border bg-card p-5 shadow-soft " + (flags.length > 0 ? "border-destructive/40" : "border-border")}>
+        {flags.length > 0 ? (
+          <div className="mb-3 flex flex-wrap items-center gap-1.5">
+            <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
+            {flags.map(function (f: string) {
+              return <span key={f} className="rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive">{f}</span>;
+            })}
+          </div>
+        ) : null}
         <div className="flex flex-wrap items-center gap-4">
           {p.images && p.images[0] ? (
             <img src={p.images[0]} alt="" className="h-16 w-16 rounded-xl object-cover" />

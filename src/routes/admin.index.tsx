@@ -1,7 +1,9 @@
 ﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Users, Package, AlertTriangle, Banknote, ArrowUpRight } from "lucide-react";
+import { Users, Package, AlertTriangle, Banknote, ArrowUpRight, TrendingUp, Shield } from "lucide-react";
 import { getAdminStats } from "@/lib/admin";
+import { getMarketplaceStats } from "@/lib/products";
+import { getPublicUserCount } from "@/lib/stats-server";
 
 export const Route = createFileRoute("/admin/")({
   component: AdminOverview,
@@ -15,12 +17,26 @@ function AdminOverview() {
     pendingWithdrawals: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [growth, setGrowth] = useState({ userCount: 0, productCount: 0, avgRating: 0, reviewCount: 0 });
+  const [growthLoading, setGrowthLoading] = useState(true);
 
   useEffect(function () {
     getAdminStats()
       .then(setStats)
       .finally(function () {
         setLoading(false);
+      });
+    Promise.all([getMarketplaceStats(), getPublicUserCount()])
+      .then(function ([marketplace, userCount]) {
+        setGrowth({
+          userCount: userCount,
+          productCount: marketplace.productCount,
+          avgRating: marketplace.avgRating,
+          reviewCount: marketplace.reviewCount,
+        });
+      })
+      .finally(function () {
+        setGrowthLoading(false);
       });
   }, []);
 
@@ -56,6 +72,27 @@ function AdminOverview() {
           icon={Banknote}
           label="Pending withdrawals"
           value={loading ? "-" : String(stats.pendingWithdrawals)}
+          tint="success"
+        />
+      </div>
+
+      <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <StatCard
+          icon={Users}
+          label="Users signed up"
+          value={growthLoading ? "-" : String(growth.userCount)}
+          tint="primary"
+        />
+        <StatCard
+          icon={TrendingUp}
+          label="Live listings"
+          value={growthLoading ? "-" : String(growth.productCount)}
+          tint="orange"
+        />
+        <StatCard
+          icon={Shield}
+          label="Buyer rating"
+          value={growthLoading ? "-" : growth.reviewCount > 0 ? growth.avgRating.toFixed(1) + "/5" : "No ratings yet"}
           tint="success"
         />
       </div>

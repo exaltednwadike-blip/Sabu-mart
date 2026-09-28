@@ -342,6 +342,10 @@ export async function subscribeToNewsletter(email: string) {
   }
 }
 
+export async function logWhatsappClick(productId: string, sellerId: string) {
+  await supabase.from("whatsapp_clicks").insert({ product_id: productId, seller_id: sellerId });
+}
+
 export async function recordProductView(productId: string, viewerId: string | null) {
   const { error } = await supabase
     .from("product_views")

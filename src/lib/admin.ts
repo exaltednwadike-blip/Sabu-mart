@@ -231,3 +231,42 @@ export async function resolveDisputeRefund(disputeId: string, orderItemId: strin
     .eq("id", disputeId);
   if (disputeError) throw disputeError;
 }
+
+export async function adminSearch(term: string) {
+  const q = "%" + term.trim() + "%";
+  const [productsResult, sellersResult] = await Promise.all([
+    supabase.from("products").select("id, title, status").ilike("title", q).limit(10),
+    supabase.from("profiles").select("id, store_name, email").eq("is_seller", true).ilike("store_name", q).limit(10),
+  ]);
+  return {
+    products: productsResult.data || [],
+    sellers: sellersResult.data || [],
+  };
+}
+
+const BLOCKLIST_WORDS = ["escort", "gun", "firearm", "drugs", "fake id", "counterfeit", "replica designer"];
+
+export function evaluateProductFlags(p: any): string[] {
+  const flags: string[] = [];
+  const text = ((p.title || "") + " " + (p.description || "")).toLowerCase();
+  if (!p.images || p.images.length === 0) flags.push("No images");
+  if (!p.title || p.title.trim().length < 10) flags.push("Title too short");
+  if (!p.price || Number(p.price) <= 0) flags.push("Invalid price");
+  if (!p.city) flags.push("Missing city");
+  BLOCKLIST_WORDS.forEach(function (word) {
+    if (text.indexOf(word) !== -1) flags.push("Blocked word: " + word);
+  });
+  return flags;
+}
+
+export function evaluateApplicationFlags(app: any): string[] {
+  const flags: string[] = [];
+  const text = ((app.business_name || "") + " " + (app.business_address || "")).toLowerCase();
+  if (!app.id_document_url) flags.push("No ID document uploaded");
+  if (!app.id_number || app.id_number.trim().length < 4) flags.push("ID number too short");
+  if (!app.business_name || app.business_name.trim().length < 3) flags.push("Business name too short");
+  BLOCKLIST_WORDS.forEach(function (word) {
+    if (text.indexOf(word) !== -1) flags.push("Blocked word: " + word);
+  });
+  return flags;
+}

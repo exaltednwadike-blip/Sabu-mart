@@ -1,11 +1,9 @@
 ﻿import { Search, MapPin, ShoppingBag, Store, UtensilsCrossed, MessageCircle, Shield, TrendingUp, Users, UserPlus } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { getMarketplaceStats } from "@/lib/products";
 import heroSellImg from "@/assets/hero-slide-sell.jpg";
 import heroFoodImg from "@/assets/hero-slide-food.jpg";
 import heroChatImg from "@/assets/hero-slide-chat.jpg";
-import { getPublicUserCount } from "@/lib/stats-server";
 import { getCurrentUser } from "@/lib/auth";
 
 const SLIDES = [
@@ -57,9 +55,7 @@ export function Hero() {
   const [slide, setSlide] = useState(0);
   const [checked, setChecked] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [stats, setStats] = useState({ productCount: 0, avgRating: 0, reviewCount: 0 });
-  const [userCount, setUserCount] = useState(0);
-  const [statsLoading, setStatsLoading] = useState(true);
+
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(function () {
@@ -67,15 +63,7 @@ export function Hero() {
       setLoggedIn(!!user);
       setChecked(true);
     });
-    getMarketplaceStats()
-      .then(setStats)
-      .catch(function () {});
-    getPublicUserCount()
-      .then(setUserCount)
-      .catch(function () {})
-      .finally(function () {
-        setStatsLoading(false);
-      });
+
   }, []);
 
   useEffect(function () {
@@ -152,15 +140,7 @@ export function Hero() {
       </div>
 
       {/* Search + stats (logged-in only) / Sign up prompt (logged-out) */}
-      {!checked ? null : loggedIn ? (
-        <>
-          <div className="mt-6 grid grid-cols-3 gap-4">
-            <Stat icon={<Users className="h-4 w-4" />} value={statsLoading ? "…" : formatCount(userCount)} label="Users signed up" />
-            <Stat icon={<TrendingUp className="h-4 w-4" />} value={statsLoading ? "…" : formatCount(stats.productCount)} label="Live listings" />
-            <Stat icon={<Shield className="h-4 w-4" />} value={statsLoading ? "…" : stats.reviewCount > 0 ? stats.avgRating.toFixed(1) + "/5" : "No ratings yet"} label="Buyer rating" />
-          </div>
-        </>
-      ) : (
+      {!checked ? null : loggedIn ? null : (
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link
             to="/signup"

@@ -1,7 +1,8 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { FileCheck, CheckCircle2, XCircle, ExternalLink, Users } from "lucide-react";
-import { listApplications, approveApplication, rejectApplication, getDocumentUrl } from "@/lib/admin";
+import { listApplications, approveApplication, rejectApplication, getDocumentUrl, evaluateApplicationFlags } from "@/lib/admin";
+import { AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/admin/sellers")({
   component: AdminSellers,
@@ -18,7 +19,10 @@ function AdminSellers() {
     setLoading(true);
     listApplications("pending")
       .then(function (data) {
-        setApplications(data);
+        const sorted = [...data].sort(function (a: any, b: any) {
+          return evaluateApplicationFlags(b).length - evaluateApplicationFlags(a).length;
+        });
+        setApplications(sorted);
       })
       .finally(function () {
         setLoading(false);
@@ -62,8 +66,17 @@ function AdminSellers() {
 
   function renderApp(app: any) {
     const initial = app.business_name ? app.business_name.charAt(0).toUpperCase() : "S";
+    const flags = evaluateApplicationFlags(app);
     return (
-      <div key={app.id} className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+      <div key={app.id} className={"rounded-2xl border bg-card p-5 shadow-soft " + (flags.length > 0 ? "border-destructive/40" : "border-border")}>
+        {flags.length > 0 ? (
+          <div className="mb-3 flex flex-wrap items-center gap-1.5">
+            <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
+            {flags.map(function (f: string) {
+              return <span key={f} className="rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive">{f}</span>;
+            })}
+          </div>
+        ) : null}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl gradient-brand font-display text-lg font-bold text-primary-foreground">
