@@ -154,33 +154,6 @@ export function Hero() {
       {/* Search + stats (logged-in only) / Sign up prompt (logged-out) */}
       {!checked ? null : loggedIn ? (
         <>
-          <div className="mt-6 rounded-2xl border border-border bg-card p-2 shadow-soft">
-            <form className="flex flex-col gap-2 md:flex-row" onSubmit={handleSubmit}>
-              <div className="flex flex-1 items-center gap-2 rounded-xl bg-background px-4 py-3">
-                <Search className="h-5 w-5 text-primary" />
-                <input
-                  value={query}
-                  onChange={function (e) { setQuery(e.target.value); }}
-                  className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                  placeholder="What are you looking for?"
-                />
-              </div>
-              <div className="flex items-center gap-2 rounded-xl bg-background px-4 py-3 md:w-48">
-                <MapPin className="h-5 w-5 text-accent-orange" />
-                <select className="flex-1 bg-transparent text-sm outline-none">
-                  <option>Lagos</option>
-                  <option>FCT (Abuja)</option>
-                  <option>Rivers</option>
-                  <option>Kano</option>
-                  <option>Oyo</option>
-                </select>
-              </div>
-              <button type="submit" className="rounded-xl gradient-brand px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-95">
-                Search
-              </button>
-            </form>
-          </div>
-
           <div className="mt-6 grid grid-cols-3 gap-4">
             <Stat icon={<Users className="h-4 w-4" />} value={statsLoading ? "…" : formatCount(userCount)} label="Users signed up" />
             <Stat icon={<TrendingUp className="h-4 w-4" />} value={statsLoading ? "…" : formatCount(stats.productCount)} label="Live listings" />

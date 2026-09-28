@@ -5,7 +5,8 @@ import { getProductById, getRelatedProducts, recordProductView } from "@/lib/pro
 import { addToCart } from "@/lib/cart";
 import { toggleWishlist, isInWishlist } from "@/lib/wishlist";
 import { getCurrentUser } from "@/lib/auth";
-import { getProductReviews, getProductRatingSummary } from "@/lib/reviews";
+import { getProductReviews, getProductRatingSummary, submitReview } from "@/lib/reviews";
+import { getProfile } from "@/lib/auth";
 
 export const Route = createFileRoute("/product/$productId")({
   component: ProductDetail,
@@ -18,6 +19,12 @@ function ProductDetail() {
   const [related, setRelated] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
   const [ratingSummary, setRatingSummary] = useState({ average: 0, count: 0 });
+  const [reviewUserId, setReviewUserId] = useState<string | null>(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState("");
   const [activeImage, setActiveImage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -40,6 +47,7 @@ function ProductDetail() {
           recordProductView(data.id, user ? user.id : null).catch(function () {});
           setLoggedIn(!!user);
           setAuthChecked(true);
+          setReviewUserId(user ? user.id : null);
           if (!user) return;
           isInWishlist(user.id, data.id).then(setWishlisted);
         });
@@ -157,6 +165,41 @@ function ProductDetail() {
         </div>
       </Link>
     );
+  }
+
+  function handleSubmitReview(e: React.FormEvent) {
+    e.preventDefault();
+    if (!reviewUserId) {
+      navigate({ to: "/login" });
+      return;
+    }
+    setReviewError("");
+    setSubmittingReview(true);
+    getProfile(reviewUserId)
+      .then(function (profile) {
+        return submitReview({
+          orderItemId: null,
+          productId: product.id,
+          buyerId: reviewUserId,
+          sellerId: product.seller_id,
+          buyerName: profile.full_name || "SABU buyer",
+          rating: reviewRating,
+          comment: reviewComment.trim(),
+        });
+      })
+      .then(function () {
+        setShowReviewForm(false);
+        setReviewComment("");
+        setReviewRating(5);
+        getProductReviews(product.id).then(setReviews);
+        getProductRatingSummary(product.id).then(setRatingSummary);
+      })
+      .catch(function (err) {
+        setReviewError(err instanceof Error ? err.message : "Could not submit review.");
+      })
+      .finally(function () {
+        setSubmittingReview(false);
+      });
   }
 
   function renderReview(r: any) {
@@ -301,7 +344,51 @@ function ProductDetail() {
       </div>
 
       <div className="mt-16">
-        <h2 className="font-display text-xl font-bold">Reviews {ratingSummary.count > 0 ? "(" + ratingSummary.count + ")" : ""}</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-xl font-bold">Reviews {ratingSummary.count > 0 ? "(" + ratingSummary.count + ")" : ""}</h2>
+          <button
+            onClick={function () { setShowReviewForm(!showReviewForm); }}
+            className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-accent"
+          >
+            Write a review
+          </button>
+        </div>
+        {showReviewForm ? (
+          <form onSubmit={handleSubmitReview} className="mt-4 max-w-2xl rounded-2xl border border-border bg-card p-4">
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Rating</label>
+            <div className="mb-3 flex gap-1">
+              {[1, 2, 3, 4, 5].map(function (n) {
+                return (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={function () { setReviewRating(n); }}
+                    className={"text-2xl " + (n <= reviewRating ? "text-accent-orange" : "text-muted-foreground")}
+                  >
+                    ★
+                  </button>
+                );
+              })}
+            </div>
+            <label className="mb-1 block text-xs font-medium text-muted-foreground">Comment</label>
+            <textarea
+              value={reviewComment}
+              onChange={function (e) { setReviewComment(e.target.value); }}
+              rows={3}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none"
+              placeholder="Share your experience with this product..."
+              required
+            />
+            {reviewError ? <p className="mt-2 text-sm text-destructive">{reviewError}</p> : null}
+            <button
+              type="submit"
+              disabled={submittingReview}
+              className="mt-3 rounded-lg gradient-brand px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+            >
+              {submittingReview ? "Submitting..." : "Submit review"}
+            </button>
+          </form>
+        ) : null}
         {reviews.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">No reviews yet. Be the first to buy and review this product.</p>
         ) : (

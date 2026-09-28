@@ -6,8 +6,6 @@ import { CategoryGrid } from "@/components/site/CategoryGrid";
 import { FeaturedSellers } from "@/components/site/FeaturedSellers";
 import { ProductFeed } from "@/components/site/ProductFeed";
 import { LoggedOutTeaser } from "@/components/site/LoggedOutTeaser";
-import { SellCTA } from "@/components/site/SellCTA";
-import { Reviews } from "@/components/site/Reviews";
 import { Newsletter } from "@/components/site/Newsletter";
 import { useEffect, useState } from "react";
 import { getCurrentUser } from "@/lib/auth";
@@ -41,8 +39,6 @@ function Home() {
         ) : (
           <LoggedOutTeaser />
         )}
-        <SellCTA />
-        <Reviews />
         <Newsletter />
       </main>
       <SiteFooter />

@@ -1,10 +1,9 @@
 ﻿import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { MapPin, Phone, Home } from "lucide-react";
+import { MapPin, Phone, Home, MessageCircle } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/DashboardShell";
 import { getCurrentUser } from "@/lib/auth";
-import { getCart, checkout } from "@/lib/cart";
-import { verifyFlutterwavePayment } from "@/lib/flutterwave-server";
+import { getCart } from "@/lib/cart";
 
 export const Route = createFileRoute("/buyer/checkout")({
   component: BuyerCheckout,
@@ -12,23 +11,22 @@ export const Route = createFileRoute("/buyer/checkout")({
 
 const CITIES = ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano"];
 
-declare global {
-  interface Window {
-    FlutterwaveCheckout: any;
-  }
-}
-
-function loadFlutterwaveScript() {
-  return new Promise(function (resolve) {
-    if (window.FlutterwaveCheckout) {
-      resolve(true);
-      return;
+function groupBySeller(items: any[]) {
+  const map: Record<string, any> = {};
+  items.forEach(function (item: any) {
+    const p = item.products;
+    const key = String(p.seller_id);
+    if (!map[key]) {
+      map[key] = {
+        sellerId: key,
+        name: (p.profiles && p.profiles.store_name) || "Seller",
+        number: p.whatsapp || p.phone || "",
+        items: [],
+      };
     }
-    const script = document.createElement("script");
-    script.src = "https://checkout.flutterwave.com/v3.js";
-    script.onload = function () { resolve(true); };
-    document.body.appendChild(script);
+    map[key].items.push(item);
   });
+  return Object.values(map);
 }
 
 function BuyerCheckout() {
@@ -40,7 +38,7 @@ function BuyerCheckout() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+
 
   useEffect(function () {
     getCurrentUser()
@@ -62,74 +60,42 @@ function BuyerCheckout() {
       .finally(function () {
         setLoading(false);
       });
-    loadFlutterwaveScript();
   }, []);
 
   const subtotal = items.reduce(function (sum: number, item: any) {
     return sum + Number(item.products.price) * item.quantity;
   }, 0);
 
-  function handlePlaceOrder(e: React.FormEvent) {
-    e.preventDefault();
+  function handleOrderOnWhatsApp(group: any) {
     setError("");
-
     if (!address.trim() || !phone.trim()) {
       setError("Please fill in your delivery address and phone number.");
       return;
     }
-    if (!window.FlutterwaveCheckout) {
-      setError("Payment system is still loading. Please try again in a moment.");
+    const cleaned = String(group.number).replace(/[^0-9]/g, "");
+    if (!cleaned) {
+      setError(group.name + " has no WhatsApp number on file.");
       return;
     }
-
-    setSubmitting(true);
-    const txRef = "sabu_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
-
-    window.FlutterwaveCheckout({
-      public_key: import.meta.env.VITE_FLUTTERWAVE_PUBLIC_KEY,
-      tx_ref: txRef,
-      amount: subtotal,
-      currency: "NGN",
-      payment_options: "card,mobilemoney,ussd",
-      customer: {
-        email: email,
-        phone_number: phone,
-      },
-      customizations: {
-        title: "SABU Marketplace",
-        description: "Payment for your order",
-      },
-      callback: function (response: any) {
-        getCurrentUser()
-          .then(function (user) {
-            if (!user) {
-              setError("Your session expired. Please sign in again.");
-              setSubmitting(false);
-              return null;
-            }
-            return verifyFlutterwavePayment({ data: String(response.transaction_id) }).then(function (verified) {
-              return checkout(user.id, {
-                deliveryAddress: address.trim(),
-                deliveryCity: city,
-                deliveryPhone: phone.trim(),
-                txRef: verified.txRef,
-                providerTransactionId: verified.transactionId,
-              });
-            });
-          })
-          .then(function () {
-            navigate({ to: "/buyer/orders" });
-          })
-          .catch(function (err) {
-            setError(err instanceof Error ? err.message : "Payment verification failed. Please contact support.");
-            setSubmitting(false);
-          });
-      },
-      onclose: function () {
-        setSubmitting(false);
-      },
+    let total = 0;
+    const lines = group.items.map(function (item: any) {
+      const line = Number(item.products.price) * item.quantity;
+      total += line;
+      return "- " + item.quantity + " x " + item.products.title + " (₦" + line.toLocaleString() + ")";
     });
+    const text =
+      "Hello " + group.name + ", I would like to order on SABU:\n" +
+      lines.join("\n") + "\n" +
+      "Total: ₦" + total.toLocaleString() + "\n" +
+      "Delivery: " + address.trim() + ", " + city + "\n" +
+      "Phone: " + phone.trim();
+    window.open("https://wa.me/" + cleaned + "?text=" + encodeURIComponent(text), "_blank");
   }
+
+  function handlePlaceOrder(e: React.FormEvent) {
+    e.preventDefault();
+  }
+
 
   if (loading) {
     return <p className="text-sm text-muted-foreground">Loading...</p>;
@@ -137,7 +103,7 @@ function BuyerCheckout() {
 
   return (
     <div>
-      <PageHeader title="Checkout" subtitle="Confirm your delivery details, then pay to place your order." />
+      <PageHeader title="Checkout" subtitle="Confirm your delivery details, then send your order to each seller on WhatsApp." />
 
       <form onSubmit={handlePlaceOrder} className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
@@ -225,15 +191,22 @@ function BuyerCheckout() {
             <div className="mt-4 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>
           ) : null}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="mt-5 w-full rounded-xl gradient-brand py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-90 disabled:opacity-60"
-          >
-            {submitting ? "Processing payment..." : "Pay & place order"}
-          </button>
+          <div className="mt-5 space-y-3">
+            {groupBySeller(items).map(function (group: any) {
+              return (
+                <button
+                  key={group.sellerId}
+                  type="button"
+                  onClick={function () { handleOrderOnWhatsApp(group); }}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl gradient-brand py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:opacity-90"
+                >
+                  <MessageCircle className="h-4 w-4" /> Order from {group.name} on WhatsApp
+                </button>
+              );
+            })}
+          </div>
           <p className="mt-3 text-[11px] text-muted-foreground">
-            Secure payment powered by Flutterwave.
+            Payment and delivery are arranged directly with each seller.
           </p>
         </aside>
       </form>

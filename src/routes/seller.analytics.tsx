@@ -68,7 +68,7 @@ function SellerAnalytics() {
       <PageHeader title="Analytics" subtitle="Real performance data from your store." />
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+        <div className="hidden rounded-2xl border border-border bg-card p-5 shadow-soft">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <TrendingUp className="h-4 w-4 text-success" /> Revenue (last 30 days)
           </div>
@@ -84,7 +84,7 @@ function SellerAnalytics() {
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-soft">
+      <div className="hidden mt-6 rounded-2xl border border-border bg-card p-5 shadow-soft">
         <h3 className="mb-4 flex items-center gap-2 font-semibold">
           <BarChart3 className="h-4 w-4 text-primary" /> Revenue over time
         </h3>
@@ -108,7 +108,7 @@ function SellerAnalytics() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+        <div className="hidden rounded-2xl border border-border bg-card p-5 shadow-soft">
           <h3 className="mb-2 font-semibold">Top products</h3>
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading...</p>

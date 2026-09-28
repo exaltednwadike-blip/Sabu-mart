@@ -55,7 +55,7 @@ function SellerPerformancePage() {
 
   return (
     <div>
-      <PageHeader title="Performance" subtitle="Your reputation and fulfillment record, based on real orders and reviews." />
+      <PageHeader title="Performance" subtitle="Your reputation, based on real buyer reviews." />
 
       <div className="grid gap-4 sm:grid-cols-4">
         <StatCard
@@ -63,6 +63,7 @@ function SellerPerformancePage() {
           label="Average rating"
           value={perf && perf.reviewCount > 0 ? perf.averageRating.toFixed(2) + "/5" : "No ratings yet"}
         />
+        <div className="hidden">
         <StatCard
           icon={<CheckCircle2 className="h-4 w-4" />}
           label="Fulfillment rate"
@@ -78,6 +79,7 @@ function SellerPerformancePage() {
           label="In progress"
           value={perf ? String(perf.inProgressCount) : "0"}
         />
+        </div>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
@@ -104,7 +106,7 @@ function SellerPerformancePage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-soft">
+        <div className="hidden rounded-2xl border border-border bg-card p-5 shadow-soft">
           <h3 className="font-semibold">Order outcomes</h3>
           {!perf || (perf.fulfilledCount + perf.cancelledCount + perf.inProgressCount === 0) ? (
             <p className="mt-4 text-sm text-muted-foreground">No orders yet.</p>

@@ -35,7 +35,7 @@ const ICON_MAP: { [key: string]: any } = {
 };
 
 const TINTS = ["primary", "orange"];
-const COLLAPSED_COUNT = 5;
+const COLLAPSED_COUNT = 4;
 
 export function CategoryGrid() {
   const [categories, setCategories] = useState<ListingCategory[]>([]);

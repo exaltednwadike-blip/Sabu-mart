@@ -3,7 +3,7 @@
 const supabase = createClient();
 
 export async function submitReview(input: {
-  orderItemId: string;
+  orderItemId?: string | null;
   productId: string;
   buyerId: string;
   sellerId: string;
@@ -12,7 +12,7 @@ export async function submitReview(input: {
   comment: string;
 }) {
   const { error } = await supabase.from("reviews").insert({
-    order_item_id: input.orderItemId,
+    order_item_id: input.orderItemId || null,
     product_id: input.productId,
     buyer_id: input.buyerId,
     seller_id: input.sellerId,

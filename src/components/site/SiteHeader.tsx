@@ -1,4 +1,4 @@
-import { Search, MapPin, ChevronDown, Menu, Heart, ShoppingBag, User, Bell, LayoutDashboard, Store, LogOut, ShieldCheck, Check, UserPlus } from "lucide-react";
+﻿import { Search, MapPin, ChevronDown, Menu, Heart, ShoppingBag, User, Bell, LayoutDashboard, Store, LogOut, ShieldCheck, Check, UserPlus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Logo } from "@/components/brand/Logo";
@@ -33,6 +33,7 @@ export function SiteHeader() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   useEffect(function () {
     getCurrentUser().then(function (user) {
@@ -158,14 +159,14 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 w-full">
       {!checked ? null : loggedIn ? (
         <div className="hidden bg-primary py-1.5 text-center text-xs font-medium text-primary-foreground md:block">
-          Free delivery on orders over ₦25,000 · Sell on SABU for free — limited launch offer
+          Free delivery on orders over â‚¦25,000 Â· Sell on SABU for free â€” limited launch offer
         </div>
       ) : (
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-primary px-3 py-1.5 text-center text-xs font-medium text-primary-foreground">
           <span>New to SABU?</span>
           <Link to="/signup" className="underline underline-offset-2">Sign up to start buying</Link>
           <span className="opacity-60">or</span>
-          <Link to="/signup" className="underline underline-offset-2">become a seller — free</Link>
+          <Link to="/signup" className="underline underline-offset-2">become a seller â€” free</Link>
         </div>
       )}
       <div className="glass border-b">
@@ -177,8 +178,21 @@ export function SiteHeader() {
               <div className="flex flex-1 items-center rounded-xl border border-border bg-background/70 shadow-soft">
                 <div className="hidden items-center gap-1 border-r border-border px-3 py-2.5 text-sm text-muted-foreground lg:flex">
                   <MapPin className="h-4 w-4 text-primary" />
-                  Lagos
-                  <ChevronDown className="h-3.5 w-3.5" />
+                  <select className="bg-transparent outline-none">
+                    <option>Abia</option><option>Adamawa</option><option>Akwa Ibom</option>
+                    <option>Anambra</option><option>Bauchi</option><option>Bayelsa</option>
+                    <option>Benue</option><option>Borno</option><option>Cross River</option>
+                    <option>Delta</option><option>Ebonyi</option><option>Edo</option>
+                    <option>Ekiti</option><option>Enugu</option><option>FCT (Abuja)</option>
+                    <option>Gombe</option><option>Imo</option><option>Jigawa</option>
+                    <option>Kaduna</option><option>Kano</option><option>Katsina</option>
+                    <option>Kebbi</option><option>Kogi</option><option>Kwara</option>
+                    <option>Lagos</option><option>Nasarawa</option><option>Niger</option>
+                    <option>Ogun</option><option>Ondo</option><option>Osun</option>
+                    <option>Oyo</option><option>Plateau</option><option>Rivers</option>
+                    <option>Sokoto</option><option>Taraba</option><option>Yobe</option>
+                    <option>Zamfara</option>
+                  </select>
                 </div>
                 <form onSubmit={handleSearchSubmit} className="flex flex-1 items-center">
                   <input
@@ -335,10 +349,32 @@ export function SiteHeader() {
               <input
                 value={query}
                 onChange={function (e) { setQuery(e.target.value); }}
+                onFocus={function () { setMobileSearchOpen(true); }}
                 className="flex-1 bg-transparent px-3 py-2 text-sm outline-none"
                 placeholder="Search SABU..."
               />
+              <MapPin
+                onClick={function () { setMobileSearchOpen(!mobileSearchOpen); }}
+                className="mr-3 h-4 w-4 text-accent-orange"
+              />
             </form>
+            {mobileSearchOpen ? (
+              <select className="mt-2 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none">
+                <option>Abia</option><option>Adamawa</option><option>Akwa Ibom</option>
+                <option>Anambra</option><option>Bauchi</option><option>Bayelsa</option>
+                <option>Benue</option><option>Borno</option><option>Cross River</option>
+                <option>Delta</option><option>Ebonyi</option><option>Edo</option>
+                <option>Ekiti</option><option>Enugu</option><option>FCT (Abuja)</option>
+                <option>Gombe</option><option>Imo</option><option>Jigawa</option>
+                <option>Kaduna</option><option>Kano</option><option>Katsina</option>
+                <option>Kebbi</option><option>Kogi</option><option>Kwara</option>
+                <option>Lagos</option><option>Nasarawa</option><option>Niger</option>
+                <option>Ogun</option><option>Ondo</option><option>Osun</option>
+                <option>Oyo</option><option>Plateau</option><option>Rivers</option>
+                <option>Sokoto</option><option>Taraba</option><option>Yobe</option>
+                <option>Zamfara</option>
+              </select>
+            ) : null}
           </div>
         ) : null}
 
@@ -359,11 +395,6 @@ export function SiteHeader() {
 
         {open ? (
           <div className="border-t border-border bg-background px-4 py-3 md:hidden">
-            {loggedIn ? (
-              <div className="mt-3 grid grid-cols-2 gap-1">
-                {[...MAIN_NAV, ...MORE_NAV].map(renderMobileLink)}
-              </div>
-            ) : null}
             <div className="mt-3 grid grid-cols-2 gap-2">
               {loggedIn ? (
                 <>
