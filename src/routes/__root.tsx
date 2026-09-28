@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+﻿import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -77,15 +77,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SABU Marketplace — Buy, Sell, Rent & Order Food in Africa" },
+      { title: "SABU Marketplace â€” Buy, Sell, Rent & Order Food in Africa" },
       { name: "description", content: "SABU is Africa's premium multi-vendor marketplace. Shop products, discover local food, rent vehicles, hire services and chat directly with verified sellers." },
       { name: "author", content: "SABU Marketplace" },
       { name: "theme-color", content: "#00897B" },
-      { property: "og:title", content: "SABU Marketplace — Buy, Sell, Rent & Order Food in Africa" },
+      { property: "og:title", content: "SABU Marketplace â€” Buy, Sell, Rent & Order Food in Africa" },
       { property: "og:description", content: "SABU is Africa's premium multi-vendor marketplace. Shop products, discover local food, rent vehicles, hire services and chat directly with verified sellers." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "SABU Marketplace — Buy, Sell, Rent & Order Food in Africa" },
+      { name: "twitter:title", content: "SABU Marketplace â€” Buy, Sell, Rent & Order Food in Africa" },
       { name: "twitter:description", content: "SABU is Africa's premium multi-vendor marketplace. Shop products, discover local food, rent vehicles, hire services and chat directly with verified sellers." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a2798c93-6ba8-48c0-858f-a41a864059b6/id-preview-4f7da444--3963cc2c-0d19-4819-9107-fd00c7dc7d6a.lovable.app-1783434215129.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a2798c93-6ba8-48c0-858f-a41a864059b6/id-preview-4f7da444--3963cc2c-0d19-4819-9107-fd00c7dc7d6a.lovable.app-1783434215129.png" },
@@ -96,6 +96,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "manifest", href: "/manifest.json" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
     ],
   }),
   shellComponent: RootShell,
@@ -112,6 +114,11 @@ function RootShell({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "if ('serviceWorker' in navigator) { window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js'); }); }",
+          }}
+        />
         <Scripts />
       </body>
     </html>

@@ -3,6 +3,9 @@ import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock, User, MailCheck } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { signUp, signInWithGoogle } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/client";
+
+const supabase = createClient();
 
 export const Route = createFileRoute("/signup")({
   component: Signup,
@@ -40,6 +43,12 @@ function Signup() {
     signUp(email, password, fullName)
       .then(function (data) {
         if (data.session) {
+          supabase.from("notifications").insert({
+            user_id: data.user?.id,
+            title: "Add SABU to your home screen",
+            message: "Open the browser menu and tap 'Add to Home screen' for quicker access.",
+            read: false,
+          }).then(function () {});
           navigate({ to: "/buyer" });
         } else {
           setCheckEmail(true);
