@@ -35,11 +35,6 @@ function Signup() {
       setError("Please enter a valid email address.");
       return;
     }
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email.trim())) {
-      setError("Please enter a valid email address.");
-      return;
-    }
     if (!passwordValid) {
       setError("Password must be at least 8 characters.");
       return;
