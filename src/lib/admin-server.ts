@@ -113,6 +113,33 @@ export const deleteUserAccount = createServerFn({ method: "POST" })
     return { success: true };
   });
 
+async function sendEmailBatch(emails: string[], subject: string, body: string) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.RESEND_FROM_EMAIL || "SABU Marketplace <onboarding@resend.dev>";
+  if (!apiKey || emails.length === 0) return;
+
+  const html = "<p>" + body.replace(/\n/g, "<br/>") + "</p>";
+  const batches: string[][] = [];
+  for (let i = 0; i < emails.length; i += 50) {
+    batches.push(emails.slice(i, i + 50));
+  }
+
+  for (const batch of batches) {
+    const payload = batch.map(function (email) {
+      return { from, to: [email], subject, html };
+    });
+    try {
+      await fetch("https://api.resend.com/emails/batch", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + apiKey, "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } catch (e) {
+      // Email is a best-effort add-on; notification already saved regardless.
+    }
+  }
+}
+
 export const sendAdminMessage = createServerFn({ method: "POST" })
   .validator((data: { title: string; message: string; userId: string | null }) => data)
   .handler(async ({ data }) => {
@@ -128,6 +155,12 @@ export const sendAdminMessage = createServerFn({ method: "POST" })
         read: false,
       });
       if (error) throw new Error(error.message);
+
+      const { data: userResult } = await admin.auth.admin.getUserById(data.userId);
+      if (userResult && userResult.user && userResult.user.email) {
+        await sendEmailBatch([userResult.user.email], data.title, data.message);
+      }
+
       return { success: true, count: 1 };
     }
 
@@ -140,6 +173,20 @@ export const sendAdminMessage = createServerFn({ method: "POST" })
       const { error } = await admin.from("notifications").insert(rows);
       if (error) throw new Error(error.message);
     }
+
+    const emails: string[] = [];
+    let page = 1;
+    while (true) {
+      const { data: pageResult, error: listError } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+      if (listError || !pageResult) break;
+      pageResult.users.forEach(function (u: any) {
+        if (u.email) emails.push(u.email);
+      });
+      if (pageResult.users.length < 1000) break;
+      page++;
+    }
+    await sendEmailBatch(emails, data.title, data.message);
+
     return { success: true, count: rows.length };
   });
 
