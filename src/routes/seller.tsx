@@ -17,6 +17,9 @@ export const Route = createFileRoute("/seller")({
         throw redirect({ to: "/login" });
       }
       return getServerProfile({ data: user.id }).then(function (profile) {
+        if (profile.suspended) {
+          throw redirect({ to: "/login" });
+        }
         if (profile.seller_status !== "approved") {
           throw redirect({ to: "/buyer" });
         }

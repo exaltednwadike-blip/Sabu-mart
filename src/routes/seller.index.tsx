@@ -6,13 +6,14 @@ import { getCurrentUser } from "@/lib/auth";
 import { getMyProducts } from "@/lib/products";
 import { getSellerOrderItems } from "@/lib/cart";
 import { getWalletSummary } from "@/lib/wallet";
+import { getFollowerCount } from "@/lib/sellers";
 
 export const Route = createFileRoute("/seller/")({
   component: SellerHome,
 });
 
 function SellerHome() {
-  const [stats, setStats] = useState({ liveProducts: 0, pendingOrders: 0, available: 0, totalEarned: 0 });
+  const [stats, setStats] = useState({ liveProducts: 0, pendingOrders: 0, available: 0, totalEarned: 0, followerCount: 0 });
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [inviteLink, setInviteLink] = useState("");
@@ -20,21 +21,20 @@ function SellerHome() {
   const [copied, setCopied] = useState(false);
 
   useEffect(function () {
-    setInviteLink(window.location.origin + "/signup");
-  }, []);
-
-  useEffect(function () {
     getCurrentUser().then(function (user) {
       if (!user) return;
+      setInviteLink(window.location.origin + "/store/" + user.id);
       Promise.all([
         getMyProducts(user.id),
         getSellerOrderItems(user.id),
         getWalletSummary(user.id),
+        getFollowerCount(user.id),
       ])
         .then(function (results) {
           const products = results[0] || [];
           const orderItems = results[1] || [];
           const wallet = results[2];
+          const followerCount = results[3] || 0;
 
           const liveProducts = products.filter(function (p: any) { return p.status === "published"; }).length;
           const pendingOrders = orderItems.filter(function (item: any) { return item.seller_status === "pending" || item.seller_status === "confirmed"; }).length;
@@ -44,6 +44,7 @@ function SellerHome() {
             pendingOrders,
             available: wallet.available,
             totalEarned: wallet.totalEarned,
+            followerCount,
           });
           setRecentOrders(orderItems.slice(0, 4));
         })
@@ -90,6 +91,7 @@ function SellerHome() {
         <StatCard label="Orders to fulfil" value={loading ? "-" : String(stats.pendingOrders)} icon={ShoppingCart} tint="orange" />
         <StatCard label="Available balance" value={loading ? "-" : "₦" + stats.available.toLocaleString()} icon={Wallet} tint="success" />
         <StatCard label="Total earned" value={loading ? "-" : "₦" + stats.totalEarned.toLocaleString()} icon={TrendingUp} tint="primary" />
+        <StatCard label="Followers" value={loading ? "-" : String(stats.followerCount)} icon={Share2} tint="orange" />
       </div>
 
       <div className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-soft">
@@ -109,7 +111,7 @@ function SellerHome() {
         {inviteOpen ? (
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <a
-              href={"https://wa.me/?text=" + encodeURIComponent("Join me on SABU Marketplace — Nigeria's growing marketplace! Sign up here: " + inviteLink)}
+              href={"https://wa.me/?text=" + encodeURIComponent("Check out my store on SABU Marketplace — Nigeria's growing marketplace! Sign up here: " + inviteLink)}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground"

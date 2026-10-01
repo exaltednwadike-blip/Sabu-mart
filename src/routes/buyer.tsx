@@ -1,6 +1,6 @@
 ﻿import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { getServerUser } from "@/lib/auth-server";
+import { getServerUser, getServerProfile } from "@/lib/auth-server";
 import { getCurrentUser, getProfile } from "@/lib/auth";
 import {
   LayoutDashboard, ShoppingBag, Heart, Clock, Bell, Settings, Ticket, Star, ShoppingCart,
@@ -41,6 +41,11 @@ export const Route = createFileRoute("/buyer")({
       if (!user) {
         throw redirect({ to: "/login" });
       }
+      return getServerProfile({ data: user.id }).then(function (profile) {
+        if (profile.suspended) {
+          throw redirect({ to: "/login" });
+        }
+      });
     });
   },
   head: function () {

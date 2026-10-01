@@ -1,9 +1,10 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+﻿import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { getCurrentUser, getProfile } from "@/lib/auth";
+import { PhoneInput } from "@/components/ui/PhoneInput";
 import { FoodCartProvider, useFoodCart } from "@/lib/food-cart-context";
 import { placeFoodOrder } from "@/lib/food";
 
@@ -123,7 +124,7 @@ function FoodCartPageInner() {
                 <div key={item.menuItemId} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4 shadow-soft">
                   <div>
                     <div className="font-semibold text-foreground">{item.name}</div>
-                    <div className="text-sm text-muted-foreground">₦{Number(item.price).toLocaleString()} each</div>
+                    <div className="text-sm text-muted-foreground">â‚¦{Number(item.price).toLocaleString()} each</div>
                   </div>
 
                   <div className="flex items-center gap-3">
@@ -144,10 +145,10 @@ function FoodCartPageInner() {
           <aside className="rounded-2xl border border-border bg-card p-5 shadow-soft">
             <h2 className="font-semibold text-foreground">Order summary</h2>
             <div className="mt-4 space-y-3 text-sm text-muted-foreground">
-              <div className="flex items-center justify-between"><span>Subtotal</span><span className="font-medium text-foreground">₦{subtotal.toLocaleString()}</span></div>
-              <div className="flex items-center justify-between"><span>Delivery fee</span><span className="font-medium text-foreground">₦{deliveryFee.toLocaleString()}</span></div>
-              <div className="flex items-center justify-between"><span>Service fee</span><span className="font-medium text-foreground">₦{serviceFee.toLocaleString()}</span></div>
-              <div className="flex items-center justify-between border-t border-border pt-3 text-base font-bold text-foreground"><span>Total</span><span>₦{total.toLocaleString()}</span></div>
+              <div className="flex items-center justify-between"><span>Subtotal</span><span className="font-medium text-foreground">â‚¦{subtotal.toLocaleString()}</span></div>
+              <div className="flex items-center justify-between"><span>Delivery fee</span><span className="font-medium text-foreground">â‚¦{deliveryFee.toLocaleString()}</span></div>
+              <div className="flex items-center justify-between"><span>Service fee</span><span className="font-medium text-foreground">â‚¦{serviceFee.toLocaleString()}</span></div>
+              <div className="flex items-center justify-between border-t border-border pt-3 text-base font-bold text-foreground"><span>Total</span><span>â‚¦{total.toLocaleString()}</span></div>
             </div>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -164,12 +165,7 @@ function FoodCartPageInner() {
 
               <label className="block space-y-2 text-sm">
                 <span>Phone number</span>
-                <input
-                  value={phone}
-                  onChange={function (e) { setPhone(e.target.value); }}
-                  placeholder="Your phone number"
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
-                />
+                <PhoneInput value={phone} onChange={setPhone} />
               </label>
 
               <label className="block space-y-2 text-sm">
@@ -184,7 +180,7 @@ function FoodCartPageInner() {
               </label>
 
               <div className="rounded-xl border border-dashed border-border bg-muted/30 p-3 text-xs text-muted-foreground">
-                Payment on delivery — pay the rider directly when your order arrives. Online payment is coming soon.
+                Payment on delivery â€” pay the rider directly when your order arrives. Online payment is coming soon.
               </div>
 
               {error ? <p className="text-sm text-destructive">{error}</p> : null}

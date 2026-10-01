@@ -1,7 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+﻿import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Store, Upload, FileCheck } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/DashboardShell";
+import { PhoneInput } from "@/components/ui/PhoneInput";
 import { getCurrentUser, submitSellerApplication, type IdType } from "@/lib/auth";
 
 export const Route = createFileRoute("/buyer/become-seller")({
@@ -92,14 +93,7 @@ function BecomeSeller() {
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium">Phone number</label>
-              <input
-                type="tel"
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="080X XXX XXXX"
-                className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
-              />
+              <PhoneInput value={phone} onChange={setPhone} required />
             </div>
           </div>
         </section>

@@ -1,6 +1,6 @@
 ﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Star, BadgeCheck, MapPin } from "lucide-react";
+import { Star, BadgeCheck, MapPin, Search } from "lucide-react";
 import { getFeaturedSellers } from "@/lib/products";
 
 export const Route = createFileRoute("/sellers")({
@@ -10,6 +10,7 @@ export const Route = createFileRoute("/sellers")({
 function SellersDirectory() {
   const [sellers, setSellers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
 
   useEffect(function () {
     getFeaturedSellers(200)
@@ -61,6 +62,11 @@ function SellersDirectory() {
     );
   }
 
+  const filtered = sellers.filter(function (s: any) {
+    if (!query.trim()) return true;
+    return (s.storeName || "").toLowerCase().indexOf(query.trim().toLowerCase()) !== -1;
+  });
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
       <Link to="/" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
@@ -68,13 +74,23 @@ function SellersDirectory() {
       </Link>
       <h1 className="font-display text-xl font-bold">Sellers</h1>
       <p className="mt-1 text-sm text-muted-foreground">Browse all approved stores on SABU.</p>
+      <div className="mt-4 flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 shadow-soft sm:max-w-sm">
+        <Search className="h-4 w-4 text-muted-foreground" />
+        <input
+          type="text"
+          value={query}
+          onChange={function (e) { setQuery(e.target.value); }}
+          placeholder="Search sellers..."
+          className="w-full bg-transparent text-sm outline-none"
+        />
+      </div>
       {loading ? (
         <p className="mt-6 text-sm text-muted-foreground">Loading...</p>
-      ) : sellers.length === 0 ? (
-        <p className="mt-6 text-sm text-muted-foreground">No sellers yet.</p>
+      ) : filtered.length === 0 ? (
+        <p className="mt-6 text-sm text-muted-foreground">No sellers found.</p>
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {sellers.map(renderSeller)}
+          {filtered.map(renderSeller)}
         </div>
       )}
     </div>

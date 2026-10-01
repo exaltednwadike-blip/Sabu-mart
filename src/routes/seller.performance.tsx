@@ -4,6 +4,8 @@ import { Star, CheckCircle2, XCircle, Clock, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/DashboardShell";
 import { getCurrentUser } from "@/lib/auth";
 import { getSellerPerformance, getSellerReviews, type SellerPerformance } from "@/lib/reviews";
+import { getProductViewsAndLikes } from "@/lib/analytics";
+import { Eye } from "lucide-react";
 
 export const Route = createFileRoute("/seller/performance")({
   component: SellerPerformancePage,
@@ -22,18 +24,21 @@ function timeAgo(dateStr: string) {
 function SellerPerformancePage() {
   const [perf, setPerf] = useState<SellerPerformance | null>(null);
   const [reviews, setReviews] = useState<any[]>([]);
+  const [totalViews, setTotalViews] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(function () {
     getCurrentUser()
       .then(function (user) {
         if (!user) return null;
-        return Promise.all([getSellerPerformance(user.id), getSellerReviews(user.id)]);
+        return Promise.all([getSellerPerformance(user.id), getSellerReviews(user.id), getProductViewsAndLikes(user.id)]);
       })
       .then(function (result) {
         if (!result) return;
         setPerf(result[0]);
         setReviews(result[1] || []);
+        const views = (result[2] || []).reduce(function (sum: number, p: any) { return sum + p.views; }, 0);
+        setTotalViews(views);
       })
       .finally(function () {
         setLoading(false);
@@ -62,6 +67,11 @@ function SellerPerformancePage() {
           icon={<Star className="h-4 w-4" />}
           label="Average rating"
           value={perf && perf.reviewCount > 0 ? perf.averageRating.toFixed(2) + "/5" : "No ratings yet"}
+        />
+        <StatCard
+          icon={<Eye className="h-4 w-4" />}
+          label="Total product views"
+          value={String(totalViews)}
         />
         <div className="hidden">
         <StatCard

@@ -3,6 +3,39 @@ import { Heart, MapPin, MessageCircle, BadgeCheck, ShoppingCart, Check } from "l
 import { Link, useNavigate } from "@tanstack/react-router";
 import { SectionHeader } from "./CategoryGrid";
 import { getPublishedProducts } from "@/lib/products";
+
+function shuffle(arr: any[]) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  }
+  return a;
+}
+
+function diversifyByCategory(products: any[], limit: number) {
+  const byCategory: { [key: string]: any[] } = {};
+  products.forEach(function (p: any) {
+    const cat = p.listing_categories ? p.listing_categories.name : "Uncategorized";
+    if (!byCategory[cat]) byCategory[cat] = [];
+    byCategory[cat].push(p);
+  });
+  const categories = shuffle(Object.keys(byCategory));
+  categories.forEach(function (cat) { byCategory[cat] = shuffle(byCategory[cat]); });
+  const result: any[] = [];
+  let added = true;
+  while (result.length < limit && added) {
+    added = false;
+    for (let i = 0; i < categories.length; i++) {
+      const cat = categories[i];
+      if (byCategory[cat].length > 0 && result.length < limit) {
+        result.push(byCategory[cat].shift());
+        added = true;
+      }
+    }
+  }
+  return result;
+}
 import { addToCart } from "@/lib/cart";
 import { toggleWishlist, isInWishlist } from "@/lib/wishlist";
 import { getCurrentUser } from "@/lib/auth";
@@ -21,9 +54,9 @@ export function ProductGrid(props: {
   const [loading, setLoading] = useState(true);
 
   useEffect(function () {
-    getPublishedProducts(12)
+    getPublishedProducts(48)
       .then(function (data) {
-        setProducts(data);
+        setProducts(diversifyByCategory(data || [], 12));
       })
       .catch(function () {
         setProducts([]);

@@ -79,6 +79,70 @@ export const getAdminAnalytics = createServerFn({ method: "GET" }).handler(async
   };
 });
 
+export const listAllUsers = createServerFn({ method: "GET" }).handler(async function () {
+  await requireAdmin();
+  const admin = getAdminClient();
+  const { data, error } = await admin
+    .from("profiles")
+    .select("id, full_name, store_name, is_seller, seller_status, suspended, created_at")
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return data;
+});
+
+export const setUserSuspended = createServerFn({ method: "POST" })
+  .validator((data: { userId: string; suspended: boolean }) => data)
+  .handler(async ({ data }) => {
+    await requireAdmin();
+    const admin = getAdminClient();
+    const { error } = await admin
+      .from("profiles")
+      .update({ suspended: data.suspended })
+      .eq("id", data.userId);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+export const deleteUserAccount = createServerFn({ method: "POST" })
+  .validator((data: { userId: string }) => data)
+  .handler(async ({ data }) => {
+    await requireAdmin();
+    const admin = getAdminClient();
+    const { error } = await admin.auth.admin.deleteUser(data.userId);
+    if (error) throw new Error(error.message);
+    return { success: true };
+  });
+
+export const sendAdminMessage = createServerFn({ method: "POST" })
+  .validator((data: { title: string; message: string; userId: string | null }) => data)
+  .handler(async ({ data }) => {
+    await requireAdmin();
+    const admin = getAdminClient();
+
+    if (data.userId) {
+      const { error } = await admin.from("notifications").insert({
+        user_id: data.userId,
+        type: "system",
+        title: data.title,
+        message: data.message,
+        read: false,
+      });
+      if (error) throw new Error(error.message);
+      return { success: true, count: 1 };
+    }
+
+    const { data: users, error: usersError } = await admin.from("profiles").select("id");
+    if (usersError) throw new Error(usersError.message);
+    const rows = (users || []).map(function (u: any) {
+      return { user_id: u.id, type: "system", title: data.title, message: data.message, read: false };
+    });
+    if (rows.length > 0) {
+      const { error } = await admin.from("notifications").insert(rows);
+      if (error) throw new Error(error.message);
+    }
+    return { success: true, count: rows.length };
+  });
+
 export const approveSellerApplication = createServerFn({ method: "POST" })
   .validator((data: { applicationId: string; applicantUserId: string; businessName: string }) => data)
   .handler(async ({ data }) => {

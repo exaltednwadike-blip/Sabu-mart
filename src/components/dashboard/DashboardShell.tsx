@@ -1,6 +1,8 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+﻿import { Link, useRouterState } from "@tanstack/react-router";
 import { Bell, Search, LogOut } from "lucide-react";
 import type { ReactNode } from "react";
+import { useState } from "react";
+import { adminSearch } from "@/lib/admin";
 import {
   Sidebar,
   SidebarContent,
@@ -37,11 +39,23 @@ export function DashboardShell({
   children,
 }: {
   groups: NavGroup[];
-  role: "Seller" | "Buyer";
+  role: "Seller" | "Buyer" | "Admin";
   userName: string;
   userMeta: string;
   children: ReactNode;
 }) {
+  const [adminQuery, setAdminQuery] = useState("");
+  const [adminResults, setAdminResults] = useState<{ products: any[]; sellers: any[] } | null>(null);
+
+  function handleAdminSearch(e: React.FormEvent) {
+    e.preventDefault();
+    if (!adminQuery.trim()) {
+      setAdminResults(null);
+      return;
+    }
+    adminSearch(adminQuery).then(setAdminResults);
+  }
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-muted/30">
@@ -49,25 +63,67 @@ export function DashboardShell({
         <div className="flex flex-1 flex-col">
           <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
             <SidebarTrigger />
-            <div className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-background px-3 py-1.5 md:max-w-md">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <input
-                className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                placeholder={role === "Seller" ? "Search products, orders..." : "Search your orders..."}
-              />
-            </div>
+            {role === "Admin" ? (
+              <form onSubmit={handleAdminSearch} className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-background px-3 py-1.5 md:max-w-md">
+                <Search className="h-4 w-4 text-muted-foreground" />
+                <input
+                  value={adminQuery}
+                  onChange={function (e) { setAdminQuery(e.target.value); }}
+                  className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                  placeholder="Search products or sellers..."
+                />
+              </form>
+            ) : (
+              <div className="flex flex-1 items-center gap-2 rounded-lg border border-border bg-background px-3 py-1.5 md:max-w-md">
+                <Search className="h-4 w-4 text-muted-foreground" />
+                <input
+                  className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                  placeholder={role === "Seller" ? "Search products, orders..." : "Search your orders..."}
+                />
+              </div>
+            )}
             <button className="relative rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground" aria-label="Alerts">
               <Bell className="h-5 w-5" />
               <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-accent-orange" />
             </button>
             <Link
               to="/"
-              className="hidden items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground md:inline-flex"
+              className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
             >
-              <LogOut className="h-3.5 w-3.5" /> Exit
+              <LogOut className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Exit to marketplace</span>
             </Link>
           </header>
-          <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+          <main className="flex-1 p-4 md:p-6 lg:p-8">
+            {role === "Admin" && adminResults ? (
+              <div className="mb-6 space-y-3">
+                <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+                  <h3 className="text-sm font-semibold">Products ({adminResults.products.length})</h3>
+                  {adminResults.products.length === 0 ? (
+                    <p className="mt-1 text-xs text-muted-foreground">No matching products.</p>
+                  ) : (
+                    <ul className="mt-2 space-y-1 text-sm">
+                      {adminResults.products.map(function (p: any) {
+                        return <li key={p.id}>{p.title} <span className="text-xs text-muted-foreground">({p.status})</span></li>;
+                      })}
+                    </ul>
+                  )}
+                </div>
+                <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+                  <h3 className="text-sm font-semibold">Sellers ({adminResults.sellers.length})</h3>
+                  {adminResults.sellers.length === 0 ? (
+                    <p className="mt-1 text-xs text-muted-foreground">No matching sellers.</p>
+                  ) : (
+                    <ul className="mt-2 space-y-1 text-sm">
+                      {adminResults.sellers.map(function (s: any) {
+                        return <li key={s.id}>{s.store_name}</li>;
+                      })}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            ) : null}
+            {children}
+          </main>
         </div>
       </div>
     </SidebarProvider>
@@ -81,7 +137,7 @@ function DashboardSidebar({
   userMeta,
 }: {
   groups: NavGroup[];
-  role: "Seller" | "Buyer";
+  role: "Seller" | "Buyer" | "Admin";
   userName: string;
   userMeta: string;
 }) {

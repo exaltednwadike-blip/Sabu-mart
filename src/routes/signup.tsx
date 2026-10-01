@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock, User, MailCheck } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { signUp, signInWithGoogle } from "@/lib/auth";
+import { verifyEmailDomain } from "@/lib/auth-server";
 import { createClient } from "@/lib/supabase/client";
 
 const supabase = createClient();
@@ -45,7 +46,13 @@ function Signup() {
     }
 
     setLoading(true);
-    signUp(email, password, fullName)
+    verifyEmailDomain({ data: email.trim() })
+      .then(function (result) {
+        if (!result.valid) {
+          throw new Error(result.reason);
+        }
+        return signUp(email, password, fullName);
+      })
       .then(function (data) {
         if (data.session) {
           supabase.from("notifications").insert({

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
-import { signIn, signInWithGoogle, getProfile } from "@/lib/auth";
+import { signIn, signInWithGoogle, getProfile, signOut } from "@/lib/auth";
 
 export const Route = createFileRoute("/login")({
   component: Login,
@@ -33,6 +33,11 @@ function Login() {
       .then(function (result) {
         if (result.user) {
           return getProfile(result.user.id).then(function (profile) {
+            if (profile.suspended) {
+              return signOut().then(function () {
+                setError("Your account has been suspended. Contact support for help.");
+              });
+            }
             navigate({ to: profile.is_seller ? "/seller" : "/buyer" });
           });
         }

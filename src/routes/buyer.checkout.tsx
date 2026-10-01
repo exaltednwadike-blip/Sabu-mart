@@ -1,6 +1,7 @@
 ﻿import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { MapPin, Phone, Home, MessageCircle } from "lucide-react";
+import { PhoneInput } from "@/components/ui/PhoneInput";
 import { PageHeader } from "@/components/dashboard/DashboardShell";
 import { getCurrentUser } from "@/lib/auth";
 import { getCart } from "@/lib/cart";
@@ -10,7 +11,13 @@ export const Route = createFileRoute("/buyer/checkout")({
   component: BuyerCheckout,
 });
 
-const CITIES = ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano"];
+const CITIES = [
+  "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno",
+  "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "FCT - Abuja", "Gombe",
+  "Imo", "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos",
+  "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto",
+  "Taraba", "Yobe", "Zamfara",
+];
 
 function groupBySeller(items: any[]) {
   const map: Record<string, any> = {};
@@ -79,10 +86,12 @@ function BuyerCheckout() {
       return;
     }
     let total = 0;
+    const origin = window.location.origin;
     const lines = group.items.map(function (item: any) {
       const line = Number(item.products.price) * item.quantity;
       total += line;
-      return "- " + item.quantity + " x " + item.products.title + " (₦" + line.toLocaleString() + ")";
+      const link = origin + "/product/" + item.products.id;
+      return "- " + item.quantity + " x " + item.products.title + " (₦" + line.toLocaleString() + ") " + link;
     });
     const text =
       "Hello " + group.name + ", I would like to order on SABU:\n" +
@@ -130,7 +139,7 @@ function BuyerCheckout() {
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium">City</label>
+                  <label className="mb-1.5 block text-sm font-medium">State</label>
                   <select
                     value={city}
                     onChange={function (e) { setCity(e.target.value); }}
@@ -143,13 +152,7 @@ function BuyerCheckout() {
                   <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium">
                     <Phone className="h-3.5 w-3.5" /> Phone number
                   </label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={function (e) { setPhone(e.target.value); }}
-                    placeholder="080X XXX XXXX"
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
-                  />
+                  <PhoneInput value={phone} onChange={setPhone} />
                 </div>
               </div>
             </div>

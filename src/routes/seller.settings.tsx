@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { User, Phone, Camera, CheckCircle2, Store } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/DashboardShell";
+import { PhoneInput } from "@/components/ui/PhoneInput";
 import { getCurrentUser, getProfile, updateProfile, uploadAvatar } from "@/lib/auth";
 
 export const Route = createFileRoute("/seller/settings")({
@@ -130,13 +131,7 @@ function SellerSettings() {
                 <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium">
                   <Phone className="h-3.5 w-3.5" /> Phone number
                 </label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={function (e) { setPhone(e.target.value); }}
-                  placeholder="080X XXX XXXX"
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
-                />
+                <PhoneInput value={phone} onChange={setPhone} />
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium">Email</label>

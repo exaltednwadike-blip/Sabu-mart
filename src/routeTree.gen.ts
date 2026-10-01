@@ -37,6 +37,7 @@ import { Route as ReturnsRouteImport } from './routes/returns'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SellerRouteImport } from './routes/seller'
 import { Route as SellerHandbookRouteImport } from './routes/seller-handbook'
+import { Route as SellersRouteImport } from './routes/sellers'
 import { Route as ShortLetsRouteImport } from './routes/short-lets'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as StudentHousingRouteImport } from './routes/student-housing'
@@ -46,12 +47,14 @@ import { Route as TrackOrderRouteImport } from './routes/track-order'
 import { Route as VerifiedStoresRouteImport } from './routes/verified-stores'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AdminDisputesRouteImport } from './routes/admin.disputes'
 import { Route as AdminFoodOrdersRouteImport } from './routes/admin.food-orders'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminRestaurantsRouteImport } from './routes/admin.restaurants'
 import { Route as AdminSellersRouteImport } from './routes/admin.sellers'
 import { Route as AdminSupportRouteImport } from './routes/admin.support'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminWithdrawalsRouteImport } from './routes/admin.withdrawals'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as BuyerIndexRouteImport } from './routes/buyer.index'
@@ -226,6 +229,11 @@ const SellerHandbookRoute = SellerHandbookRouteImport.update({
   path: '/seller-handbook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellersRoute = SellersRouteImport.update({
+  id: '/sellers',
+  path: '/sellers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShortLetsRoute = ShortLetsRouteImport.update({
   id: '/short-lets',
   path: '/short-lets',
@@ -271,6 +279,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminDisputesRoute = AdminDisputesRouteImport.update({
   id: '/disputes',
   path: '/disputes',
@@ -299,6 +312,11 @@ const AdminSellersRoute = AdminSellersRouteImport.update({
 const AdminSupportRoute = AdminSupportRouteImport.update({
   id: '/support',
   path: '/support',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminWithdrawalsRoute = AdminWithdrawalsRouteImport.update({
@@ -496,6 +514,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
   '/seller-handbook': typeof SellerHandbookRoute
+  '/sellers': typeof SellersRoute
   '/short-lets': typeof ShortLetsRoute
   '/signup': typeof SignupRoute
   '/student-housing': typeof StudentHousingRoute
@@ -504,12 +523,14 @@ export interface FileRoutesByFullPath {
   '/track-order': typeof TrackOrderRoute
   '/verified-stores': typeof VerifiedStoresRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/disputes': typeof AdminDisputesRoute
   '/admin/food-orders': typeof AdminFoodOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/restaurants': typeof AdminRestaurantsRoute
   '/admin/sellers': typeof AdminSellersRoute
   '/admin/support': typeof AdminSupportRoute
+  '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/buyer/become-seller': typeof BuyerBecomeSellerRoute
@@ -571,6 +592,7 @@ export interface FileRoutesByTo {
   '/returns': typeof ReturnsRoute
   '/search': typeof SearchRoute
   '/seller-handbook': typeof SellerHandbookRoute
+  '/sellers': typeof SellersRoute
   '/short-lets': typeof ShortLetsRoute
   '/signup': typeof SignupRoute
   '/student-housing': typeof StudentHousingRoute
@@ -579,12 +601,14 @@ export interface FileRoutesByTo {
   '/track-order': typeof TrackOrderRoute
   '/verified-stores': typeof VerifiedStoresRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/disputes': typeof AdminDisputesRoute
   '/admin/food-orders': typeof AdminFoodOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/restaurants': typeof AdminRestaurantsRoute
   '/admin/sellers': typeof AdminSellersRoute
   '/admin/support': typeof AdminSupportRoute
+  '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/buyer/become-seller': typeof BuyerBecomeSellerRoute
@@ -650,6 +674,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/seller': typeof SellerRouteWithChildren
   '/seller-handbook': typeof SellerHandbookRoute
+  '/sellers': typeof SellersRoute
   '/short-lets': typeof ShortLetsRoute
   '/signup': typeof SignupRoute
   '/student-housing': typeof StudentHousingRoute
@@ -658,12 +683,14 @@ export interface FileRoutesById {
   '/track-order': typeof TrackOrderRoute
   '/verified-stores': typeof VerifiedStoresRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/disputes': typeof AdminDisputesRoute
   '/admin/food-orders': typeof AdminFoodOrdersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/restaurants': typeof AdminRestaurantsRoute
   '/admin/sellers': typeof AdminSellersRoute
   '/admin/support': typeof AdminSupportRoute
+  '/admin/users': typeof AdminUsersRoute
   '/admin/withdrawals': typeof AdminWithdrawalsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/buyer/become-seller': typeof BuyerBecomeSellerRoute
@@ -730,6 +757,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/seller'
     | '/seller-handbook'
+    | '/sellers'
     | '/short-lets'
     | '/signup'
     | '/student-housing'
@@ -738,12 +766,14 @@ export interface FileRouteTypes {
     | '/track-order'
     | '/verified-stores'
     | '/verify-email'
+    | '/admin/analytics'
     | '/admin/disputes'
     | '/admin/food-orders'
     | '/admin/products'
     | '/admin/restaurants'
     | '/admin/sellers'
     | '/admin/support'
+    | '/admin/users'
     | '/admin/withdrawals'
     | '/auth/callback'
     | '/buyer/become-seller'
@@ -805,6 +835,7 @@ export interface FileRouteTypes {
     | '/returns'
     | '/search'
     | '/seller-handbook'
+    | '/sellers'
     | '/short-lets'
     | '/signup'
     | '/student-housing'
@@ -813,12 +844,14 @@ export interface FileRouteTypes {
     | '/track-order'
     | '/verified-stores'
     | '/verify-email'
+    | '/admin/analytics'
     | '/admin/disputes'
     | '/admin/food-orders'
     | '/admin/products'
     | '/admin/restaurants'
     | '/admin/sellers'
     | '/admin/support'
+    | '/admin/users'
     | '/admin/withdrawals'
     | '/auth/callback'
     | '/buyer/become-seller'
@@ -883,6 +916,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/seller'
     | '/seller-handbook'
+    | '/sellers'
     | '/short-lets'
     | '/signup'
     | '/student-housing'
@@ -891,12 +925,14 @@ export interface FileRouteTypes {
     | '/track-order'
     | '/verified-stores'
     | '/verify-email'
+    | '/admin/analytics'
     | '/admin/disputes'
     | '/admin/food-orders'
     | '/admin/products'
     | '/admin/restaurants'
     | '/admin/sellers'
     | '/admin/support'
+    | '/admin/users'
     | '/admin/withdrawals'
     | '/auth/callback'
     | '/buyer/become-seller'
@@ -962,6 +998,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SellerRoute: typeof SellerRouteWithChildren
   SellerHandbookRoute: typeof SellerHandbookRoute
+  SellersRoute: typeof SellersRoute
   ShortLetsRoute: typeof ShortLetsRoute
   SignupRoute: typeof SignupRoute
   StudentHousingRoute: typeof StudentHousingRoute
@@ -1177,6 +1214,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellerHandbookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sellers': {
+      id: '/sellers'
+      path: '/sellers'
+      fullPath: '/sellers'
+      preLoaderRoute: typeof SellersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/short-lets': {
       id: '/short-lets'
       path: '/short-lets'
@@ -1240,6 +1284,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/analytics': {
+      id: '/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AdminAnalyticsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/disputes': {
       id: '/admin/disputes'
       path: '/disputes'
@@ -1280,6 +1331,13 @@ declare module '@tanstack/react-router' {
       path: '/support'
       fullPath: '/admin/support'
       preLoaderRoute: typeof AdminSupportRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/withdrawals': {
@@ -1517,23 +1575,27 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminDisputesRoute: typeof AdminDisputesRoute
   AdminFoodOrdersRoute: typeof AdminFoodOrdersRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminRestaurantsRoute: typeof AdminRestaurantsRoute
   AdminSellersRoute: typeof AdminSellersRoute
   AdminSupportRoute: typeof AdminSupportRoute
+  AdminUsersRoute: typeof AdminUsersRoute
   AdminWithdrawalsRoute: typeof AdminWithdrawalsRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminDisputesRoute: AdminDisputesRoute,
   AdminFoodOrdersRoute: AdminFoodOrdersRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminRestaurantsRoute: AdminRestaurantsRoute,
   AdminSellersRoute: AdminSellersRoute,
   AdminSupportRoute: AdminSupportRoute,
+  AdminUsersRoute: AdminUsersRoute,
   AdminWithdrawalsRoute: AdminWithdrawalsRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
@@ -1644,6 +1706,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SellerRoute: SellerRouteWithChildren,
   SellerHandbookRoute: SellerHandbookRoute,
+  SellersRoute: SellersRoute,
   ShortLetsRoute: ShortLetsRoute,
   SignupRoute: SignupRoute,
   StudentHousingRoute: StudentHousingRoute,
